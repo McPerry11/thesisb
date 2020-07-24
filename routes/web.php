@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('login', 'IndexController@login')->name('login');
+Route::post('login', 'LoginController@login');
+
+Route::get('', 'IndexController@dashboard');
