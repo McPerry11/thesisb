@@ -17,3 +17,4 @@ Route::get('login', 'IndexController@login')->name('login');
 Route::post('login', 'LoginController@login');
 
 Route::get('', 'IndexController@dashboard');
+Route::post('', 'LoginController@logout');

@@ -24,7 +24,8 @@ class CreateUsersTable extends Migration
                 'BSIT',
                 'BSEMCDA',
                 'BSEMCGD',
-                'BSIS'
+                'BSIS',
+                'N/A'
             ]);
             $table->enum('type', [
                 'ADMIN',

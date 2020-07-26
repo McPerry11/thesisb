@@ -21,9 +21,13 @@
 					</div>
 					<p class="help has-text-left">Log in using your student number</p>
 				</div>
-				<button class="button is-success" type="submit">LOG N</button>
+				<button class="button is-success" type="submit">LOG IN</button>
 			</div>
 		</form>
 	</div>
 </div>
+@endsection
+
+@section('scripts')
+<script src="{{ asset('js/login.js') }}"></script>
 @endsection

@@ -11,11 +11,11 @@ class LoginController extends Controller
 		if ($request->data == 'login') {
 			$exist = User::where('student_number', $request->student)->count();
 			if ($exist == 0) {
-				return response()->json('status' => 'error_ne', 'msg' => 'This student number does not exist');
+				return response()->json(['status' => 'error_ne', 'msg' => 'This student number is not registered in the system.']);
 			} else if ($exist > 1) {
-				return response()->json('status' => 'error_du', 'msg' => 'An error has occurred within the database. Please contact an admin.');
+				return response()->json(['status' => 'error_du', 'msg' => 'An error has occurred within the database. Please contact an admin.']);
 			} else {
-				return response()->json('status' => 'success', 'msg' => 'Login Successful');
+				return response()->json(['status' => 'success', 'msg' => 'Login Successful']);
 			}
 		}
 	}
