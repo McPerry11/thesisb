@@ -129,11 +129,11 @@
 						<div class="control">
 							<div class="select is-fullwidth">
 								<select id="program">
-									<option value="">BSCS</option>
-									<option value="">BSIT</option>
-									<option value="">BSEMC - DA</option>
-									<option value="">BSEMC - GD</option>
-									<option value="">BSIS</option>
+									<option value="BSCS">BSCS</option>
+									<option value="BSIT">BSIT</option>
+									<option value="BSEMCDA">BSEMC - DA</option>
+									<option value="BSEMCGD">BSEMC - GD</option>
+									<option value="BSIS">BSIS</option>
 								</select>
 							</div>
 						</div>
@@ -147,7 +147,7 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" placeholder="Proposed thesis title" required>
+							<input type="text" id="title" class="input" maxlength="250" placeholder="Proposed thesis title" required>
 						</div>
 					</div>
 				</div>
@@ -248,7 +248,7 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input">
+							<input type="tags" id="keywords" class="input" data-type="tags">
 						</div>
 					</div>
 				</div>
@@ -268,7 +268,7 @@
 		</section>
 		<footer class="modal-card-foot">
 			<div class="buttons is-right">
-				<button class="button is-success">
+				<button id="submit" class="button is-success">
 					<span class="icon">
 						<i class="fas fa-plus"></i>
 					</span>

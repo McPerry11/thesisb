@@ -13,8 +13,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('login', 'IndexController@login')->name('login');
-Route::post('login', 'LoginController@login');
+Route::get('login', 'LoginController@get_login')->name('login');
+Route::post('login', 'LoginController@post_login');
 
-Route::get('', 'IndexController@dashboard');
-Route::post('', 'LoginController@logout');
+Route::group(['middleware' => 'auth'], function() {
+	Route::get('', 'TitlesController@index');
+	Route::post('', 'LoginController@logout');
+
+	Route::post('create/titles', 'TitlesController@store');
+});

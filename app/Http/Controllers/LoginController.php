@@ -8,7 +8,14 @@ use Auth;
 
 class LoginController extends Controller
 {
-	public function login(Request $request) {
+	public function get_login() {
+		if (Auth::user()) {
+			return redirect('');
+		}
+		return view('login');
+	}
+
+	public function post_login(Request $request) {
 		if ($request->data == 'login') {
 			$user = User::where('student_number', $request->student)->get();
 			if (count($user) == 0) {

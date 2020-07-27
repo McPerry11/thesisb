@@ -18,7 +18,8 @@ class UsersSeeder extends Seeder
     	$user->student_number = '20087638648';
     	$user->password = '12345';
     	$user->type = 'ADMIN';
+        $user->title_id = 0;
 
-    	$user->save();
+        $user->save();
     }
-  }
+}
