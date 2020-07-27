@@ -2,6 +2,6 @@
 	padding-top: 20px;
 }
 
-button .icon:not(:only-child) {
+.icon:not(:only-child) {
 	margin-right: 5px;
 }

@@ -14,12 +14,10 @@ class UsersSeeder extends Seeder
     {
     	$user = new USer();
 
-    	$user->last_name = 'Research';
-    	$user->first_name = 'Development';
+    	$user->name = 'Research & Development';
     	$user->student_number = '20087638648';
-    	$user->program = 'N/A';
+    	$user->password = '12345';
     	$user->type = 'ADMIN';
-    	$user->email = 'rndccss.ue@gmail.com';
 
     	$user->save();
     }
