@@ -6,6 +6,10 @@
 	margin-right: 5px;
 }
 
+.box .column:last-child {
+	min-height: 40px;
+}
+
 .box .buttons {
 	position: absolute;
 	bottom: 10px;

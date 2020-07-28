@@ -17,12 +17,34 @@ class TitlesController extends Controller
     public function index(Request $request)
     {
         if ($request->data == 'titles') {
-            $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')->orderBy('updated_at', 'desc')->get();
-            if (Auth::user()->type == 'ADMIN')
-                $students = User::select('name', 'title_id')->get();
-            return response()->json(['proposal' => $proposal, 'students' => $students]);
+            if ($request->search == '' && $request->tab == 'all') {
+                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')->orderBy('updated_at', 'desc')->get();
+                if (Auth::user()->type == 'ADMIN') {
+                    $students = User::select('name', 'title_id')->get();
+                    return response()->json(['proposal' => $proposal, 'students' => $students]);
+                }
+                return response()->json(['proposal' => $proposal]);
+            } else if ($request->tab == 'per') {
+                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')->where('id', Auth::user()->title_id)->orderBy('updated_at', 'desc')->get();
+                return response()->json(['proposal' => $proposal]);
+            } else {
+                $titles = User::select('title_id')
+                ->where('name', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('student_number', 'LIKE', '%' . $request->search . '%')->get();
+                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')
+                ->where('title', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('area', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('program', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('adviser', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
+                ->orWhereIn('id', $titles)
+                ->orderBy('updated_at', 'desc')->get();
+                return response()->json(['proposal' => $proposal]);
+            }
+
         }
-        return view('dashboard');
     }
 
     /**
@@ -96,9 +118,12 @@ class TitlesController extends Controller
     public function show(Request $request, $id)
     {
         if ($request->data == 'view') {
-            $proposal = Title::find($id);
-            $students = User::select('name')->where('title_id', $id)->get();
-            return response()->json(['proposal' => $proposal, 'students' => $students]);
+            if (Auth::user()->type == 'ADMIN' || Auth::user()->title_id == $id) {
+                $proposal = Title::find($id);
+                $students = User::select('name')->where('title_id', $id)->get();
+                return response()->json(['proposal' => $proposal, 'students' => $students]);
+            }
+            return response()->json(['status' => 'denied', 'msg' => 'You can only view your own proposal/s']);
         }
         return Title::select('id', 'title')->find($id);
     }

@@ -30,6 +30,14 @@ class LoginController extends Controller
 		}
 	}
 
+	public function dashboard() {
+		return view('dashboard');
+	}
+
+	public function getSN() {
+		return Auth::user()->student_number;
+	}
+
 	public function logout(Request $request) {
 		Auth::logout();
 		return redirect('login');

@@ -12,8 +12,9 @@
 		<div class="column is-8">
 			@if (Auth::user()->type == 'STUDENT') 
 			<h3 class="title">Student Dashboard</h3>
-			@endif
+			@else
 			<h3 class="title">Dashboard</h3>
+			@endif
 		</div>
 		<div id="logout" class="column">
 			<form class="is-pulled-right" method="POST">
@@ -35,11 +36,11 @@
 						<input type="text" class="input" placeholder="Search title, keyword, or name...">
 					</div>
 					<div class="control">
-						<a class="button is-info" type="submit" title="This feature is still unavailable">
+						<button class="button is-info" type="submit" title="Search">
 							<span class="icon">
 								<i class="fas fa-search"></i>
 							</span>
-						</a>
+						</button>
 					</div>
 				</div>
 			</form>
@@ -65,6 +66,13 @@
 					<span>Thesis Titles</span>
 				</a>
 			</li>
+			@if (Auth::user()->type == 'STUDENT')
+			<li id="myp">
+				<a>
+					My Proposal
+				</a>
+			</li>
+			@endif
 			@if (Auth::user()->type == 'ADMIN')
 			<li id="logs">
 				<a title="This feature is still unavailable">

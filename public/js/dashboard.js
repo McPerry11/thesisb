@@ -85,36 +85,48 @@ $(function() {
 		$.ajax({
 			type: 'POST',
 			url: 'titles',
-			data: {data:'titles'},
+			data: {data:'titles', search:search, tab:tab},
 			datatype: 'JSON',
 			success: function(data) {
-				if (data.proposal.length == 0) $('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing proposals.</div></div>');
-				for (let i in data.proposal) {
-					let students = [];
-					if (data.students.length > 0) {
-						for (let j in data.students) 
-							if (data.students[j].title_id == data.proposal[i].id) students.push(data.students[j].name);
+				if (data.proposal.length == 0) {
+					$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing proposals.</div></div>');
+				} else {
+					for (let i in data.proposal) {
+						let students = [];
+						if (data.students) {
+							for (let j in data.students) 
+								if (data.students[j].title_id == data.proposal[i].id) students.push(data.students[j].name);
+						}
+						$('#contents').append(
+							'<a class="box has-ribbon" data-id="' + data.proposal[i].id + '">' + addRibbon(data.proposal[i].program) +
+							'<div class="columns">' +
+							'<div class="column">' + 
+							'<h3 class="title is-4">' + data.proposal[i].title + '</h3>' +
+							'<h4 class="subtitle is-5">' + data.proposal[i].registration_id + '</h4>' +
+							'<div class="tags">' + loadKeywords(data.proposal[i].keywords, data.proposal[i].area) + '</div>' +
+							'</div></div></a>'
+							);
+						if (data.students) {
+							$('#contents .box:last-child .tags').addClass('is-hidden-mobile');
+							$('#contents .box:last-child .column').append(
+								'<div class="tags">' + loadNames(data.proposal[i].adviser, students) + '</div>'
+								);
+							$('#contents .box:last-child .columns').append(
+								'<div class="column is-2-desktop is-3-tablet">' + 
+								'<div class="buttons">' +	
+								'<button class="button edit" data-id="' + data.proposal[i].id + '" title="Edit ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>' +
+								'<button class="button is-danger is-inverted remove" data-id="' + data.proposal[i].id + '" title="Delete ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>' +
+								'</div></div>'
+								);
+						}
 					}
-
-					$('#contents').append(
-						'<a class="box has-ribbon" data-id="' + data.proposal[i].id + '">' + addRibbon(data.proposal[i].program) +
-						'<div class="columns">' +
-						'<div class="column">' + 
-						'<h3 class="title is-4">' + data.proposal[i].title + '</h3>' +
-						'<h4 class="subtitle is-5">' + data.proposal[i].registration_id + '</h4>' +
-						'<div class="tags is-hidden-mobile">' + loadKeywords(data.proposal[i].keywords, data.proposal[i].area) + '</div>' +
-						'<div class="tags">' + loadNames(data.proposal[i].adviser, students) + '</div>' +
-						'</div><div class="column is-2-desktop is-3-tablet">' + 
-						'<div class="buttons">' +
-						'<button class="button edit" data-id="' + data.proposal[i].id + '" title="Edit ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>' +
-						'<button class="button is-danger is-inverted remove" data-id="' + data.proposal[i].id + '" title="Delete ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>' +
-						'</div></div></div></a>'
-						);
 				}
 				$('#loading').addClass('is-hidden');
+				$('#submit button').removeClass('is-loading');
 			},
 			error: function(err) {
 				$('#loading').addClass('is-hidden');
+				$('#submit button').removeClass('is-loading');
 				$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve proposals. Try again later.</div></div>');
 				ajaxError(err);
 			}
@@ -123,8 +135,9 @@ $(function() {
 
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
-	var updateId;
-	loadProposals();
+	$('#loading').removeClass('is-hidden');
+	var updateId, tab = 'all';
+	loadProposals('', tab);
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
 	responsiveViewport();
 	
@@ -349,25 +362,64 @@ $(function() {
 			data: {data:'view'},
 			datatype: 'JSON',
 			success: function(data) {
-				let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
-				for (let i in keywords)
-					keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
-				for (let i in data.students)
-					sistring += '<span class="tag is-info is-light">' + data.students[i].name + '</span>';
-				$('#vprogram').text(data.proposal.program);
-				$('#vtitle').text(data.proposal.title);
-				$('#varea').text(data.proposal.area);
-				$('#vsi').append('<div class="tags are-medium">' + sistring + '</div>');
-				$('#vadviser').text(data.proposal.adviser);
-				$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
-				$('#voverview').text(data.proposal.overview);
-				Swal.close();
-				$('#view').addClass('is-active');
-				$('html').addClass('is-clipped');
+				if (data.status == 'denied') {
+					Swal.fire({
+						icon: 'error',
+						title: 'Access Denied',
+						text: data.msg
+					});
+				} else {
+					let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
+					for (let i in keywords)
+						keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
+					for (let i in data.students)
+						sistring += '<span class="tag is-info is-light">' + data.students[i].name + '</span>';
+					$('#vprogram').text(data.proposal.program);
+					$('#vtitle').text(data.proposal.title);
+					$('#varea').text(data.proposal.area);
+					$('#vsi').append('<div class="tags are-medium">' + sistring + '</div>');
+					$('#vadviser').text(data.proposal.adviser);
+					$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
+					$('#voverview').text(data.proposal.overview);
+					Swal.close();
+					$('#view').addClass('is-active');
+					$('html').addClass('is-clipped');
+				}
 			},
 			error: function(err) {
 				ajaxError(err);
 			}
 		});
+	});
+
+	$('#myp').click(function() {
+		if ($('#thesis').hasClass('is-active')) {
+			tab = 'per', search = '';
+			$('#search input').val('');
+			$(this).addClass('is-active');
+			$('#thesis').removeClass('is-active');
+			loadProposals();
+		}
+	});
+
+	$('#thesis').click(function() {
+		if ($('#myp').hasClass('is-active')) {
+			tab = 'all', search = '';
+			$('#search input').val('');
+			$(this).addClass('is-active');
+			$('#myp').removeClass('is-active');
+			loadProposals();
+		}
+	});
+
+	$('#search').submit(function(e) {
+		e.preventDefault();
+		if (tab = 'per') {
+			$('#thesis').addClass('is-active');
+			$('#myp').removeClass('is-active');
+		}
+		$('#search button').addClass('is-loading');
+		tab = 'all', search = $('#search input').val();
+		loadProposals();
 	});
 });
