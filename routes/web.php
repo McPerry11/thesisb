@@ -25,5 +25,6 @@ Route::group(['middleware' => 'auth'], function() {
 	Route::post('titles/create', 'TitlesController@store');
 	Route::post('titles/{id}', 'TitlesController@show');
 	Route::post('titles/{id}/edit', 'TitlesController@edit');
+	Route::post('titles/{id}/update', 'TitlesController@update');
 	Route::post('titles/{id}/delete', 'TitlesController@destroy');
 });

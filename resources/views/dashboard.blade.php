@@ -35,7 +35,7 @@
 						<input type="text" class="input" placeholder="Search title, keyword, or name...">
 					</div>
 					<div class="control">
-						<a class="button is-info" type="submit" title="This feature is still unavailable" disabled>
+						<a class="button is-info" type="submit" title="This feature is still unavailable">
 							<span class="icon">
 								<i class="fas fa-search"></i>
 							</span>
@@ -126,7 +126,7 @@
 	</div>
 </div>
 
-<div class="modal">
+<div id="edit" class="modal">
 	<div class="modal-background"></div>
 	<form id="proposal" class="modal-card">
 		<header class="modal-card-head">
@@ -178,7 +178,15 @@
 					</div>
 				</div>
 			</div>
-			<div class="field is-horizontal">
+			<div id="note" class="field is-horizontal is-horizontal">
+				<div class="field-label">
+					<label class="label">Students' Information</label>
+				</div>
+				<div class="field-body">
+					<div class="has-text-danger">Editing of student information is not available. To update student information, delete this proposal and create a new one with the correct student information.</div>
+				</div>
+			</div>
+			<div class="field is-horizontal si">
 				<div class="field-label">
 					<label class="label">Students' Information</label>
 				</div>
@@ -195,7 +203,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="field is-horizontal">
+			<div class="field is-horizontal si">
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
@@ -210,7 +218,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="field is-horizontal">
+			<div class="field is-horizontal si">
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
@@ -225,7 +233,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="field is-horizontal">
+			<div class="field is-horizontal si">
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
@@ -240,7 +248,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="field is-horizontal">
+			<div class="field is-horizontal si">
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
@@ -295,16 +303,70 @@
 		</section>
 		<footer class="modal-card-foot">
 			<div class="buttons is-right">
-				<button id="submit" class="button is-success">
+				<button id="submit" class="button is-success" type="submit">
 					<span class="icon">
 						<i class="fas fa-plus"></i>
 					</span>
 					<span>Add</span>
 				</button>
-				<button id="cancel" class="button is-danger is-outlined">Cancel</button>
+				<button id="cancel" class="button is-danger is-outlined" type="button">Cancel</button>
 			</div>
 		</footer>
 	</form>
+</div>
+
+<div id="view" class="modal">
+	<div class="modal-background"></div>
+	<div class="modal-card">
+		<div class="modal-card-head">
+			<div class="modal-card-title">View Proposal</div>
+			<span class="delete"></span>
+		</div>
+		<div class="modal-card-body">
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Program</label>
+				</div>
+				<div id="vprogram" class="field-body"></div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Title</label>
+				</div>
+				<div id="vtitle" class="field-body"></div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Research Area</label>
+				</div>
+				<div id="varea" class="field-body"></div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Student's Information</label>
+				</div>
+				<div id="vsi" class="field-body"></div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Thesis Adviser</label>
+				</div>
+				<div id="vadviser" class="field-body"></div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Keywords</label>
+				</div>
+				<div id="vkeywords" class="field-body"></div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Brief Overview</label>
+				</div>
+				<div id="voverview" class="field-body"></div>
+			</div>
+		</div>
+	</div>
 </div>
 @endsection
 

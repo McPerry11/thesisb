@@ -6,7 +6,8 @@
 	margin-right: 5px;
 }
 
-.box .buttons.is-right {
-	height: 100%;
-	padding-top: 100%;
+.box .buttons {
+	position: absolute;
+	bottom: 10px;
+	right: 20px;
 }

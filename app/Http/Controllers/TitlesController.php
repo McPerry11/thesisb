@@ -93,8 +93,13 @@ class TitlesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        if ($request->data == 'view') {
+            $proposal = Title::find($id);
+            $students = User::select('name')->where('title_id', $id)->get();
+            return response()->json(['proposal' => $proposal, 'students' => $students]);
+        }
         return Title::select('id', 'title')->find($id);
     }
 
@@ -106,10 +111,7 @@ class TitlesController extends Controller
      */
     public function edit($id)
     {
-        $propsal = Title::find($id);
-        $students = User::where('title_id', $id)->get();
-
-        return response()->json(['proposal' => $proposal, 'students' => $students]);
+        return Title::find($id);
     }
 
     /**
@@ -121,7 +123,20 @@ class TitlesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $proposal = Title::find($id);
+
+        $proposal->fill($request->only([
+            'title',
+            'area',
+            'program',
+            'adviser',
+            'overview',
+            'keywords'
+        ]));
+
+        $proposal->save();
+
+        return response()->json(['msg' => $proposal->title . ' has been updated']);
     }
 
     /**
