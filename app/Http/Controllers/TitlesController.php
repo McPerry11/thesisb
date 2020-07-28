@@ -14,10 +14,18 @@ class TitlesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->data == 'titles') {
+            if (Auth::user()->type == 'ADMIN') {
+                $proposal = Title::select('id', 'title', 'keywords', 'adviser', 'registration_id')->orderBy('updated_at', 'desc')->get();
+                $students = User::select('name', 'title_id')->get();
+                return response()->json(['proposal' => $proposal, 'students' => $students]);
+            }
+        }
         if (Auth::user()->type == 'ADMIN') {
-            return view('dashboard');
+            if ($request->data == '')
+                return view('dashboard');
         }
         return view('student_dashboard');
     }
@@ -74,14 +82,8 @@ class TitlesController extends Controller
             break;
         }
         $id = Title::latest('id')->first();
-        if ($id) {
-            $id ++;
-            $thesis->registration_id .= '-' . $id;
-        } else {
-            $thesis->registration_id .= '-1';
-        }
-
-        $thesis->save();
+        $id ? $id++ : $id = 1;
+        $thesis->registration_id .= '-' . $id;
 
         for ($i = 0; $i < count($request->students); $i++) {
             $user = new User;
@@ -94,6 +96,7 @@ class TitlesController extends Controller
 
             $user->save();
         }
+        $thesis->save();
 
         return response()->json(['msg' => 'Thesis Title Proposal Added']);
     }

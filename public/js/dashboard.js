@@ -27,8 +27,71 @@ $(function() {
 		$('textarea').removeAttr('readonly');
 	}
 
+	function ajaxError(err) {
+		console.log(err);
+		Swal.fire({
+			icon: 'error',
+			title: 'Cannot Connect to Server',
+			text: 'Something went wrong. Please try again later.'
+		});
+	}
+
+	function loadKeywords(keystring) {
+		let tags = '', keywords = keystring.split(',');
+		for (let i in keywords) {
+			tags += '<span class="tag">' + keywords[i] + '</span>';
+		}
+		return tags;
+	}
+
+	function loadNames(adviser, students) {
+		let tags = '<span class="tag is-info">' + adviser + '</span>';
+		for (let i in students) {
+			tags += '<span class="tag is-info is-light">' + students[i] + '</span>';
+		}
+		return tags;
+	}
+
+	function loadProposals() {
+		$('#loading').removeClass('is-hidden');
+		$.ajax({
+			type: 'POST',
+			url: 'titles',
+			data: {data:'titles'},
+			datatype: 'JSON',
+			success: function(data) {
+				for (let i in data.proposal) {
+					let students = [];
+					for (let j in data.students) 
+						if (data.students[j].title_id == data.proposal[i].id) students.push(data.students[j].name);
+					$('#contents').append(
+						'<a class="box">' +
+						'<div class="columns">' +
+						'<div class="column">' + 
+						'<h3 class="title is-4">' + data.proposal[i].title + '</h3>' +
+						'<h4 class="subtitle is-5">' + data.proposal[i].registration_id + '</h4>' +
+						'<div class="tags is-hidden-mobile">' + loadKeywords(data.proposal[i].keywords) + '</div>' +
+						'<div class="tags">' + loadNames(data.proposal[i].adviser, students) + '</div>' +
+						'</div><div class="column is-2-desktop is-3-tablet">' +
+						'<div class="buttons is-right">' +
+						'<button class="button" title="Edit ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>' +
+						'<button class="button is-danger is-inverted" title="Delete ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>' +
+						'</div></div></div></a>'
+						);
+				}
+				$('#loading').addClass('is-hidden');
+			},
+			error: function(err) {
+				$('#loading').addClass('is-hidden');
+				$('#contents').append('<div class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve proposals.</div></div>');
+				ajaxError(err);
+			}
+		});
+	}
+
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
+	loadProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
 	responsiveViewport();
 	
@@ -71,7 +134,7 @@ $(function() {
 		let keywords = document.getElementById('keywords').BulmaTagsInput().value;
 		$.ajax({
 			type: 'POST',
-			url: 'create/titles',
+			url: 'titles/create',
 			data: {program:program, title:title, adviser:adviser, overview:overview, keywords:keywords, students:students, numbers:studentnums},
 			datatype: 'JSON',
 			success: function(response) {
@@ -81,16 +144,13 @@ $(function() {
 					icon: 'success',
 					title: response.msg
 				});
+				loadProposals();
+				$('.modal').removeClass('is-active');
 			},
 			error: function(err) {
-				console.log(err);
 				clearStatus();
 				$('#submit').removeClass('is-loading');
-				Swal.fire({
-					icon: 'error',
-					title: 'Cannot Connect to Server',
-					text: 'Something went wrong. Please try again later.'
-				});
+				ajaxError(err);
 			}
 		});
 	});

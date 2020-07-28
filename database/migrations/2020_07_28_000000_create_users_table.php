@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
                 'STUDENT'
             ]);
             $table->string('password');
-            $table->foreignId('title_id');
+            $table->integer('title_id');
             $table->rememberToken();
             $table->timestamps();
         });

@@ -70,7 +70,13 @@
 		</ul>
 	</div>
 	<div id="contents">
-		<a class="box">
+		<div id="loading" class="has-text-centered is-hidden">
+			<span class="icon">
+				<i class="fas fa-spin fa-spinner"></i>
+			</span>
+			<div class="subtitle is-6">Loading</div>
+		</div>
+		{{-- <a class="box">
 			<div class="columns">
 				<div class="column">
 					<h3 class="title is-4">Thesis Title</h3>
@@ -108,7 +114,7 @@
 					</div>
 				</div>
 			</div>
-		</a>
+		</a> --}}
 	</div>
 </div>
 
@@ -250,6 +256,7 @@
 						<div class="control is-expanded">
 							<input type="tags" id="keywords" class="input" data-type="tags">
 						</div>
+						<div class="help">Press enter to input keyword</div>
 					</div>
 				</div>
 			</div>
