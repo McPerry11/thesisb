@@ -8,6 +8,7 @@ class Title extends Model
 {
 	protected $fillable = [
 		'title',
+		'area',
 		'registration_id',
 		'program',
 		'adviser',

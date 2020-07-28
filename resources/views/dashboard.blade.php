@@ -2,6 +2,7 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ asset('css/bulma-ribbon.min.css') }}">
 <link rel="stylesheet" href="{{ asset('css/bulma-tagsinput.min.css') }}">
 @endsection
 
@@ -9,10 +10,13 @@
 <div class="box">
 	<div id="header" class="columns is-mobile">
 		<div class="column is-8">
+			@if (Auth::user()->type == 'STUDENT') 
+			<h3 class="title">Student Dashboard</h3>
+			@endif
 			<h3 class="title">Dashboard</h3>
 		</div>
-		<div class="column">
-			<form class="is-pulled-right">
+		<div id="logout" class="column">
+			<form class="is-pulled-right" method="POST">
 				@csrf
 				<button class="button is-danger" title="Log Out">
 					<span class="icon">
@@ -31,15 +35,16 @@
 						<input type="text" class="input" placeholder="Search title, keyword, or name...">
 					</div>
 					<div class="control">
-						<button class="button is-info" type="submit" title="This feature is still unavailable" disabled>
+						<a class="button is-info" type="submit" title="This feature is still unavailable" disabled>
 							<span class="icon">
 								<i class="fas fa-search"></i>
 							</span>
-						</button>
+						</a>
 					</div>
 				</div>
 			</form>
 		</div>
+		@if (Auth::user()->type == 'ADMIN')
 		<div class="column is-3 is-2-widescreen">
 			<button id="add" class="button is-info is-fullwidth">
 				<span class="icon">
@@ -48,6 +53,7 @@
 				<span>Add Proposal</span>
 			</button>
 		</div>
+		@endif
 	</div>
 	<div class="tabs is-boxed">
 		<ul>
@@ -59,6 +65,7 @@
 					<span>Thesis Titles</span>
 				</a>
 			</li>
+			@if (Auth::user()->type == 'ADMIN')
 			<li id="logs">
 				<a title="This feature is still unavailable">
 					<span class="icon">
@@ -67,6 +74,7 @@
 					<span>Logs</span>
 				</a>
 			</li>
+			@endif
 		</ul>
 	</div>
 	<div id="contents">
@@ -154,6 +162,18 @@
 					<div class="field">
 						<div class="control is-expanded">
 							<input type="text" id="title" class="input" maxlength="250" placeholder="Proposed thesis title" required>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Research Area</label>
+				</div>
+				<div class="field-body">
+					<div class="field">
+						<div class="control is-expanded">
+							<input type="text" id="area" class="input" required>
 						</div>
 					</div>
 				</div>
@@ -267,7 +287,7 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control is-expanded">
-							<textarea id="overview" class="textarea"></textarea>
+							<textarea id="overview" class="textarea" required></textarea>
 						</div>
 					</div>
 				</div>

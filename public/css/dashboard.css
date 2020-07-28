@@ -5,3 +5,8 @@
 .icon:not(:only-child) {
 	margin-right: 5px;
 }
+
+.box .buttons.is-right {
+	height: 100%;
+	padding-top: 100%;
+}

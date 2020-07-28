@@ -18,9 +18,12 @@ Route::post('login', 'LoginController@post_login');
 
 
 Route::group(['middleware' => 'auth'], function() {
-	Route::get('/', 'TitlesController@index');
-	Route::post('/', 'LoginController@logout');
+	Route::get('', 'TitlesController@index');
+	Route::post('', 'LoginController@logout');
 
 	Route::post('titles', 'TitlesController@index');
 	Route::post('titles/create', 'TitlesController@store');
+	Route::post('titles/{id}', 'TitlesController@show');
+	Route::post('titles/{id}/edit', 'TitlesController@edit');
+	Route::post('titles/{id}/delete', 'TitlesController@destroy');
 });

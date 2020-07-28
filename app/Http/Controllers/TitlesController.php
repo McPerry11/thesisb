@@ -17,27 +17,12 @@ class TitlesController extends Controller
     public function index(Request $request)
     {
         if ($request->data == 'titles') {
-            if (Auth::user()->type == 'ADMIN') {
-                $proposal = Title::select('id', 'title', 'keywords', 'adviser', 'registration_id')->orderBy('updated_at', 'desc')->get();
+            $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')->orderBy('updated_at', 'desc')->get();
+            if (Auth::user()->type == 'ADMIN')
                 $students = User::select('name', 'title_id')->get();
-                return response()->json(['proposal' => $proposal, 'students' => $students]);
-            }
+            return response()->json(['proposal' => $proposal, 'students' => $students]);
         }
-        if (Auth::user()->type == 'ADMIN') {
-            if ($request->data == '')
-                return view('dashboard');
-        }
-        return view('student_dashboard');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return view('dashboard');
     }
 
     /**
@@ -52,6 +37,7 @@ class TitlesController extends Controller
 
         $thesis->fill($request->only([
             'title',
+            'area',
             'program',
             'adviser',
             'overview',
@@ -81,7 +67,7 @@ class TitlesController extends Controller
             $thesis->registration_id .= 'IS';
             break;
         }
-        $id = Title::latest('id')->first();
+        $id = Title::latest('id')->value('id');
         $id ? $id++ : $id = 1;
         $thesis->registration_id .= '-' . $id;
 
@@ -107,9 +93,9 @@ class TitlesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show()
+    public function show($id)
     {
-        //
+        return Title::select('id', 'title')->find($id);
     }
 
     /**
@@ -120,7 +106,10 @@ class TitlesController extends Controller
      */
     public function edit($id)
     {
-        //
+        $propsal = Title::find($id);
+        $students = User::where('title_id', $id)->get();
+
+        return response()->json(['proposal' => $proposal, 'students' => $students]);
     }
 
     /**
@@ -143,6 +132,14 @@ class TitlesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $title = Title::find($id);
+
+        $title->delete();
+
+        $students = User::where('title_id', $id)->get();
+        foreach($students as $student) 
+            $student->delete();
+
+        return response()->json(['status' => 'success']);
     }
 }

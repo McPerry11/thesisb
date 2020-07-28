@@ -17,6 +17,7 @@ class CreateTitlesTable extends Migration
             $table->id();
             $table->string('title');
             $table->string('registration_id');
+            $table->string('area');
             $table->enum('program', [
                 'BSCS',
                 'BSIT',
