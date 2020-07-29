@@ -23,14 +23,21 @@ class TitlesController extends Controller
                     $students = User::select('name', 'title_id')->get();
                     return response()->json(['proposal' => $proposal, 'students' => $students]);
                 }
-                return response()->json(['proposal' => $proposal]);
             } else if ($request->tab == 'per') {
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')->where('id', Auth::user()->title_id)->orderBy('updated_at', 'desc')->get();
-                return response()->json(['proposal' => $proposal]);
+		$students = User::select('title_id')->where('student_number', Auth::user()->student_number)->get();
+		$stid = array();
+		foreach ($students as $student)
+		    array_push($stid, $student->title_id);
+                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')
+		    ->whereIn('id', $stid)
+		    ->orderBy('updated_at', 'desc')->get();
             } else {
-                $titles = User::select('title_id')
+                $students = User::select('title_id')
                 ->where('name', 'LIKE', '%' . $request->search . '%')
                 ->orWhere('student_number', 'LIKE', '%' . $request->search . '%')->get();
+		$stid = array();
+		foreach ($students as $student)
+		    array_push($stid, $student->title_id);
                 $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')
                 ->where('title', 'LIKE', '%' . $request->search . '%')
                 ->orWhere('area', 'LIKE', '%' . $request->search . '%')
@@ -39,11 +46,10 @@ class TitlesController extends Controller
                 ->orWhere('adviser', 'LIKE', '%' . $request->search . '%')
                 ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
                 ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
-                ->orWhereIn('id', $titles)
+                ->orWhereIn('id', $stid)
                 ->orderBy('updated_at', 'desc')->get();
-                return response()->json(['proposal' => $proposal]);
             }
-
+	    return response()->json(['proposal' => $proposal]);
         }
     }
 
@@ -118,12 +124,17 @@ class TitlesController extends Controller
     public function show(Request $request, $id)
     {
         if ($request->data == 'view') {
-            if (Auth::user()->type == 'ADMIN' || Auth::user()->title_id == $id) {
+	    $exist = User::select('student_number')->where([
+		['title_id', $id],
+		['student_number', Auth::user()->student_number],
+  	    ])->get();
+	    $proposal = Title::find($id);
+            if (Auth::user()->type == 'ADMIN' || count($exist) > 0) {
                 $proposal = Title::find($id);
                 $students = User::select('name')->where('title_id', $id)->get();
                 return response()->json(['proposal' => $proposal, 'students' => $students]);
             }
-            return response()->json(['status' => 'denied', 'msg' => 'You can only view your own proposal/s']);
+            return response()->json(['status' => 'limited', 'proposal' => $proposal]);
         }
         return Title::select('id', 'title')->find($id);
     }
@@ -177,7 +188,7 @@ class TitlesController extends Controller
         $title->delete();
 
         $students = User::where('title_id', $id)->get();
-        foreach($students as $student) 
+        foreach($students as $student)
             $student->delete();
 
         return response()->json(['status' => 'success']);

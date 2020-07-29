@@ -349,13 +349,13 @@
 				</div>
 				<div id="varea" class="field-body"></div>
 			</div>
-			<div class="field is-horizontal">
+			<div id="vsi-label" class="field is-horizontal">
 				<div class="field-label">
 					<label class="label">Student's Information</label>
 				</div>
 				<div id="vsi" class="field-body"></div>
 			</div>
-			<div class="field is-horizontal">
+			<div id="vadviser-label" class="field is-horizontal">
 				<div class="field-label">
 					<label class="label">Thesis Adviser</label>
 				</div>

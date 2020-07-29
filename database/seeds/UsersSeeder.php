@@ -12,7 +12,7 @@ class UsersSeeder extends Seeder
      */
     public function run()
     {
-    	$user = new USer();
+    	$user = new User;
 
     	$user->name = 'Research & Development';
     	$user->student_number = '20087638648';

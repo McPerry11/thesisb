@@ -94,13 +94,13 @@ $(function() {
 					for (let i in data.proposal) {
 						let students = [];
 						if (data.students) {
-							for (let j in data.students) 
+							for (let j in data.students)
 								if (data.students[j].title_id == data.proposal[i].id) students.push(data.students[j].name);
 						}
 						$('#contents').append(
 							'<a class="box has-ribbon" data-id="' + data.proposal[i].id + '">' + addRibbon(data.proposal[i].program) +
 							'<div class="columns">' +
-							'<div class="column">' + 
+							'<div class="column">' +
 							'<h3 class="title is-4">' + data.proposal[i].title + '</h3>' +
 							'<h4 class="subtitle is-5">' + data.proposal[i].registration_id + '</h4>' +
 							'<div class="tags">' + loadKeywords(data.proposal[i].keywords, data.proposal[i].area) + '</div>' +
@@ -112,8 +112,8 @@ $(function() {
 								'<div class="tags">' + loadNames(data.proposal[i].adviser, students) + '</div>'
 								);
 							$('#contents .box:last-child .columns').append(
-								'<div class="column is-2-desktop is-3-tablet">' + 
-								'<div class="buttons">' +	
+								'<div class="column is-2-desktop is-3-tablet">' +
+								'<div class="buttons">' +
 								'<button class="button edit" data-id="' + data.proposal[i].id + '" title="Edit ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>' +
 								'<button class="button is-danger is-inverted remove" data-id="' + data.proposal[i].id + '" title="Delete ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>' +
 								'</div></div>'
@@ -122,11 +122,11 @@ $(function() {
 					}
 				}
 				$('#loading').addClass('is-hidden');
-				$('#submit button').removeClass('is-loading');
+				$('#search button').removeClass('is-loading');
 			},
 			error: function(err) {
 				$('#loading').addClass('is-hidden');
-				$('#submit button').removeClass('is-loading');
+				$('#search button').removeClass('is-loading');
 				$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve proposals. Try again later.</div></div>');
 				ajaxError(err);
 			}
@@ -136,11 +136,10 @@ $(function() {
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
-	var updateId, tab = 'all';
+	var updateId, check, search = '', tab = 'all';
 	loadProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
 	responsiveViewport();
-	
 	$(window).resize(function() {
 		responsiveViewport();
 	});
@@ -256,6 +255,8 @@ $(function() {
 	});
 
 	$('body').delegate('.remove', 'click', function() {
+		check = this;
+		$(this).addClass('is-loading');
 		Swal.fire({
 			html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
 			showConfirmButton: false,
@@ -297,11 +298,13 @@ $(function() {
 										timer: 2500,
 									}).then(function() {
 										loadProposals();
+										$(check).removeClass('is-loading');
 									});
 								}
 							},
 							error: function(err) {
 								ajaxError(err);
+								$(check).removeClass('is-loading');
 							}
 						});
 					}
@@ -309,11 +312,14 @@ $(function() {
 			},
 			error: function(err) {
 				ajaxError(err);
+				$(check).removeClass('is-loading');
 			}
 		});
 	});
 
 	$('body').delegate('.edit', 'click', function() {
+		var button = this;
+		$(this).addClass('is-loading');
 		Swal.fire({
 			html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
 			showConfirmButton: false,
@@ -335,14 +341,16 @@ $(function() {
 				$('#adviser').val(data.adviser);
 				$('#overview').val(data.overview);
 				document.getElementById('keywords').BulmaTagsInput().add(data.keywords);
-				$('.modal-card-title').text('Edit Proposal');
+				$('#edit .modal-card-title').text('Edit Proposal');
 				if ($('#submit span:nth-child(2)').text() == 'Add') $('#submit').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
 				Swal.close();
 				$('#edit').addClass('is-active');
 				$('html').addClass('is-clipped');
+				$(button).removeClass('is-loading');
 			},
 			error: function(err) {
 				ajaxError(err);
+				$(button).removeClass('is-loading');
 			}
 		});
 	});
@@ -356,40 +364,41 @@ $(function() {
 			allowOutsideClick: false,
 			allowEscapeKey: false
 		});
+		window.setTimeout(function() {
+		if (!$('#edit').hasClass('is-active') && !$(check).hasClass('is-loading')) {
 		$.ajax({
 			type: 'POST',
 			url: 'titles/' + id,
 			data: {data:'view'},
 			datatype: 'JSON',
 			success: function(data) {
-				if (data.status == 'denied') {
-					Swal.fire({
-						icon: 'error',
-						title: 'Access Denied',
-						text: data.msg
-					});
-				} else {
 					let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
 					for (let i in keywords)
 						keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
+					if (data.status != 'limited') {
 					for (let i in data.students)
 						sistring += '<span class="tag is-info is-light">' + data.students[i].name + '</span>';
+					$('#vsi').append('<div class="tags are-medium">' + keystring + '</div>');
+					$('#vadviser').text(data.proposal.adviser);
+					} else {
+						$('#vsi-label').addClass('is-hidden');
+						$('#vadviser-label').addClass('is-hidden');
+					}
 					$('#vprogram').text(data.proposal.program);
 					$('#vtitle').text(data.proposal.title);
 					$('#varea').text(data.proposal.area);
-					$('#vsi').append('<div class="tags are-medium">' + sistring + '</div>');
-					$('#vadviser').text(data.proposal.adviser);
 					$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
 					$('#voverview').text(data.proposal.overview);
-					Swal.close();
+ 					Swal.close();
 					$('#view').addClass('is-active');
 					$('html').addClass('is-clipped');
-				}
 			},
 			error: function(err) {
 				ajaxError(err);
 			}
 		});
+		}
+		}, 1000);
 	});
 
 	$('#myp').click(function() {
