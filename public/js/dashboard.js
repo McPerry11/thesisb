@@ -137,7 +137,7 @@ $(function() {
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
 	var updateId, tab = 'all';
-	loadProposals('', tab);
+	loadProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
 	responsiveViewport();
 	

@@ -20,7 +20,6 @@ Route::post('login', 'LoginController@post_login');
 Route::group(['middleware' => 'auth'], function() {
 	Route::get('/', 'LoginController@dashboard');
 	Route::post('/', 'LoginController@logout');
-	Route::post('stud_num', 'LoginController@getSN');
 
 	Route::post('titles', 'TitlesController@index');
 	Route::post('titles/create', 'TitlesController@store');
@@ -28,5 +27,4 @@ Route::group(['middleware' => 'auth'], function() {
 	Route::post('titles/{id}/edit', 'TitlesController@edit');
 	Route::post('titles/{id}/update', 'TitlesController@update');
 	Route::post('titles/{id}/delete', 'TitlesController@destroy');
-
 });

@@ -69,7 +69,7 @@
 			@if (Auth::user()->type == 'STUDENT')
 			<li id="myp">
 				<a>
-					My Proposal
+					My Proposals
 				</a>
 			</li>
 			@endif
