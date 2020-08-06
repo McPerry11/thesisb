@@ -10,14 +10,10 @@
 	min-height: 40px;
 }
 
-.box .buttons {
+#contents .box .buttons {
 	position: absolute;
 	bottom: 10px;
 	right: 20px;
-}
-
-table {
-	width: 100%;
 }
 
 #logs_table th:nth-child(1) {
@@ -28,4 +24,13 @@ table {
 #logs_table th:nth-child(3) {
 	min-width: 120px;
 	width: 175px;
+}
+
+#stud_table th:nth-child(1) {
+	width: 160px;
+}
+
+#stud_table th:nth-child(3) {
+	min-width: 120px;
+	width: 120px;
 }

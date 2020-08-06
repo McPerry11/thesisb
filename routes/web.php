@@ -21,6 +21,7 @@ Route::group(['middleware' => 'auth'], function() {
 	Route::post('/', 'LoginController@logout');
 
 	Route::post('logs', 'LoginController@logs');
+	Route::post('students', 'UsersController@index');
 	Route::post('titles', 'TitlesController@index');
 	Route::post('titles/create', 'TitlesController@store');
 	Route::post('titles/{id}', 'TitlesController@show');

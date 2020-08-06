@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 <link rel="stylesheet" href="{{ asset('css/bulma-ribbon.min.css') }}">
 <link rel="stylesheet" href="{{ asset('css/bulma-tagsinput.min.css') }}">
+<link rel="stylesheet" href="{{ asset('css/bulma-divider.min.css') }}">
 @endsection
 
 @section('body')
@@ -229,7 +230,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input" readonly required>
 						</div>
 					</div>
 				</div>
@@ -244,7 +245,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input" readonly required>
 						</div>
 					</div>
 				</div>
@@ -259,7 +260,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input" readonly required>
 						</div>
 					</div>
 				</div>
@@ -274,7 +275,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input" readonly required>
 						</div>
 					</div>
 				</div>
@@ -301,7 +302,9 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="adviser" class="input" placeholder="Last Name, First Name M.N." required>
+							<div class="select is-fullwidth">
+								<select id="adviser"></select>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -333,14 +336,14 @@
 			</div>
 		</section>
 		<footer class="modal-card-foot">
-			<div class="buttons is-right">
+			<div class="buttons">
 				<button id="submit" class="button is-success" type="submit">
 					<span class="icon">
 						<i class="fas fa-plus"></i>
 					</span>
 					<span>Add</span>
 				</button>
-				<button id="cancel" class="button is-danger is-outlined" type="button">Cancel</button>
+				<button class="button is-danger is-outlined cancel" type="button">Cancel</button>
 			</div>
 		</footer>
 	</form>
@@ -349,11 +352,11 @@
 <div id="view" class="modal">
 	<div class="modal-background"></div>
 	<div class="modal-card">
-		<div class="modal-card-head">
+		<header class="modal-card-head">
 			<div class="modal-card-title">View Proposal</div>
 			<span class="delete"></span>
-		</div>
-		<div class="modal-card-body">
+		</header>
+		<section class="modal-card-body">
 			<div class="field is-horizontal">
 				<div class="field-label">
 					<label class="label">Program</label>
@@ -396,8 +399,63 @@
 				</div>
 				<div id="voverview" class="field-body"></div>
 			</div>
-		</div>
+		</section>
 	</div>
+</div>
+
+<div id="edit_user" class="modal">
+	<div class="modal-background"></div>
+	<form id="user_form" class="modal-card">
+		<header class="modal-card-head">
+			<div class="modal-card-title"></div>
+			<span class="delete"></span>
+		</header>
+		<section class="modal-card-body">
+			<button class="button is-link is-light is-fullwidth">
+				<span class="icon">
+					<i class="fas fa-file-excel"></i>
+				</span>
+				<span>Upload Excel</span>
+			</button>
+			<div class="divider">OR</div>
+			<div class="subtitle is-5 has-text-centered">Add an Individual Student</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Student Number</label>
+				</div>
+				<div class="field-body">
+					<div class="field">
+						<div class="control">
+							<input type="text" class="input" id="sn" placeholder="XXXXXXXXXXX" required>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Name</label>
+				</div>
+				<div class="field-body">
+					<div class="field">
+						<div class="control">
+							<input type="text" class="input" id="name" placeholder="Last Name, First Name M.I." required>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<footer class="modal-card-foot">
+			<div class="buttons">
+				<button id="submit_user" class="button is-success" type="submit">
+					<span class="icon">
+						<i class="fas fa-plus"></i>
+					</span>
+					<span>Add</span>
+				</button>
+				<button class="button is-danger is-outlined cancel" type="button">Cancel</button>
+			</div>
+		</footer>
+	</form>
 </div>
 @endsection
 

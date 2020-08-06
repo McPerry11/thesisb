@@ -40,7 +40,9 @@ class LoginController extends Controller
 
 	public function logs(Request $request) {
 		if ($request->search) {
-			return Log::where('description', 'LIKE', '%' . $request->search . '%')->orderBy('updated_at', 'desc')->get();
+			return Log::where('description', 'LIKE', '%' . $request->search . '%')
+			->orWhere('created_at', 'LIKE', '%' . $request->search . '%')
+			->orderBy('updated_at', 'desc')->get();
 		} else {
 			return Log::orderBy('updated_at', 'desc')->get();
 		}

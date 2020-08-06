@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\User;
+use Auth;
 
 class UsersController extends Controller
 {
@@ -11,9 +13,19 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->data == 'students') {
+            if ($request->search == '') {
+                return User::orderby('updated_at', 'desc')->get();
+            }
+            return User::where('name', 'LIKE', '%' . $request->search . '%')
+            ->orWhere('student_number', 'LIKE', '%' . $request->search . '%')
+            ->orderBy('updated_at', 'desc')->get();
+                // ->where('type', 'STUDENT')
+        } else if ($request->data == 'advisers') {
+
+        }
     }
 
     /**

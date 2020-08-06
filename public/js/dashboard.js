@@ -150,7 +150,7 @@ $(function() {
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
-				$('#contents').append('<div id="logs_table" class="table-container"><table class="table"><tr><th>Log ID</th><th>Description</th><th>Date & Time</th></tr></table></div>');
+				$('#contents').append('<div id="logs_table" class="table-container"><table class="table is-fullwidth"><tr><th>Log ID</th><th>Description</th><th>Date & Time</th></tr></table></div>');
 				if (data.length > 0) {
 					for (i in data) {
 						let timestamp = new Date(data[i].created_at);
@@ -169,6 +169,36 @@ $(function() {
 		});
 	}
 
+	function retrieveStudents() {
+		$('#loading').removeClass('is-hidden');
+		$('#contents .box').remove();
+		$('.table-container').remove();
+		$('.notif').remove();
+		$.ajax({
+			type: 'POST',
+			url: 'students',
+			data: {data:'students'},
+			datatype: 'JSON',
+			success: function(data) {
+				$('#search button').removeClass('is-loading');
+				$('#loading').addClass('is-hidden');
+				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>Student Number</th><th>Name</th><th>Actions</th></tr></table></div>');
+				if (data.length > 0) {
+					for (i in data)
+						$('table').append('<tr><td>' + data[i].student_number + '</td><td>' + data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data[i].id + '" title="Edit ' + data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data[i].id + '" title="Remove ' + data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+				} else {
+					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No students registered.</div></td></tr>');
+				}
+			},
+			error: function(err) {
+				$('#loading').addClass('is-hidden');
+				$('#search button').removeClass('is-loading');
+				$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve students. Try again later.</div></div>');
+				ajaxError(err);
+			}
+		});
+	}
+
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
@@ -181,19 +211,27 @@ $(function() {
 	});
 
 	$('#add').click(function() {
-		$('#edit').addClass('is-active');
-		$('html').addClass('is-clipped');
-		$('.modal-card-title').text('Add Proposal');
-		$('.modal input').val('');
-		$('textarea').val('');
-		$('#program').val('BSCS');
-		$('.si input').attr('required', true);
-		$('#sname5').removeAttr('required');
-		$('#snum5').removeAttr('required');
-		$('.si').removeClass('is-hidden');
-		$('#note').addClass('is-hidden');
-		if ($('#submit span:nth-child(2)').text() == 'Update') $('#submit').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
-		document.getElementById('keywords').BulmaTagsInput().flush();
+		if ($('#thesis').hasClass('is-active')) {
+			$('#edit').addClass('is-active');
+			$('html').addClass('is-clipped');
+			$('.modal-card-title').text('Add Proposal');
+			$('.modal input').val('');
+			$('textarea').val('');
+			$('#program').val('BSCS');
+			$('.si input').attr('required', true);
+			$('#sname5').removeAttr('required');
+			$('#snum5').removeAttr('required');
+			$('.si').removeClass('is-hidden');
+			$('#note').addClass('is-hidden');
+			if ($('#submit span:nth-child(2)').text() == 'Update') $('#submit').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
+			document.getElementById('keywords').BulmaTagsInput().flush();
+		} else if ($('#students').hasClass('is-active')) {
+			$('#edit_user').addClass('is-active');
+			$('html').addClass('is-clipped');
+			$('.modal-card-title').text('Add Student');
+			$('.modal input').val('');
+			if ($('#submit_user span:nth-child(2)').text() == 'Update') $('#submit_user').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
+		}
 	});
 
 	$('.delete').click(function() {
@@ -205,17 +243,21 @@ $(function() {
 			$('#edit').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
-	});
-
-	$('#cancel').click(function() {
-		if (!$('#submit').hasClass('is-loading'))  {
-			$('#edit').removeClass('is-active');
+		if (!$('#submit_user').hasClass('is-loading')) {
+			$('#edit_user').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
 	});
 
-	$('.sn').keyup(function() {
-		if ($(this).val().length > 11) $(this).val($(this).val().slice(0, 11));
+	$('.cancel').click(function() {
+		if (!$('#submit').hasClass('is-loading'))  {
+			$('#edit').removeClass('is-active');
+			$('html').removeClass('is-clipped');
+		}
+		if (!$('#submit_user').hasClass('is-loading')) {
+			$('#edit_user').removeClass('is-active');
+			$('html').removeClass('is-clipped');
+		}
 	});
 
 	$('#proposal').submit(function(e) {
@@ -452,8 +494,9 @@ $(function() {
 			$('.tabs li').removeClass('is-active');
 			$(this).addClass('is-active');
 			$('.column:nth-child(2)').removeClass('is-hidden');
+			$('#add span:nth-child(2)').text('Add Proposal');
 			$('#logout').removeClass('is-hidden');
-			$('#search input').val('');
+			$('#search input').val('').attr('placeholder', 'Search title, keyword, or name...');
 			tab = 'all', search = '';
 			retrieveProposals();
 		}
@@ -463,11 +506,23 @@ $(function() {
 		if (!$(this).hasClass('is-active')) {
 			$('.tabs li').removeClass('is-active');
 			$(this).addClass('is-active');
-			$('#search input').val('');
 			$('.column:nth-child(2)').addClass('is-hidden');
 			$('#logout').removeClass('is-hidden');
+			$('#search input').val('').attr('placeholder', 'Search description, date, or time...');
 			search = '';
 			retrieveLogs();
+		}
+	});
+
+	$('#students').click(function() {
+		if (!$(this).hasClass('is-active')) {
+			$('.tabs li').removeClass('is-active');
+			$(this).addClass('is-active');
+			$('.column:nth-child(2)').removeClass('is-hidden');
+			$('#add span:nth-child(2)').text('Add Student');
+			$('#search input').val('').attr('placeholder', 'Search name or student number...');
+			search = '';
+			retrieveStudents();
 		}
 	});
 
@@ -487,6 +542,8 @@ $(function() {
 			retrieveProposals();
 		} else if ($('#logs').hasClass('is-active')) {
 			retrieveLogs();
+		} else if ($('#students').hasClass('is-active')) {
+			retrieveStudents();
 		}
 	});
 
@@ -498,6 +555,8 @@ $(function() {
 			retrieveProposals();
 		} else if ($('#logs').hasClass('is-active')) {
 			retrieveLogs();
+		} else if ($('#students').hasClass('is-active')) {
+			retrieveStudents();
 		}
 	});
 });
