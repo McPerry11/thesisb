@@ -42,6 +42,13 @@
 							</span>
 						</button>
 					</div>
+					<div class="control">
+						<button id="clear" class="button is-info" type="button" title="Clear" disabled>
+							<span class="icon">
+								<i class="fas fa-times"></i>
+							</span>
+						</button>
+					</div>
 				</div>
 			</form>
 		</div>
@@ -74,6 +81,22 @@
 			</li>
 			@endif
 			@if (Auth::user()->type == 'ADMIN')
+			<li id="students">	
+				<a title="Students">
+					<span class="icon">
+						<i class="fas fa-users"></i>
+					</span>
+					<span>Students</span>
+				</a>
+			</li>
+			<li id="advisers">
+				<a title="Advisers">
+					<span class="icon">
+						<i class="fas fa-chalkboard-teacher"></i>
+					</span>
+					<span>Advisers</span>
+				</a>
+			</li>
 			<li id="logs">
 				<a title="This feature is still unavailable">
 					<span class="icon">
@@ -206,7 +229,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname1" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input" placeholder="Last Name, First Name M.N." required>
 						</div>
 					</div>
 				</div>
@@ -221,7 +244,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname2" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input" placeholder="Last Name, First Name M.N." required>
 						</div>
 					</div>
 				</div>
@@ -236,7 +259,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname3" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input" placeholder="Last Name, First Name M.N." required>
 						</div>
 					</div>
 				</div>
@@ -251,7 +274,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname4" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input" placeholder="Last Name, First Name M.N." required>
 						</div>
 					</div>
 				</div>
@@ -266,7 +289,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname5" class="input" placeholder="Last Name, First Name M.N.">
+							<input type="text" class="input" placeholder="Last Name, First Name M.N.">
 						</div>
 					</div>
 				</div>

@@ -11,13 +11,12 @@ $(function() {
 		}
 	}
 
-	function getStudentInfo(students, studentnums) {
+	function getStudentInfo(studentnums) {
 		for (let i = 1; i < 6; i++) {
 			if ($('#sname' + i).val() == '' || $('#snum' + i).val() == '') break;
-			students.push($('#sname' + i).val());
 			studentnums.push($('#snum' + i).val());
 		}
-		return students, studentnums;
+		return studentnums;
 	}
 
 	function clearStatus() {
@@ -78,9 +77,19 @@ $(function() {
 		return ribbon;
 	}
 
-	function loadProposals() {
+	function formatDate(date) {
+		let hours = date.getHours(), minutes = date.getMinutes(), ampm = hours >= 12 ? 'pm' : 'am';
+		hours %= 12;
+		hours = hours ? hours : 12;
+		minutes = minutes < 10 ? '0' + minutes : minutes;
+		let strTime = hours + ':' + minutes + ' ' + ampm;
+		return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' - ' + strTime;
+	}
+
+	function retrieveProposals() {
 		$('#loading').removeClass('is-hidden');
 		$('#contents .box').remove();
+		$('.table-container').remove();
 		$('.notif').remove();
 		$.ajax({
 			type: 'POST',
@@ -88,34 +97,29 @@ $(function() {
 			data: {data:'titles', search:search, tab:tab},
 			datatype: 'JSON',
 			success: function(data) {
-				if (data.proposal.length == 0) {
+				if (data.proposals.length == 0) {
 					$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing proposals.</div></div>');
 				} else {
-					for (let i in data.proposal) {
-						let students = [];
-						if (data.students) {
-							for (let j in data.students)
-								if (data.students[j].title_id == data.proposal[i].id) students.push(data.students[j].name);
-						}
+					for (let i in data.proposals) {
 						$('#contents').append(
-							'<a class="box has-ribbon" data-id="' + data.proposal[i].id + '">' + addRibbon(data.proposal[i].program) +
+							'<a class="box has-ribbon" data-id="' + data.proposals[i].id + '">' + addRibbon(data.proposals[i].program) +
 							'<div class="columns">' +
 							'<div class="column">' +
-							'<h3 class="title is-4">' + data.proposal[i].title + '</h3>' +
-							'<h4 class="subtitle is-5">' + data.proposal[i].registration_id + '</h4>' +
-							'<div class="tags">' + loadKeywords(data.proposal[i].keywords, data.proposal[i].area) + '</div>' +
+							'<h3 class="title is-4">' + data.proposals[i].title + '</h3>' +
+							'<h4 class="subtitle is-5">' + data.proposals[i].registration_id + '</h4>' +
+							'<div class="tags">' + loadKeywords(data.proposals[i].keywords, data.proposals[i].area) + '</div>' +
 							'</div></div></a>'
 							);
-						if (data.students) {
+						if (data.proposals[i].students) {
 							$('#contents .box:last-child .tags').addClass('is-hidden-mobile');
 							$('#contents .box:last-child .column').append(
-								'<div class="tags">' + loadNames(data.proposal[i].adviser, students) + '</div>'
+								'<div class="tags">' + loadNames(data.proposals[i].adviser, data.proposals[i].students) + '</div>'
 								);
 							$('#contents .box:last-child .columns').append(
 								'<div class="column is-2-desktop is-3-tablet">' +
 								'<div class="buttons">' +
-								'<button class="button edit" data-id="' + data.proposal[i].id + '" title="Edit ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>' +
-								'<button class="button is-danger is-inverted remove" data-id="' + data.proposal[i].id + '" title="Delete ' + data.proposal[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>' +
+								'<button class="button edit" data-id="' + data.proposals[i].id + '" title="Edit ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>' +
+								'<button class="button is-danger is-inverted remove" data-id="' + data.proposals[i].id + '" title="Delete ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>' +
 								'</div></div>'
 								);
 						}
@@ -133,11 +137,43 @@ $(function() {
 		});
 	}
 
+	function retrieveLogs() {
+		$('#loading').removeClass('is-hidden');
+		$('#contents .box').remove();
+		$('.table-container').remove();
+		$('.notif').remove();
+		$.ajax({
+			type: 'POST',
+			url: 'logs',
+			data: {search:search},
+			datatype: 'JSON',
+			success: function(data) {
+				$('#search button').removeClass('is-loading');
+				$('#loading').addClass('is-hidden');
+				$('#contents').append('<div id="logs_table" class="table-container"><table class="table"><tr><th>Log ID</th><th>Description</th><th>Date & Time</th></tr></table></div>');
+				if (data.length > 0) {
+					for (i in data) {
+						let timestamp = new Date(data[i].created_at);
+						$('table').append('<tr><td>' + data[i].id + '</td><td>' + data[i].description + '</td><td>' + formatDate(timestamp) + '</td></tr>');
+					}
+				} else {
+					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing logs.</div></td></tr>');
+				}
+			},
+			error: function(err) {
+				$('#loading').addClass('is-hidden');
+				$('#search button').removeClass('is-loading');
+				$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve logs. Try again later.</div></div>');
+				ajaxError(err);
+			}
+		});
+	}
+
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
 	var updateId, check, search = '', tab = 'all';
-	loadProposals();
+	retrieveProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
 	responsiveViewport();
 	$(window).resize(function() {
@@ -192,12 +228,12 @@ $(function() {
 		var program = $('#program').val(), title = $('#title').val(), adviser = $('#adviser').val(), overview = $('#overview').val(), area = $('#area').val();
 		var keywords = document.getElementById('keywords').BulmaTagsInput().value;
 		if ($('#submit span:nth-child(2)').text() == 'Add') {
-			var students = [], studentnums = [];
-			students, studentnums = getStudentInfo(students, studentnums);
+			var studentnums = [];
+			studentnums = getStudentInfo(studentnums);
 			$.ajax({
 				type: 'POST',
 				url: 'titles/create',
-				data: {program:program, title:title, area:area, adviser:adviser, overview:overview, keywords:keywords, students:students, numbers:studentnums},
+				data: {program:program, title:title, area:area, adviser:adviser, overview:overview, keywords:keywords, numbers:studentnums},
 				datatype: 'JSON',
 				success: function(response) {
 					clearStatus();
@@ -208,7 +244,7 @@ $(function() {
 						showConfirmButton: false,
 						timer: 2500
 					}).then(function() {
-						loadProposals();
+						retrieveProposals();
 						$('#edit').removeClass('is-active');
 						$('html').removeClass('is-clipped');
 					});
@@ -235,7 +271,7 @@ $(function() {
 						showConfirmButton: false,
 						timer: 2500
 					}).then(function() {
-						loadProposals();
+						retrieveProposals();
 						$('#edit').removeClass('is-active');
 						$('html').removeClass('is-clipped');
 					});
@@ -297,7 +333,7 @@ $(function() {
 										showConfirmButton: false,
 										timer: 2500,
 									}).then(function() {
-										loadProposals();
+										retrieveProposals();
 										$(check).removeClass('is-loading');
 									});
 								}
@@ -365,70 +401,103 @@ $(function() {
 			allowEscapeKey: false
 		});
 		window.setTimeout(function() {
-		if (!$('#edit').hasClass('is-active') && !$(check).hasClass('is-loading')) {
-		$.ajax({
-			type: 'POST',
-			url: 'titles/' + id,
-			data: {data:'view'},
-			datatype: 'JSON',
-			success: function(data) {
-					let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
-					for (let i in keywords)
-						keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
-					if (data.status != 'limited') {
-					for (let i in data.students)
-						sistring += '<span class="tag is-info is-light">' + data.students[i].name + '</span>';
-					$('#vsi').append('<div class="tags are-medium">' + keystring + '</div>');
-					$('#vadviser').text(data.proposal.adviser);
-					} else {
-						$('#vsi-label').addClass('is-hidden');
-						$('#vadviser-label').addClass('is-hidden');
+			if (!$('#edit').hasClass('is-active') && !$(check).hasClass('is-loading')) {
+				$.ajax({
+					type: 'POST',
+					url: 'titles/' + id,
+					data: {data:'view'},
+					datatype: 'JSON',
+					success: function(data) {
+						let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
+						for (let i in keywords)
+							keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
+						if (data.status != 'limited') {
+							for (let i in data.students)
+								sistring += '<span class="tag is-info is-light">' + data.students[i].name + '</span>';
+							$('#vsi').append('<div class="tags are-medium">' + keystring + '</div>');
+							$('#vadviser').text(data.proposal.adviser);
+						} else {
+							$('#vsi-label').addClass('is-hidden');
+							$('#vadviser-label').addClass('is-hidden');
+						}
+						$('#vprogram').text(data.proposal.program);
+						$('#vtitle').text(data.proposal.title);
+						$('#varea').text(data.proposal.area);
+						$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
+						$('#voverview').text(data.proposal.overview);
+						Swal.close();
+						$('#view').addClass('is-active');
+						$('html').addClass('is-clipped');
+					},
+					error: function(err) {
+						ajaxError(err);
 					}
-					$('#vprogram').text(data.proposal.program);
-					$('#vtitle').text(data.proposal.title);
-					$('#varea').text(data.proposal.area);
-					$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
-					$('#voverview').text(data.proposal.overview);
- 					Swal.close();
-					$('#view').addClass('is-active');
-					$('html').addClass('is-clipped');
-			},
-			error: function(err) {
-				ajaxError(err);
+				});
 			}
-		});
-		}
 		}, 1000);
 	});
 
 	$('#myp').click(function() {
-		if ($('#thesis').hasClass('is-active')) {
-			tab = 'per', search = '';
-			$('#search input').val('');
+		if (!$(this).hasClass('is-active')) {
+			$('.tabs li').removeClass('is-active');
 			$(this).addClass('is-active');
-			$('#thesis').removeClass('is-active');
-			loadProposals();
+			$('#search input').val('');
+			tab = 'myp', search = '';
+			retrieveProposals();
 		}
 	});
 
 	$('#thesis').click(function() {
-		if ($('#myp').hasClass('is-active')) {
-			tab = 'all', search = '';
-			$('#search input').val('');
+		if (!$(this).hasClass('is-active')) {
+			$('.tabs li').removeClass('is-active');
 			$(this).addClass('is-active');
-			$('#myp').removeClass('is-active');
-			loadProposals();
+			$('.column:nth-child(2)').removeClass('is-hidden');
+			$('#logout').removeClass('is-hidden');
+			$('#search input').val('');
+			tab = 'all', search = '';
+			retrieveProposals();
 		}
+	});
+
+	$('#logs').click(function() {
+		if (!$(this).hasClass('is-active')) {
+			$('.tabs li').removeClass('is-active');
+			$(this).addClass('is-active');
+			$('#search input').val('');
+			$('.column:nth-child(2)').addClass('is-hidden');
+			$('#logout').removeClass('is-hidden');
+			search = '';
+			retrieveLogs();
+		}
+	});
+
+	$('#search input').keyup(function() {
+		$(this).val() != '' ? $('#clear').removeAttr('disabled') : $('#clear').attr('disabled', true);
 	});
 
 	$('#search').submit(function(e) {
 		e.preventDefault();
-		if (tab = 'per') {
-			$('#thesis').addClass('is-active');
+		if (tab == 'myp') {
 			$('#myp').removeClass('is-active');
+			$('#thesis').addClass('is-active');
 		}
-		$('#search button').addClass('is-loading');
+		$('#search button[title="Search"]').addClass('is-loading');
 		tab = 'all', search = $('#search input').val();
-		loadProposals();
+		if ($('#thesis').hasClass('is-active')) {
+			retrieveProposals();
+		} else if ($('#logs').hasClass('is-active')) {
+			retrieveLogs();
+		}
+	});
+
+	$('#clear').click(function() {
+		$('#search input').val('');
+		$(this).attr('disabled', true);
+		tab = 'all', search = '';
+		if ($('#thesis').hasClass('is-active')) {
+			retrieveProposals();
+		} else if ($('#logs').hasClass('is-active')) {
+			retrieveLogs();
+		}
 	});
 });

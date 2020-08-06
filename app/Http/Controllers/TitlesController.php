@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use App\Title;
+use App\Log;
+use Carbon\Carbon;
 use Auth;
 
 class TitlesController extends Controller
@@ -18,38 +20,83 @@ class TitlesController extends Controller
     {
         if ($request->data == 'titles') {
             if ($request->search == '' && $request->tab == 'all') {
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')->orderBy('updated_at', 'desc')->get();
-                if (Auth::user()->type == 'ADMIN') {
-                    $students = User::select('name', 'title_id')->get();
-                    return response()->json(['proposal' => $proposal, 'students' => $students]);
-                }
-            } else if ($request->tab == 'per') {
-		$students = User::select('title_id')->where('student_number', Auth::user()->student_number)->get();
-		$stid = array();
-		foreach ($students as $student)
-		    array_push($stid, $student->title_id);
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')
-		    ->whereIn('id', $stid)
-		    ->orderBy('updated_at', 'desc')->get();
-            } else {
-                $students = User::select('title_id')
-                ->where('name', 'LIKE', '%' . $request->search . '%')
-                ->orWhere('student_number', 'LIKE', '%' . $request->search . '%')->get();
-		$stid = array();
-		foreach ($students as $student)
-		    array_push($stid, $student->title_id);
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser', 'registration_id')
-                ->where('title', 'LIKE', '%' . $request->search . '%')
-                ->orWhere('area', 'LIKE', '%' . $request->search . '%')
-                ->orWhere('program', 'LIKE', '%' . $request->search . '%')
-                ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
-                ->orWhere('adviser', 'LIKE', '%' . $request->search . '%')
-                ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
-                ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
-                ->orWhereIn('id', $stid)
+                $proposals = Title::select('title', 'registration_id', 'area', 'program', 'keywords', 'adviser_id')
                 ->orderBy('updated_at', 'desc')->get();
+                if (Auth::user()->type == 'ADMIN') {
+                    foreach ($proposals as $proposal)  {
+                        $students = [];
+                        foreach ($proposal->users as $user)
+                            array_push($students, $user->name);
+                        $proposal->put('students', $students);
+                        $proposal->put('adviser', User::find($proposal->adviser_id)->name);
+                    }
+                }
+            } else if ($request->tab == 'myp') {
+                if (Auth::user()->type == 'STUDENT') {
+                    $proposals = Auth::user()->titles()->select('title', 'registration_id', 'area', 'program', 'keywords', 'adviser_id')
+                    ->orderby('updated_at', 'desc')->get();
+                    foreach ($proposals as $proposal) {
+                        $students = [];
+                        foreach ($proposal->users as $user)
+                            array_push($students, $user->name);
+                        $proposal->put('students', $students);
+                        $proposal->put('adviser', User::find($proposal->adviser_id)->name);
+                    }
+                } else if (Auth::user()->type == 'ADVISER') {
+                    $proposals = Title::select('title', 'registration_id', 'area', 'program', 'keywords')
+                    ->where('adviser_id', Auth::user()->id)->orderBy('updated_at', 'desc')->get();
+                    foreach ($proposals as $proposal) {
+                        $students = [];
+                        foreach ($proposal->users as $user)
+                            array_push($students, $user->name);
+                        $proposal->put('students', $students);
+                        $proposal->put('adviser', Auth::user()->name);
+                    }
+                }
+            } else {
+                $proposals = Title::select('id', 'title', 'registration_id', 'area', 'program', 'keywords', 'adviser_id')
+                ->where('title', '%' . $request->search . '%')
+                ->orWhere('registration_id', '%' . $request->search . '%')
+                ->orWhere('area', '%' . $request->search . '%')
+                ->orWhere('program', '%' . $request->search . '%')
+                ->orWhere('overview', '%' . $request->search . '%')
+                ->orWhere('keywords', '%' . $request->search . '%')
+                ->orderBy('updated_at', 'desc')->get();
+
+                if (Auth::user()->type == 'ADMIN') {
+                    foreach ($proposals as $proposal) {
+                        $students = [];
+                        foreach ($proposal->users as $user)
+                            array_push($students, $user->name);
+                        $proposal->put('students', $students);
+                        $proposal->put('adviser', User::find($proposal->adviser_id)->name);
+                    }
+
+                    $user_ids = User::select('id')->where('name', 'LIKE', '%' . $request->search . '%')
+                    ->orwhere('student_number', 'LIKE', '%' . $request->search . '%')
+                    ->orwhere('type', 'LIKE', '%' . $request->search . '%')->get();
+
+                    foreach ($user_ids as $user_id) {
+                        $user_proposals = User::find($user_id)->titles()->select('id', 'title', 'registration_id', 'area', 'program', 'overview', 'keywords', 'adviser_id')
+                        ->orderBy('updated_at', 'desc')->get();
+                        foreach ($user_proposals as $proposal) {
+                            if ($proposals->contains('id', $proposal->id)) continue;
+                            $students = [];
+                            foreach ($proposal->users as $user)
+                                array_push($students, $user->name);
+                            $proposal->put('students', $students);
+                            $proposal->put('adviser', User::find($proposal->adviser_id)->name);
+                        }
+                        $proposals = $user->proposals->merge($proposals);
+                    }
+
+                    foreach ($user_ids as $user_id) {
+                        $user_proposals = Title::where('adviser_id', $user_id)->orderBy('updated_at', 'desc')->get();
+                        $proposals = $user_proposals->merge($proposals);
+                    }
+                }
             }
-	    return response()->json(['proposal' => $proposal]);
+            return response()->json(['proposals' => $proposals]);
         }
     }
 
@@ -61,43 +108,42 @@ class TitlesController extends Controller
      */
     public function store(Request $request)
     {
-        $thesis = new Title;
+        $proposal = new Title;
 
-        $thesis->fill($request->only([
+        $proposal->fill($request->only([
             'title',
             'area',
             'program',
-            'adviser',
             'overview',
             'keywords',
         ]));
 
-        $thesis->approved = false;
-        $thesis->registration_id = '2020-1-TP';
+        $proposal->approved = false;
+        $proposal->registration_id = '2020-1-TP';
         switch($request->program) {
             case 'BSCS':
-            $thesis->registration_id .= 'CS';
+            $proposal->registration_id .= 'CS';
             break;
 
             case 'BSIT':
-            $thesis->registration_id .= 'IT';
+            $proposal->registration_id .= 'IT';
             break;
 
             case 'BSEMCDA':
-            $thesis->registration_id .= 'DA';
+            $proposal->registration_id .= 'DA';
             break;
 
             case 'BSEMCGD':
-            $thesis->registration_id .= 'GD';
+            $proposal->registration_id .= 'GD';
             break;
 
             case 'BSIS':
-            $thesis->registration_id .= 'IS';
+            $proposal->registration_id .= 'IS';
             break;
         }
         $id = Title::latest('id')->value('id');
         $id ? $id++ : $id = 1;
-        $thesis->registration_id .= '-' . $id;
+        $proposal->registration_id .= '-' . $id;
 
         for ($i = 0; $i < count($request->students); $i++) {
             $user = new User;
@@ -110,7 +156,11 @@ class TitlesController extends Controller
 
             $user->save();
         }
-        $thesis->save();
+
+        $proposal->created_at = Carbon::now('+8:00');
+        $proposal->updated_at = Carbon::now('+8:00');
+        $proposal->save();
+        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' added a new proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
 
         return response()->json(['msg' => 'Thesis Title Proposal Added']);
     }
@@ -124,20 +174,20 @@ class TitlesController extends Controller
     public function show(Request $request, $id)
     {
         if ($request->data == 'view') {
-	    $exist = User::select('student_number')->where([
-		['title_id', $id],
-		['student_number', Auth::user()->student_number],
-  	    ])->get();
-	    $proposal = Title::find($id);
-            if (Auth::user()->type == 'ADMIN' || count($exist) > 0) {
-                $proposal = Title::find($id);
-                $students = User::select('name')->where('title_id', $id)->get();
-                return response()->json(['proposal' => $proposal, 'students' => $students]);
-            }
-            return response()->json(['status' => 'limited', 'proposal' => $proposal]);
+           $exist = User::select('student_number')->where([
+              ['title_id', $id],
+              ['student_number', Auth::user()->student_number],
+          ])->get();
+           $proposal = Title::find($id);
+           if (Auth::user()->type == 'ADMIN' || count($exist) > 0) {
+            $proposal = Title::find($id);
+            $students = User::select('name')->where('title_id', $id)->get();
+            return response()->json(['proposal' => $proposal, 'students' => $students]);
         }
-        return Title::select('id', 'title')->find($id);
+        return response()->json(['status' => 'limited', 'proposal' => $proposal]);
     }
+    return Title::select('id', 'title')->find($id);
+}
 
     /**
      * Show the form for editing the specified resource.
@@ -170,7 +220,9 @@ class TitlesController extends Controller
             'keywords'
         ]));
 
+        $proposal->updated_at = Carbon::now('+8:00');
         $proposal->save();
+        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
 
         return response()->json(['msg' => $proposal->title . ' has been updated']);
     }
@@ -183,13 +235,10 @@ class TitlesController extends Controller
      */
     public function destroy($id)
     {
-        $title = Title::find($id);
+        $proposal = Title::find($id);
 
-        $title->delete();
-
-        $students = User::where('title_id', $id)->get();
-        foreach($students as $student)
-            $student->delete();
+        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' deleted a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
+        $proposal->delete();
 
         return response()->json(['status' => 'success']);
     }
