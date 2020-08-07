@@ -43,7 +43,7 @@ class User extends Authenticatable
     ];
 
     public function titles() {
-        return $this->belongsToMany('App\Title');
+        return $this->belongsToMany('App\Title', 'user_title');
     }
 
     public static function boot() {

@@ -116,7 +116,7 @@
 			</span>
 			<div class="subtitle is-6">Loading</div>
 		</div>
-		{{-- <a class="box">
+		<a class="box">
 			<div class="columns">
 				<div class="column">
 					<h3 class="title is-4">Thesis Title</h3>
@@ -154,7 +154,7 @@
 					</div>
 				</div>
 			</div>
-		</a> --}}
+		</a>
 	</div>
 </div>
 
@@ -230,7 +230,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" readonly required>
+							<input type="text" class="input name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -245,7 +245,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" readonly required>
+							<input type="text" class="input name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -260,7 +260,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" readonly required>
+							<input type="text" class="input name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -275,7 +275,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" readonly required>
+							<input type="text" class="input name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -290,7 +290,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" readonly>
+							<input type="text" class="input name" readonly>
 						</div>
 					</div>
 				</div>

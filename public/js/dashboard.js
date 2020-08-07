@@ -247,6 +247,8 @@ $(function() {
 			if ($('#thesis').hasClass('is-active')) {
 				$('#thesis_note').addClass('is-hidden');
 				$('#edit .select').removeClass('is-hidden');
+				$('#submit').removeAttr('disabled');
+				$('.name').attr('readonly', true);
 				$('#adviser').empty();
 				Swal.fire({
 					html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -267,6 +269,7 @@ $(function() {
 						} else {
 							$('#edit .select').addClass('is-hidden');
 							$('#thesis_note').removeClass('is-hidden');
+							$('#submit').attr('disabled', true);
 						}
 						$('#edit').addClass('is-active');
 						$('html').addClass('is-clipped');
@@ -351,7 +354,7 @@ $(function() {
 			$.ajax({
 				type: 'POST',
 				url: 'titles/create',
-				data: {program:program, title:title, area:area, adviser:adviser, overview:overview, keywords:keywords, numbers:studentnums},
+				data: {program:program, title:title, area:area, adviser_id:adviser, overview:overview, keywords:keywords, numbers:studentnums},
 				datatype: 'JSON',
 				success: function(response) {
 					clearStatus();
@@ -481,6 +484,8 @@ $(function() {
 			allowEscapeKey: false
 		});
 		$('.si').addClass('is-hidden');
+		$('#submit').removeAttr('disabled');
+		$('.name').attr('readonly', true);
 		$('.si input').removeAttr('required');
 		$('#note').removeClass('is-hidden');
 		updateId = $(this).data('id');
@@ -576,6 +581,7 @@ $(function() {
 				$('#add span:nth-child(2)').text('Add Proposal');
 				$('#logout').removeClass('is-hidden');
 				$('#search input').val('').attr('placeholder', 'Search title, keyword, or name...');
+				$('#clear').attr('disabled', true);
 				tab = 'all', search = '';
 				retrieveProposals();
 			}
@@ -590,6 +596,7 @@ $(function() {
 				$('.column:nth-child(2)').addClass('is-hidden');
 				$('#logout').removeClass('is-hidden');
 				$('#search input').val('').attr('placeholder', 'Search description, date, or time...');
+				$('#clear').attr('disabled', true);
 				search = '';
 				retrieveLogs();
 			}
@@ -604,6 +611,7 @@ $(function() {
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Student');
 				$('#search input').val('').attr('placeholder', 'Search name or student number...');
+				$('#clear').attr('disabled', true);
 				$('#sn').attr('placeholder', 'XXXXXXXXXXX');
 				search = '';
 				retrieveStudents();
@@ -619,6 +627,7 @@ $(function() {
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Adviser');
 				$('#search input').val('').attr('placeholder', 'Search name or number...');
+				$('#clear').attr('disabled', true);
 				$('#sn').attr('placeholder', 'XXXXX');
 				search = '';
 				retrieveAdvisers();

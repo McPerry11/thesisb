@@ -114,8 +114,9 @@ class TitlesController extends Controller
             'title',
             'area',
             'program',
+            'adviser_id',
             'overview',
-            'keywords',
+            'keywords'
         ]));
 
         $proposal->approved = false;
@@ -145,16 +146,8 @@ class TitlesController extends Controller
         $id ? $id++ : $id = 1;
         $proposal->registration_id .= '-' . $id;
 
-        for ($i = 0; $i < count($request->students); $i++) {
-            $user = new User;
-
-            $user->student_number = $request->numbers[$i];
-            $user->name = $request->students[$i];
-            $user->type = 'STUDENT';
-            $user->password = '12345';
-            $user->title_id = $id;
-
-            $user->save();
+        for ($i = 0; $i < count($request->numbers); $i++) {
+            $student = User::where('student_number', $request->numbers[$i])->get();
         }
 
         $proposal->created_at = Carbon::now('+8:00');
@@ -174,12 +167,12 @@ class TitlesController extends Controller
     public function show(Request $request, $id)
     {
         if ($request->data == 'view') {
-           $exist = User::select('student_number')->where([
-              ['title_id', $id],
-              ['student_number', Auth::user()->student_number],
-          ])->get();
-           $proposal = Title::find($id);
-           if (Auth::user()->type == 'ADMIN' || count($exist) > 0) {
+         $exist = User::select('student_number')->where([
+          ['title_id', $id],
+          ['student_number', Auth::user()->student_number],
+      ])->get();
+         $proposal = Title::find($id);
+         if (Auth::user()->type == 'ADMIN' || count($exist) > 0) {
             $proposal = Title::find($id);
             $students = User::select('name')->where('title_id', $id)->get();
             return response()->json(['proposal' => $proposal, 'students' => $students]);
