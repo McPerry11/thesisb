@@ -74,7 +74,7 @@
 					<span>Thesis Titles</span>
 				</a>
 			</li>
-			@if (Auth::user()->type == 'STUDENT')
+			@if (Auth::user()->type != 'ADMIN')
 			<li id="myp">
 				<a>
 					My Proposals
@@ -411,21 +411,21 @@
 			<span class="delete"></span>
 		</header>
 		<section class="modal-card-body">
-			<button class="button is-link is-light is-fullwidth">
+			<button class="button is-link is-light is-fullwidth" type="button" title="Feature not yet available" disabled>
 				<span class="icon">
 					<i class="fas fa-file-excel"></i>
 				</span>
 				<span>Upload Excel</span>
 			</button>
 			<div class="divider">OR</div>
-			<div class="subtitle is-5 has-text-centered">Add an Individual Student</div>
+			<div class="subtitle is-5 has-text-centered"></div>
 			<div class="field is-horizontal">
 				<div class="field-label">
-					<label class="label">Student Number</label>
+					<label id="user_label" class="label">Student Number</label>
 				</div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="sncontrol" class="control">
 							<input type="text" class="input" id="sn" placeholder="XXXXXXXXXXX" required>
 						</div>
 					</div>

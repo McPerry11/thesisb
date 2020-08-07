@@ -24,6 +24,8 @@ $(function() {
 		$('select').removeAttr('disabled');
 		$('input').removeAttr('readonly');
 		$('textarea').removeAttr('readonly');
+		$('#edit_user button.is-fullwidth').attr('disabled', true);
+		$('#clear').attr('disabled', true);
 	}
 
 	function ajaxError(err) {
@@ -176,8 +178,8 @@ $(function() {
 		$('.notif').remove();
 		$.ajax({
 			type: 'POST',
-			url: 'students',
-			data: {data:'students'},
+			url: 'users',
+			data: {data:'students', search:search},
 			datatype: 'JSON',
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
@@ -199,6 +201,36 @@ $(function() {
 		});
 	}
 
+	function retrieveAdvisers() {
+		$('#loading').removeClass('is-hidden');
+		$('#contents .box').remove();
+		$('.table-container').remove();
+		$('.notif').remove();
+		$.ajax({
+			type: 'POST',
+			url: 'users',
+			data: {data:'advisers', search:search},
+			datatype: 'JSON',
+			success: function(data) {
+				$('#search button').removeClass('is-loading');
+				$('#loading').addClass('is-hidden');
+				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>ID Number</th><th>Name</th><th>Actions</th></tr></table></div>');
+				if (data.length > 0) {
+					for (i in data)
+						$('table').append('<tr><td>' + data[i].student_number + '</td><td>' + data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data[i].id + '" title="Edit ' + data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data[i].id + '" title="Remove ' + data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+				} else {
+					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No advisers registered.</div></td></tr>');
+				}
+			},
+			error: function(err) {
+				$('#loading').addClass('is-hidden');
+				$('#search button').removeClass('is-loading');
+				$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve advisers. Try again later.</div></div>');
+				ajaxError(err);
+			}
+		});
+	}
+
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
@@ -211,26 +243,39 @@ $(function() {
 	});
 
 	$('#add').click(function() {
-		if ($('#thesis').hasClass('is-active')) {
-			$('#edit').addClass('is-active');
-			$('html').addClass('is-clipped');
-			$('.modal-card-title').text('Add Proposal');
-			$('.modal input').val('');
-			$('textarea').val('');
-			$('#program').val('BSCS');
-			$('.si input').attr('required', true);
-			$('#sname5').removeAttr('required');
-			$('#snum5').removeAttr('required');
-			$('.si').removeClass('is-hidden');
-			$('#note').addClass('is-hidden');
-			if ($('#submit span:nth-child(2)').text() == 'Update') $('#submit').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
-			document.getElementById('keywords').BulmaTagsInput().flush();
-		} else if ($('#students').hasClass('is-active')) {
-			$('#edit_user').addClass('is-active');
-			$('html').addClass('is-clipped');
-			$('.modal-card-title').text('Add Student');
-			$('.modal input').val('');
-			if ($('#submit_user span:nth-child(2)').text() == 'Update') $('#submit_user').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
+		if ($('#loading').hasClass('is-hidden')) {
+			if ($('#thesis').hasClass('is-active')) {
+				$('#edit').addClass('is-active');
+				$('html').addClass('is-clipped');
+				$('.modal-card-title').text('Add Proposal');
+				$('.modal input').val('');
+				$('textarea').val('');
+				$('#program').val('BSCS');
+				$('.si input').attr('required', true);
+				$('#sname5').removeAttr('required');
+				$('#snum5').removeAttr('required');
+				$('.si').removeClass('is-hidden');
+				$('#note').addClass('is-hidden');
+				if ($('#submit span:nth-child(2)').text() == 'Update') $('#submit').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
+				document.getElementById('keywords').BulmaTagsInput().flush();
+			} else if ($('#students').hasClass('is-active') || $('#advisers').hasClass('is-active')) {
+				$('#edit_user .help').remove();
+				$('#sn').removeClass('is-danger').removeClass('is-success');
+				$('#submit_user').removeAttr('disabled');
+				$('#edit_user').addClass('is-active');
+				$('html').addClass('is-clipped');
+				if ($('#students').hasClass('is-active')) {
+					$('.modal-card-title').text('Add Student');
+					$('#edit_user .subtitle').text('Add an Individual Student');
+					$('#user_label').text('Student Number');
+				} else {
+					$('.modal-card-title').text('Add Adviser');
+					$('#edit_user .subtitle').text('Add an Individual Adviser');
+					$('#user_label').text('ID Number');
+				}
+				$('.modal input').val('');
+				if ($('#submit_user span:nth-child(2)').text() == 'Update') $('#submit_user').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
+			}
 		}
 	});
 
@@ -243,7 +288,7 @@ $(function() {
 			$('#edit').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
-		if (!$('#submit_user').hasClass('is-loading')) {
+		if (!$('#submit_user').hasClass('is-loading') && !$('#sncontrol').hasClass('is-loading')) {
 			$('#edit_user').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
@@ -254,7 +299,7 @@ $(function() {
 			$('#edit').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
-		if (!$('#submit_user').hasClass('is-loading')) {
+		if (!$('#submit_user').hasClass('is-loading') && !$('#sncontrol').hasClass('is-loading')) {
 			$('#edit_user').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
@@ -481,48 +526,72 @@ $(function() {
 
 	$('#myp').click(function() {
 		if (!$(this).hasClass('is-active')) {
-			$('.tabs li').removeClass('is-active');
-			$(this).addClass('is-active');
-			$('#search input').val('');
-			tab = 'myp', search = '';
-			retrieveProposals();
+			if ($('#loading').hasClass('is-hidden')) {
+				$('.tabs li').removeClass('is-active');
+				$(this).addClass('is-active');
+				$('#search input').val('');
+				tab = 'myp', search = '';
+				retrieveProposals();
+			}
 		}
 	});
 
 	$('#thesis').click(function() {
 		if (!$(this).hasClass('is-active')) {
-			$('.tabs li').removeClass('is-active');
-			$(this).addClass('is-active');
-			$('.column:nth-child(2)').removeClass('is-hidden');
-			$('#add span:nth-child(2)').text('Add Proposal');
-			$('#logout').removeClass('is-hidden');
-			$('#search input').val('').attr('placeholder', 'Search title, keyword, or name...');
-			tab = 'all', search = '';
-			retrieveProposals();
+			if ($('#loading').hasClass('is-hidden')) {
+				$('.tabs li').removeClass('is-active');
+				$(this).addClass('is-active');
+				$('.column:nth-child(2)').removeClass('is-hidden');
+				$('#add span:nth-child(2)').text('Add Proposal');
+				$('#logout').removeClass('is-hidden');
+				$('#search input').val('').attr('placeholder', 'Search title, keyword, or name...');
+				tab = 'all', search = '';
+				retrieveProposals();
+			}
 		}
 	});
 
 	$('#logs').click(function() {
 		if (!$(this).hasClass('is-active')) {
-			$('.tabs li').removeClass('is-active');
-			$(this).addClass('is-active');
-			$('.column:nth-child(2)').addClass('is-hidden');
-			$('#logout').removeClass('is-hidden');
-			$('#search input').val('').attr('placeholder', 'Search description, date, or time...');
-			search = '';
-			retrieveLogs();
+			if ($('#loading').hasClass('is-hidden')) {
+				$('.tabs li').removeClass('is-active');
+				$(this).addClass('is-active');
+				$('.column:nth-child(2)').addClass('is-hidden');
+				$('#logout').removeClass('is-hidden');
+				$('#search input').val('').attr('placeholder', 'Search description, date, or time...');
+				search = '';
+				retrieveLogs();
+			}
 		}
 	});
 
 	$('#students').click(function() {
 		if (!$(this).hasClass('is-active')) {
-			$('.tabs li').removeClass('is-active');
-			$(this).addClass('is-active');
-			$('.column:nth-child(2)').removeClass('is-hidden');
-			$('#add span:nth-child(2)').text('Add Student');
-			$('#search input').val('').attr('placeholder', 'Search name or student number...');
-			search = '';
-			retrieveStudents();
+			if ($('#loading').hasClass('is-hidden')) {
+				$('.tabs li').removeClass('is-active');
+				$(this).addClass('is-active');
+				$('.column:nth-child(2)').removeClass('is-hidden');
+				$('#add span:nth-child(2)').text('Add Student');
+				$('#search input').val('').attr('placeholder', 'Search name or student number...');
+				$('#sn').attr('placeholder', 'XXXXXXXXXXX');
+				search = '';
+				retrieveStudents();
+			}
+		}
+	});
+
+	$('#advisers').click(function() {
+		if (!$(this).hasClass('is-active')) {
+			if ($('#loading').hasClass('is-hidden')) {
+				$('.tabs li').removeClass('is-active');
+				$(this).addClass('is-active');
+				$('.column:nth-child(2)').removeClass('is-hidden');
+				$('#add span:nth-child(2)').text('Add Adviser');
+				$('#search input').val('').attr('placeholder', 'Search name or number...');
+				$('#sn').attr('placeholder', 'XXXXX');
+				search = '';
+				retrieveAdvisers();
+			}
 		}
 	});
 
@@ -532,31 +601,145 @@ $(function() {
 
 	$('#search').submit(function(e) {
 		e.preventDefault();
-		if (tab == 'myp') {
-			$('#myp').removeClass('is-active');
-			$('#thesis').addClass('is-active');
-		}
-		$('#search button[title="Search"]').addClass('is-loading');
-		tab = 'all', search = $('#search input').val();
-		if ($('#thesis').hasClass('is-active')) {
-			retrieveProposals();
-		} else if ($('#logs').hasClass('is-active')) {
-			retrieveLogs();
-		} else if ($('#students').hasClass('is-active')) {
-			retrieveStudents();
-		}
+		if ($('#loading').hasClass('is-hidden')) {
+			if (tab == 'myp') {
+				$('#myp').removeClass('is-active');
+				$('#thesis').addClass('is-active');
+			}
+			$('#search button[title="Search"]').addClass('is-loading');
+			tab = 'all', search = $('#search input').val();
+			if ($('#thesis').hasClass('is-active')) {
+				retrieveProposals();
+			} else if ($('#logs').hasClass('is-active')) {
+				retrieveLogs();
+			} else if ($('#students').hasClass('is-active')) {
+				retrieveStudents();
+			} else if ($('#advisers').hasClass('is-active')) {
+				retrieveAdvisers();
+			}
+		}	
 	});
 
 	$('#clear').click(function() {
-		$('#search input').val('');
-		$(this).attr('disabled', true);
-		tab = 'all', search = '';
-		if ($('#thesis').hasClass('is-active')) {
-			retrieveProposals();
-		} else if ($('#logs').hasClass('is-active')) {
-			retrieveLogs();
-		} else if ($('#students').hasClass('is-active')) {
-			retrieveStudents();
+		if ($('#loading').hasClass('is-hidden')) {
+			$('#search input').val('');
+			$(this).attr('disabled', true);
+			tab = 'all', search = '';
+			if ($('#thesis').hasClass('is-active')) {
+				retrieveProposals();
+			} else if ($('#logs').hasClass('is-active')) {
+				retrieveLogs();
+			} else if ($('#students').hasClass('is-active')) {
+				retrieveStudents();
+			} else if ($('#advisers').hasClass('is-active')) {
+				retrieveAdvisers();
+			}
+		}
+	});
+
+	$('#user_form').submit(function(e) {
+		e.preventDefault();
+		$('input').attr('readonly', true);
+		$('button').attr('disabled', true);
+		$('#submit_user').addClass('is-loading').removeAttr('disabled');
+		var number = $('#sn').val(), name = $('#name').val(), user = $('#students').hasClass('is-active') ? 'STUDENT' : 'ADVISER';
+		$.ajax({
+			type: 'POST',
+			url: 'users/create',
+			data: {type:user, student_number:number, name:name},
+			datatype: 'JSON',
+			success: function(response) {
+				clearStatus();
+				$('#submit_user').removeClass('is-loading');
+				Swal.fire({
+					icon: 'success',
+					title: response.msg,
+					showConfirmButton: false,
+					timer: 2500
+				}).then(function() {
+					$('#edit_user').removeClass('is-active');
+					$('html').removeClass('is-clipped');
+					$('#students').hasClass('is-active') ? retrieveStudents() : retrieveAdvisers();
+				});
+			},
+			error: function(err) {
+				clearStatus();
+				$('#submit_user').removeClass('is-loading');
+				ajaxError(err);
+			}
+		});
+	});
+
+	$('#sn').keyup(function() {
+		if (!$('#sncontrol').hasClass('is-loading')) {
+			$(this).removeClass('is-success').removeClass('is-danger');
+			$('#edit_user .help').remove();
+			$('#submit_user').removeAttr('disabled');
+			if ($('#students').hasClass('is-active')) {
+				if ($(this).val().length > 11) $(this).val($(this).val().slice(0, 11));
+				if ($(this).val().length == 11) {
+					$('#sncontrol').addClass('is-loading');
+					$(this).attr('readonly', true);
+					$('button').attr('disabled', true);
+					let sn = $(this).val();
+					$.ajax({
+						type: 'POST',
+						url: 'users/check',
+						data: {student_number:sn, type:'STUDENT'},
+						datatype: 'JSON',
+						success: function(response) {
+							$('#sncontrol').removeClass('is-loading');
+							if (response.status == 'success') {
+								clearStatus();
+								$('#sn').addClass('is-success').removeAttr('readonly');
+							} else {
+								clearStatus();
+								$('#sn').addClass('is-danger');
+								$('#sncontrol').append('<div class="help is-danger">' + response.msg + '</div>')
+								$('#submit_user').attr('disabled', true);
+							}
+						},
+						error: function(err) {
+							clearStatus();
+							$('#sncontrol').removeClass('is-loading');
+							$('#sn').removeAttr('disabled');
+							ajaxError(err);
+						}
+					});
+				}
+			} else {
+				if ($(this).val().length > 5) $(this).val($(this).val().slice(0, 5));
+				if ($(this).val().length == 5) {
+					$('#sncontrol').addClass('is-loading');
+					$(this).attr('readonly', true);
+					$('button').attr('disabled', true);
+					let sn = $(this).val();
+					$.ajax({
+						type: 'POST',
+						url: 'users/check',
+						data: {student_number:sn, type:'ADVISER'},
+						datatype: 'JSON',
+						success: function(response) {
+							$('#sncontrol').removeClass('is-loading');
+							if (response.status == 'success') {
+								clearStatus();
+								$('#sn').addClass('is-success').removeAttr('readonly');
+							} else {
+								clearStatus();
+								$('#sn').addClass('is-danger');
+								$('#sncontrol').append('<div class="help is-danger">' + response.msg + '</div>')
+								$('#submit_user').attr('disabled', true);
+							}
+						},
+						error: function(err) {
+							clearStatus();
+							$('#sncontrol').removeClass('is-loading');
+							$('#sn').removeAttr('disabled');
+							ajaxError(err);
+						}
+					});
+				}
+			}
 		}
 	});
 });
