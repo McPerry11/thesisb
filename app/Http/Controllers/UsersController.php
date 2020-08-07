@@ -25,7 +25,7 @@ class UsersController extends Controller
             ->orWhere('student_number', 'LIKE', '%' . $request->search . '%')
             ->orderBy('updated_at', 'desc')->get();
         } else if ($request->data == 'advisers') {
-            if ($request->saerch == '') {
+            if ($request->search == '') {
                 return User::where('type', 'ADVISER')->orderBy('updated_at', 'desc')->get();
             }
             return User::where('type', 'ADVISER')
@@ -82,9 +82,11 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        if ($request->data == 'advisers') {
+            return User::select('id', 'name')->where('type', 'ADVISER')->orderBy('name', 'asc')->get();
+        }
     }
 
     /**
@@ -95,7 +97,7 @@ class UsersController extends Controller
      */
     public function edit($id)
     {
-        //
+        return User::select('name', 'student_number')->find($id);
     }
 
     /**
@@ -107,7 +109,17 @@ class UsersController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::find($id);
+
+        $user->fill($request->only([
+            'name',
+            'student_number'
+        ]));
+
+        $user->save();
+        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a registered ' . strtolower($user->type) . ': ' . $user->name . '.']);
+
+        return response()->json(['msg' => 'Updated Successfully']);
     }
 
     /**
@@ -118,6 +130,11 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = User::find($id);
+
+        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' deleted a registered ' . strtolower($user->type) . ': ' . $user->name . '.']);
+        $user->delete();
+
+        return response()->json(['msg' => 'Deleted Successfully']);
     }
 }

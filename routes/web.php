@@ -31,4 +31,8 @@ Route::group(['middleware' => 'auth'], function() {
 	Route::post('users', 'UsersController@index');
 	Route::post('users/create', 'UsersController@store');
 	Route::post('users/check', 'UsersController@create');
+	Route::post('users/validate', 'UsersController@show');
+	Route::post('users/{id}', 'UsersController@edit');
+	Route::post('users/{id}/update', 'UsersController@update');
+	Route::post('users/{id}/delete', 'UsersController@destroy');
 });

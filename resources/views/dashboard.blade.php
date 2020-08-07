@@ -224,7 +224,7 @@
 				</div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum1_control" class="control">
 							<input type="number" id="snum1" class="input sn" placeholder="S.N. #1" required>
 						</div>
 					</div>
@@ -239,7 +239,7 @@
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum2_control" class="control">
 							<input type="number" id="snum2" class="input sn" placeholder="S.N. #2" required>
 						</div>
 					</div>
@@ -254,7 +254,7 @@
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum3_control" class="control">
 							<input type="number" id="snum3" class="input sn" placeholder="S.N. #3" required>
 						</div>
 					</div>
@@ -269,7 +269,7 @@
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum4_control" class="control">
 							<input type="number" id="snum4" class="input sn" placeholder="S.N. #4" required>
 						</div>
 					</div>
@@ -284,13 +284,13 @@
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum5_control" class="control">
 							<input type="number" id="snum5" class="input sn" placeholder="S.N. #5">
 						</div>
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input" placeholder="Last Name, First Name M.N.">
+							<input type="text" class="input" readonly>
 						</div>
 					</div>
 				</div>
@@ -305,6 +305,7 @@
 							<div class="select is-fullwidth">
 								<select id="adviser"></select>
 							</div>
+							<div id="thesis_note" class="has-text-danger is-hidden">No advisers registered.</div>
 						</div>
 					</div>
 				</div>
@@ -411,13 +412,15 @@
 			<span class="delete"></span>
 		</header>
 		<section class="modal-card-body">
-			<button class="button is-link is-light is-fullwidth" type="button" title="Feature not yet available" disabled>
-				<span class="icon">
-					<i class="fas fa-file-excel"></i>
-				</span>
-				<span>Upload Excel</span>
-			</button>
-			<div class="divider">OR</div>
+			<div id="upload">
+				<button class="button is-link is-light is-fullwidth" type="button" title="Feature not yet available" disabled>
+					<span class="icon">
+						<i class="fas fa-file-excel"></i>
+					</span>
+					<span>Upload Excel</span>
+				</button>
+				<div class="divider">OR</div>
+			</div>
 			<div class="subtitle is-5 has-text-centered"></div>
 			<div class="field is-horizontal">
 				<div class="field-label">

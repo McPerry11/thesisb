@@ -234,7 +234,7 @@ $(function() {
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
-	var updateId, check, search = '', tab = 'all';
+	var updateId, check, editsn, editid, search = '', tab = 'all';
 	retrieveProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
 	responsiveViewport();
@@ -245,21 +245,52 @@ $(function() {
 	$('#add').click(function() {
 		if ($('#loading').hasClass('is-hidden')) {
 			if ($('#thesis').hasClass('is-active')) {
-				$('#edit').addClass('is-active');
-				$('html').addClass('is-clipped');
-				$('.modal-card-title').text('Add Proposal');
-				$('.modal input').val('');
-				$('textarea').val('');
-				$('#program').val('BSCS');
-				$('.si input').attr('required', true);
-				$('#sname5').removeAttr('required');
-				$('#snum5').removeAttr('required');
-				$('.si').removeClass('is-hidden');
-				$('#note').addClass('is-hidden');
-				if ($('#submit span:nth-child(2)').text() == 'Update') $('#submit').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
-				document.getElementById('keywords').BulmaTagsInput().flush();
+				$('#thesis_note').addClass('is-hidden');
+				$('#edit .select').removeClass('is-hidden');
+				$('#adviser').empty();
+				Swal.fire({
+					html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
+					showConfirmButton: false,
+					allowOutsideClick: false,
+					allowEscapeKey: false
+				});
+				$.ajax({
+					type: 'POST',
+					url: 'users/validate',
+					data: {data:'advisers'},
+					datatype: 'JSON',
+					success: function(data) {
+						if (data.length > 0) {
+							for (i in data) {
+								$('#adviser').append('<option value="' + data[i].id + '">' + data[i].name + '</option>')
+							}
+						} else {
+							$('#edit .select').addClass('is-hidden');
+							$('#thesis_note').removeClass('is-hidden');
+						}
+						$('#edit').addClass('is-active');
+						$('html').addClass('is-clipped');
+						$('.modal-card-title').text('Add Proposal');
+						$('.modal input').val('');
+						$('textarea').val('');
+						$('#program').val('BSCS');
+						$('.si input').attr('required', true);
+						$('#sname5').removeAttr('required');
+						$('#snum5').removeAttr('required');
+						$('.si').removeClass('is-hidden');
+						$('#note').addClass('is-hidden');
+						$('#submit').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
+						document.getElementById('keywords').BulmaTagsInput().flush();
+						Swal.close();
+					},
+					error: function(err) {
+						ajaxError(err);
+					}
+				});
 			} else if ($('#students').hasClass('is-active') || $('#advisers').hasClass('is-active')) {
 				$('#edit_user .help').remove();
+				$('#upload').removeClass('is-hidden');
+				$('#edit_user .subtitle').removeClass('is-hidden');
 				$('#sn').removeClass('is-danger').removeClass('is-success');
 				$('#submit_user').removeAttr('disabled');
 				$('#edit_user').addClass('is-active');
@@ -274,7 +305,7 @@ $(function() {
 					$('#user_label').text('ID Number');
 				}
 				$('.modal input').val('');
-				if ($('#submit_user span:nth-child(2)').text() == 'Update') $('#submit_user').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
+				$('#submit_user').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
 			}
 		}
 	});
@@ -465,7 +496,7 @@ $(function() {
 				$('#overview').val(data.overview);
 				document.getElementById('keywords').BulmaTagsInput().add(data.keywords);
 				$('#edit .modal-card-title').text('Edit Proposal');
-				if ($('#submit span:nth-child(2)').text() == 'Add') $('#submit').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
+				$('#submit').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
 				Swal.close();
 				$('#edit').addClass('is-active');
 				$('html').addClass('is-clipped');
@@ -643,31 +674,59 @@ $(function() {
 		$('button').attr('disabled', true);
 		$('#submit_user').addClass('is-loading').removeAttr('disabled');
 		var number = $('#sn').val(), name = $('#name').val(), user = $('#students').hasClass('is-active') ? 'STUDENT' : 'ADVISER';
-		$.ajax({
-			type: 'POST',
-			url: 'users/create',
-			data: {type:user, student_number:number, name:name},
-			datatype: 'JSON',
-			success: function(response) {
-				clearStatus();
-				$('#submit_user').removeClass('is-loading');
-				Swal.fire({
-					icon: 'success',
-					title: response.msg,
-					showConfirmButton: false,
-					timer: 2500
-				}).then(function() {
-					$('#edit_user').removeClass('is-active');
-					$('html').removeClass('is-clipped');
-					$('#students').hasClass('is-active') ? retrieveStudents() : retrieveAdvisers();
-				});
-			},
-			error: function(err) {
-				clearStatus();
-				$('#submit_user').removeClass('is-loading');
-				ajaxError(err);
-			}
-		});
+		if ($('#submit_user span:nth-child(2)').text() == 'Add') {
+			$.ajax({
+				type: 'POST',
+				url: 'users/create',
+				data: {type:user, student_number:number, name:name},
+				datatype: 'JSON',
+				success: function(response) {
+					clearStatus();
+					$('#submit_user').removeClass('is-loading');
+					Swal.fire({
+						icon: 'success',
+						title: response.msg,
+						showConfirmButton: false,
+						timer: 2500
+					}).then(function() {
+						$('#edit_user').removeClass('is-active');
+						$('html').removeClass('is-clipped');
+						$('#students').hasClass('is-active') ? retrieveStudents() : retrieveAdvisers();
+					});
+				},
+				error: function(err) {
+					clearStatus();
+					$('#submit_user').removeClass('is-loading');
+					ajaxError(err);
+				}
+			});
+		} else {
+			$.ajax({
+				type: 'POST',
+				url: 'users/' + editid + '/update',
+				data: {name:name, student_number:number},
+				datatype: 'JSON',
+				success: function(response) {
+					clearStatus();
+					$('#submit_user').removeClass('is-loading');
+					Swal.fire({
+						icon: 'success',
+						title: response.msg,
+						showConfirmButton: false,
+						timer: 2500
+					}).then(function() {
+						$('#edit_user').removeClass('is-active');
+						$('html').removeClass('is-clipped');
+						$('#students').hasClass('is-active') ? retrieveStudents() : retrieveAdvisers();
+					});
+				},
+				error: function(err) {
+					clearStatus();
+					$('#submit_user').removeClass('is-loading');
+					ajaxError(err);
+				}
+			});
+		}
 	});
 
 	$('#sn').keyup(function() {
@@ -694,9 +753,13 @@ $(function() {
 								$('#sn').addClass('is-success').removeAttr('readonly');
 							} else {
 								clearStatus();
-								$('#sn').addClass('is-danger');
-								$('#sncontrol').append('<div class="help is-danger">' + response.msg + '</div>')
-								$('#submit_user').attr('disabled', true);
+								if (editsn != sn) {
+									$('#sn').addClass('is-danger');
+									$('#sncontrol').append('<div class="help is-danger">' + response.msg + '</div>')
+									$('#submit_user').attr('disabled', true);
+								} else {
+									$('#sn').addClass('is-success').removeAttr('readonly');
+								}
 							}
 						},
 						error: function(err) {
@@ -726,9 +789,13 @@ $(function() {
 								$('#sn').addClass('is-success').removeAttr('readonly');
 							} else {
 								clearStatus();
-								$('#sn').addClass('is-danger');
-								$('#sncontrol').append('<div class="help is-danger">' + response.msg + '</div>')
-								$('#submit_user').attr('disabled', true);
+								if (editsn != sn) {
+									$('#sn').addClass('is-danger');
+									$('#sncontrol').append('<div class="help is-danger">' + response.msg + '</div>')
+									$('#submit_user').attr('disabled', true);
+								} else {
+									$('#sn').addClass('is-success').removeAttr('readonly');
+								}
 							}
 						},
 						error: function(err) {
@@ -741,5 +808,107 @@ $(function() {
 				}
 			}
 		}
+	});
+
+	$('body').delegate('.studedit', 'click', function() {
+		$('button').attr('disabled', true);
+		$('input').attr('readonly', true);
+		$('#upload').addClass('is-hidden');
+		var id = $(this).data('id');
+		editid = id;
+		Swal.fire({
+			html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
+			showConfirmButton: false,
+			allowOutsideClick: false,
+			allowEscapeKey: false
+		});
+		$.ajax({
+			type: 'POST',
+			url: 'users/' + id,
+			datatype: 'JSON',
+			success: function(data) {
+				editsn = data.student_number;
+				$('#sn').val(data.student_number);
+				$('#name').val(data.name);
+				$('#edit_user .help').remove();
+				$('#sn').removeClass('is-danger').removeClass('is-success');
+				$('#edit_user .subtitle').addClass('is-hidden');
+				if ($('#students').hasClass('is-active')) {
+					$('.modal-card-title').text('Edit Student');
+					$('#user_label').text('Student Number');
+				} else {
+					$('.modal-card-title').text('Edit Adviser');
+					$('#user_label').text('ID Number');
+				}
+				$('#submit_user').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
+				$('#edit_user').addClass('is-active');
+				$('html').addClass('is-clipped');
+				clearStatus();
+				Swal.close();
+			},
+			error: function(err) {
+				ajaxError(err);
+			}
+		});
+	});
+
+	$('body').delegate('.studremove', 'click', function() {
+		$('button').attr('disabled', true);
+		$('input').attr('readonly', true);
+		var id = $(this).data('id');
+		Swal.fire({
+			html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
+			showConfirmButton: false,
+			allowOutsideClick: false,
+			allowEscapeKey: false
+		});
+		$.ajax({
+			type: 'POST',
+			url: 'users/' + id,
+			datatype: 'JSOON',
+			success: function(data) {
+				clearStatus();
+				Swal.fire({
+					icon: 'warning',
+					title: 'Confirm Delete',
+					text: 'Are you sure you want to delete ' + data.name + ' (' + data.student_number + ')?',
+					confirmButtonText: 'Yes',
+					showCancelButton: true,
+					cancelButtonText: 'No',
+				}).then((result) => {
+					if (result.value) {
+						Swal.fire({
+							title: 'Deleting Proposal',
+							html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
+							showConfirmButton: false,
+							allowOutsideClick: false,
+							allowEscapeKey: false
+						});
+						$.ajax({
+							type: 'POST',
+							url: 'users/' + id + '/delete',
+							datatype: 'JSON',
+							success: function(response) {
+								Swal.fire({
+									icon: 'success',
+									title: response.msg,
+									showConfirmButton: false,
+									timer: 2500
+								}).then(function() {
+									$('#students').hasClass('is-active') ? retrieveStudents() : retrieveAdvisers();
+								});
+							},
+							error: function(err) {
+								ajaxError(err);
+							}
+						});
+					}
+				});
+			},
+			error: function(err) {
+				clearStatus();
+				ajaxError(err);
+			}
+		});
 	});
 });
