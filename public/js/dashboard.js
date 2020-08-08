@@ -25,7 +25,7 @@ $(function() {
 		$('input').removeAttr('readonly');
 		$('textarea').removeAttr('readonly');
 		$('#edit_user button.is-fullwidth').attr('disabled', true);
-		$('#clear').attr('disabled', true);
+		if ($('#search input').val() == '') $('#clear').attr('disabled', true);
 	}
 
 	function ajaxError(err) {
