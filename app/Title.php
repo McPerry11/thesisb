@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\User;
 
 class Title extends Model
 {
@@ -15,4 +16,8 @@ class Title extends Model
 		'overview',
 		'keywords'
 	];
+
+	public function users() {
+		return $this->belongsToMany('App\User', 'user_title');
+	}
 }

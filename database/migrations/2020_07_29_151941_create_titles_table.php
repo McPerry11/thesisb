@@ -25,7 +25,7 @@ class CreateTitlesTable extends Migration
                 'BSEMCGD',
                 'BSIS'
             ]);
-            $table->string('adviser');
+            $table->foreignId('adviser_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->longText('overview');
             $table->longText('keywords');
             $table->boolean('approved');

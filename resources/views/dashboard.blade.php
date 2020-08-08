@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 <link rel="stylesheet" href="{{ asset('css/bulma-ribbon.min.css') }}">
 <link rel="stylesheet" href="{{ asset('css/bulma-tagsinput.min.css') }}">
+<link rel="stylesheet" href="{{ asset('css/bulma-divider.min.css') }}">
 @endsection
 
 @section('body')
@@ -42,6 +43,13 @@
 							</span>
 						</button>
 					</div>
+					<div class="control">
+						<button id="clear" class="button is-info" type="button" title="Clear" disabled>
+							<span class="icon">
+								<i class="fas fa-times"></i>
+							</span>
+						</button>
+					</div>
 				</div>
 			</form>
 		</div>
@@ -66,7 +74,7 @@
 					<span>Thesis Titles</span>
 				</a>
 			</li>
-			@if (Auth::user()->type == 'STUDENT')
+			@if (Auth::user()->type != 'ADMIN')
 			<li id="myp">
 				<a>
 					My Proposals
@@ -74,6 +82,22 @@
 			</li>
 			@endif
 			@if (Auth::user()->type == 'ADMIN')
+			<li id="students">	
+				<a title="Students">
+					<span class="icon">
+						<i class="fas fa-users"></i>
+					</span>
+					<span>Students</span>
+				</a>
+			</li>
+			<li id="advisers">
+				<a title="Advisers">
+					<span class="icon">
+						<i class="fas fa-chalkboard-teacher"></i>
+					</span>
+					<span>Advisers</span>
+				</a>
+			</li>
 			<li id="logs">
 				<a title="This feature is still unavailable">
 					<span class="icon">
@@ -200,13 +224,13 @@
 				</div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum1_control" class="control">
 							<input type="number" id="snum1" class="input sn" placeholder="S.N. #1" required>
 						</div>
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname1" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -215,13 +239,13 @@
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum2_control" class="control">
 							<input type="number" id="snum2" class="input sn" placeholder="S.N. #2" required>
 						</div>
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname2" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -230,13 +254,13 @@
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum3_control" class="control">
 							<input type="number" id="snum3" class="input sn" placeholder="S.N. #3" required>
 						</div>
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname3" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -245,13 +269,13 @@
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum4_control" class="control">
 							<input type="number" id="snum4" class="input sn" placeholder="S.N. #4" required>
 						</div>
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname4" class="input" placeholder="Last Name, First Name M.N." required>
+							<input type="text" class="input name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -260,13 +284,13 @@
 				<div class="field-label"></div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control">
+						<div id="snum5_control" class="control">
 							<input type="number" id="snum5" class="input sn" placeholder="S.N. #5">
 						</div>
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="sname5" class="input" placeholder="Last Name, First Name M.N.">
+							<input type="text" class="input name" readonly>
 						</div>
 					</div>
 				</div>
@@ -278,7 +302,10 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="adviser" class="input" placeholder="Last Name, First Name M.N." required>
+							<div class="select is-fullwidth">
+								<select id="adviser"></select>
+							</div>
+							<div id="thesis_note" class="has-text-danger is-hidden">No advisers registered.</div>
 						</div>
 					</div>
 				</div>
@@ -310,14 +337,14 @@
 			</div>
 		</section>
 		<footer class="modal-card-foot">
-			<div class="buttons is-right">
+			<div class="buttons">
 				<button id="submit" class="button is-success" type="submit">
 					<span class="icon">
 						<i class="fas fa-plus"></i>
 					</span>
 					<span>Add</span>
 				</button>
-				<button id="cancel" class="button is-danger is-outlined" type="button">Cancel</button>
+				<button class="button is-danger is-outlined cancel" type="button">Cancel</button>
 			</div>
 		</footer>
 	</form>
@@ -326,11 +353,11 @@
 <div id="view" class="modal">
 	<div class="modal-background"></div>
 	<div class="modal-card">
-		<div class="modal-card-head">
+		<header class="modal-card-head">
 			<div class="modal-card-title">View Proposal</div>
 			<span class="delete"></span>
-		</div>
-		<div class="modal-card-body">
+		</header>
+		<section class="modal-card-body">
 			<div class="field is-horizontal">
 				<div class="field-label">
 					<label class="label">Program</label>
@@ -373,8 +400,65 @@
 				</div>
 				<div id="voverview" class="field-body"></div>
 			</div>
-		</div>
+		</section>
 	</div>
+</div>
+
+<div id="edit_user" class="modal">
+	<div class="modal-background"></div>
+	<form id="user_form" class="modal-card">
+		<header class="modal-card-head">
+			<div class="modal-card-title"></div>
+			<span class="delete"></span>
+		</header>
+		<section class="modal-card-body">
+			<div id="upload">
+				<button class="button is-link is-light is-fullwidth" type="button" title="Feature not yet available" disabled>
+					<span class="icon">
+						<i class="fas fa-file-excel"></i>
+					</span>
+					<span>Upload Excel</span>
+				</button>
+				<div class="divider">OR</div>
+			</div>
+			<div class="subtitle is-5 has-text-centered"></div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label id="user_label" class="label">Student Number</label>
+				</div>
+				<div class="field-body">
+					<div class="field">
+						<div id="sncontrol" class="control">
+							<input type="text" class="input" id="sn" placeholder="XXXXXXXXXXX" required>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Name</label>
+				</div>
+				<div class="field-body">
+					<div class="field">
+						<div class="control">
+							<input type="text" class="input" id="name" placeholder="Last Name, First Name M.I." required>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<footer class="modal-card-foot">
+			<div class="buttons">
+				<button id="submit_user" class="button is-success" type="submit">
+					<span class="icon">
+						<i class="fas fa-plus"></i>
+					</span>
+					<span>Add</span>
+				</button>
+				<button class="button is-danger is-outlined cancel" type="button">Cancel</button>
+			</div>
+		</footer>
+	</form>
 </div>
 @endsection
 

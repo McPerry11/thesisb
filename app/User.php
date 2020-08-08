@@ -42,6 +42,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function titles() {
+        return $this->belongsToMany('App\Title', 'user_title');
+    }
+
     public static function boot() {
         parent::boot();
 

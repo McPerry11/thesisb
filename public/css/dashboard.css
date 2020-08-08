@@ -10,8 +10,27 @@
 	min-height: 40px;
 }
 
-.box .buttons {
+#contents .box .buttons {
 	position: absolute;
 	bottom: 10px;
 	right: 20px;
+}
+
+#logs_table th:nth-child(1) {
+	min-width: 75px;
+	width: 75px;
+}
+
+#logs_table th:nth-child(3) {
+	min-width: 120px;
+	width: 175px;
+}
+
+#stud_table th:nth-child(1) {
+	width: 160px;
+}
+
+#stud_table th:nth-child(3) {
+	min-width: 120px;
+	width: 120px;
 }
