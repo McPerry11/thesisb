@@ -235,7 +235,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input name" readonly required>
+							<input type="text" class="input name" id="snum1_name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -250,7 +250,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input name" readonly required>
+							<input type="text" class="input name" id="snum2_name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -265,7 +265,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input name" readonly required>
+							<input type="text" class="input name" id="snum3_name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -280,7 +280,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input name" readonly required>
+							<input type="text" class="input name" id="snum4_name" readonly required>
 						</div>
 					</div>
 				</div>
@@ -295,7 +295,7 @@
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input name" readonly>
+							<input type="text" class="input name" id="snum5_name" readonly>
 						</div>
 					</div>
 				</div>
@@ -336,6 +336,18 @@
 					<div class="field">
 						<div class="control is-expanded">
 							<textarea id="overview" class="textarea" required></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Approval Date</label>
+				</div>
+				<div class="field-body">
+					<div class="field">
+						<div class="control is-expanded">
+							<input type="date" id="date" class="input" required>
 						</div>
 					</div>
 				</div>

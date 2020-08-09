@@ -8,9 +8,7 @@ $(function() {
 
 	$('#student_num').keyup(function() {
 		if ($(this).val().length > 11) $(this).val($(this).val().slice(0, 11));
-		if ($(this).val().length == 11) {
-			$('form').submit();
-		}
+		if ($(this).val().length == 11) $('form').submit();
 	});
 
 	$('form').submit(function(e) {
@@ -49,11 +47,19 @@ $(function() {
 				},
 				error: function(err) {
 					console.log(err);
-					Swal.fire({
-						icon: 'error',
-						title: 'Cannot Connect to Server',
-						text: 'Something went wrong. Please try again later.'
-					});
+					if (err.status == 409) {
+						Swal.fire({
+							icon: 'error',
+							title: 'Too Many Log In Attempts',
+							text: 'Try loggin in again in a few minutes',
+						});
+					} else {
+						Swal.fire({
+							icon: 'error',
+							title: 'Cannot Connect to Server',
+							text: 'Something went wrong. Please try again later.'
+						});
+					}
 					clearStatus();
 				}
 			});

@@ -94,6 +94,8 @@ class UsersController extends Controller
     {
         if ($request->data == 'advisers') {
             return User::select('id', 'name')->where('type', 'ADVISER')->orderBy('name', 'asc')->get();
+        } else if ($request->data == 'students') {
+            return User::where('student_number', $request->student_number)->value('name');
         }
     }
 

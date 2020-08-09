@@ -20,7 +20,7 @@ class TitlesController extends Controller
     {
         if ($request->data == 'titles') {
             if ($request->search == '' && $request->tab == 'all') {
-                $proposals = Title::select('title', 'registration_id', 'area', 'program', 'keywords', 'adviser_id')
+                $proposals = Title::select('title', 'area', 'program', 'keywords', 'adviser_id')
                 ->orderBy('updated_at', 'desc')->get();
                 if (Auth::user()->type == 'ADMIN') {
                     foreach ($proposals as $proposal)  {
@@ -114,12 +114,12 @@ class TitlesController extends Controller
             'title',
             'area',
             'program',
-            'adviser_id',
             'overview',
-            'keywords'
+            'keywords',
+            'created_at'
         ]));
 
-        $proposal->approved = false;
+        $proposal->adviser_id = $request->adviser_id;
         $proposal->registration_id = '2020-1-TP';
         switch($request->program) {
             case 'BSCS':
@@ -146,13 +146,15 @@ class TitlesController extends Controller
         $id ? $id++ : $id = 1;
         $proposal->registration_id .= '-' . $id;
 
-        for ($i = 0; $i < count($request->numbers); $i++) {
-            $student = User::where('student_number', $request->numbers[$i])->get();
-        }
-
-        $proposal->created_at = Carbon::now('+8:00');
         $proposal->updated_at = Carbon::now('+8:00');
         $proposal->save();
+
+        $students = User::whereIn('student_number', $request->numbers)->get();
+        $student_numbers = [];
+        foreach ($students as $student)
+            array_push($student_numbers, $student->id);
+        $proposal->users()->sync($student_numbers);
+
         Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' added a new proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
 
         return response()->json(['msg' => 'Thesis Title Proposal Added']);
