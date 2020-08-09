@@ -16,6 +16,7 @@
 			@else
 			<h3 class="title">Dashboard</h3>
 			@endif
+			<div class="subtitle is-5">{{ Auth::user()->name }}</div>
 		</div>
 		<div id="logout" class="column">
 			<form class="is-pulled-right" method="POST">
@@ -77,7 +78,11 @@
 			@if (Auth::user()->type != 'ADMIN')
 			<li id="myp">
 				<a>
+					@if (Auth::user()->type == 'STUDENT')
 					My Proposals
+					@else
+					Advisees
+					@endif 
 				</a>
 			</li>
 			@endif
@@ -422,7 +427,7 @@
 				<div class="divider">OR</div>
 			</div>
 			<div class="subtitle is-5 has-text-centered"></div>
-			<div class="field is-horizontal">
+			<div id="sn_field" class="field is-horizontal">
 				<div class="field-label">
 					<label id="user_label" class="label">Student Number</label>
 				</div>

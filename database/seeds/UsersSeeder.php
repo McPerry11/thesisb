@@ -15,7 +15,7 @@ class UsersSeeder extends Seeder
     	$user = new User;
 
     	$user->name = 'Research & Development';
-    	$user->student_number = '20087638648';
+    	$user->student_number = 'RND2008';
     	$user->password = '12345';
     	$user->type = 'ADMIN';
 

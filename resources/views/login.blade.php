@@ -16,7 +16,7 @@
 				<h3 class="title is-4">UE CCSS Thesis Title Proposal</h3>
 				<div class="field">
 					<div class="control has-icons-left">
-						<input type="number" id="student_num" class="input" placeholder="Student Number" required>
+						<input type="text" id="student_num" class="input" placeholder="Student Number" required>
 						<span class="icon is-left"><i class="fas fa-hashtag"></i></span>
 					</div>
 					<p class="help has-text-left">Log in using your student number</p>

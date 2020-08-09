@@ -64,9 +64,17 @@ class UsersController extends Controller
 
         $user->fill($request->only([
             'name',
-            'student_number',
             'type'
         ]));
+
+        if ($user->type == 'STUDENT')
+            $user->student_number = $request->student_number;
+        else {
+            $string = strtoupper(substr(str_replace(',', '', str_replace(' ', '', $user->name)), 0, 3));
+            do {
+                $user->student_number = $string . str_pad(rand(0, pow(10, 4) - 1), 4, '0', STR_PAD_LEFT);
+            } while (User::where('student_number', $user->student_number)->where('type', 'ADVISER')->count() > 0);
+        }
 
         $user->password = '12345';
 
@@ -113,8 +121,10 @@ class UsersController extends Controller
 
         $user->fill($request->only([
             'name',
-            'student_number'
         ]));
+
+        if ($request->type == 'STUDENT')
+            $user->student_number = $request->student_number;
 
         $user->save();
         Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a registered ' . strtolower($user->type) . ': ' . $user->name . '.']);

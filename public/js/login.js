@@ -7,7 +7,8 @@ $(function() {
 	$('.pageloader .title').text('Loading Login');
 
 	$('#student_num').keyup(function() {
-		if ($('#student_num').val().length == 11) {
+		if ($(this).val().length > 11) $(this).val($(this).val().slice(0, 11));
+		if ($(this).val().length == 11) {
 			$('form').submit();
 		}
 	});

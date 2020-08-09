@@ -302,10 +302,16 @@ $(function() {
 					$('.modal-card-title').text('Add Student');
 					$('#edit_user .subtitle').text('Add an Individual Student');
 					$('#user_label').text('Student Number');
+					$('#upload').removeClass('is-hidden');
+					$('#sn_field').removeClass('is-hidden');
+					$('#sn_field input').attr('required', true);
 				} else {
 					$('.modal-card-title').text('Add Adviser');
 					$('#edit_user .subtitle').text('Add an Individual Adviser');
 					$('#user_label').text('ID Number');
+					$('#upload').addClass('is-hidden');
+					$('#sn_field').addClass('is-hidden');
+					$('#sn_field input').removeAttr('required');
 				}
 				$('.modal input').val('');
 				$('#submit_user').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
@@ -713,7 +719,7 @@ $(function() {
 			$.ajax({
 				type: 'POST',
 				url: 'users/' + editid + '/update',
-				data: {name:name, student_number:number},
+				data: {type:user, name:name, student_number:number},
 				datatype: 'JSON',
 				success: function(response) {
 					clearStatus();
