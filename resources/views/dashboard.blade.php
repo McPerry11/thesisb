@@ -417,6 +417,12 @@
 				</div>
 				<div id="voverview" class="field-body"></div>
 			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Approval Date</label>
+				</div>
+				<div id="vdate" class="field-body"></div>
+			</div>
 		</section>
 	</div>
 </div>

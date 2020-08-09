@@ -49,7 +49,7 @@ $(function() {
 	function loadNames(adviser, students) {
 		let tags = '<span class="tag is-info">' + adviser + '</span>';
 		for (let i in students) {
-			tags += '<span class="tag is-info is-light">' + students[i] + '</span>';
+			tags += '<span class="tag is-info is-light">' + students[i].name + '</span>';
 		}
 		return tags;
 	}
@@ -100,36 +100,26 @@ $(function() {
 			data: {data:'titles', search:search, tab:tab},
 			datatype: 'JSON',
 			success: function(data) {
+				console.log(data);
 				if (data.proposals.length == 0) {
 					$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing proposals.</div></div>');
 				} else {
 					for (let i in data.proposals) {
-						$('#contents').append(
-							'<a class="box has-ribbon" data-id="' + data.proposals[i].id + '">' + addRibbon(data.proposals[i].program) +
-							'<div class="columns">' +
-							'<div class="column">' +
-							'<h3 class="title is-4">' + data.proposals[i].title + '</h3>'
-							);
-						if (data.proposals[i].registration_id) {
-							$('#contents').append('<h4 class="subtitle is-5">' + data.proposals[i].registration_id + '</h4>');
+						let proposal = '<a class="box has-ribbon" data-id="' + data.proposals[i].id + '">' + addRibbon(data.proposals[i].program);
+						proposal += '<div class="columns"><div class="column">';
+						proposal += '<h3 class="title is-4">' + data.proposals[i].title + '</h3>';
+						if (data.proposals[i].registration_id) proposal += '<h4 class="subtitle is-5">' + data.proposals[i].registration_id + '</h4>';
+						proposal += '<div class="tags">' + loadKeywords(data.proposals[i].keywords, data.proposals[i].area) + '</div>';
+						if (data.proposals[i].students) proposal += '<div class="tags">' + loadNames(data.proposals[i].adviser, data.proposals[i].students) + '</div>';
+						if (data.proposals[i].edit) {
+							proposal += '</div><div class="column is-2-desktopn is-3-tablet">';
+							proposal += '<div class="buttons is-right">';
+							proposal += '<button class="button edit" data-id="' + data.proposals[i].id + '" title="Edit ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>';
+							proposal += '<button class="button is-danger is-inverted remove" data-id="' + data.proposals[i].id + '" title="Remove ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>';
+							proposal += '</div>';
 						}
-						$('#contents .box:last-child .column').append(
-							'<div class="tags">' + loadKeywords(data.proposals[i].keywords, data.proposals[i].area) + '</div>' +
-							'</div></div></a>'
-							);
-						if (data.proposals[i].students) {
-							$('#contents .box:last-child .tags').addClass('is-hidden-mobile');
-							$('#contents .box:last-child .column').append(
-								'<div class="tags">' + loadNames(data.proposals[i].adviser, data.proposals[i].students) + '</div>'
-								);
-							$('#contents .box:last-child .columns').append(
-								'<div class="column is-2-desktop is-3-tablet">' +
-								'<div class="buttons">' +
-								'<button class="button edit" data-id="' + data.proposals[i].id + '" title="Edit ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>' +
-								'<button class="button is-danger is-inverted remove" data-id="' + data.proposals[i].id + '" title="Delete ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>' +
-								'</div></div>'
-								);
-						}
+						proposal += '</div></div></a>';
+						$('#contents').append(proposal);
 					}
 				}
 				$('#loading').addClass('is-hidden');
@@ -264,6 +254,7 @@ $(function() {
 				$('#edit .select').removeClass('is-hidden');
 				$('#submit').removeAttr('disabled');
 				$('.name').attr('readonly', true);
+				$('input').removeClass('is-danger');
 				$('#adviser').empty();
 				Swal.fire({
 					html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -539,6 +530,7 @@ $(function() {
 	$('body').delegate('#contents a.box', 'click', function() {
 		let id = $(this).data('id');
 		$('#view .field-body').empty();
+		$('#view .field').removeClass('is-hidden');
 		Swal.fire({
 			html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
 			showConfirmButton: false,
@@ -556,15 +548,17 @@ $(function() {
 						let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
 						for (let i in keywords)
 							keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
-						if (data.status != 'limited') {
-							for (let i in data.students)
-								sistring += '<span class="tag is-info is-light">' + data.students[i].name + '</span>';
-							$('#vsi').append('<div class="tags are-medium">' + keystring + '</div>');
+						if (data.proposal.students) {
+							for (let i in data.proposal.students)
+								sistring += '<span class="tag is-info is-light">' + data.proposal.students[i].name + '</span>';
+							$('#vsi').append('<div class="tags are-medium">' + sistring + '</div>');
 							$('#vadviser').text(data.proposal.adviser);
 						} else {
 							$('#vsi-label').addClass('is-hidden');
 							$('#vadviser-label').addClass('is-hidden');
 						}
+						let date = new Date(data.proposal.created_at);
+						$('#vdate').text((date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear());
 						$('#vprogram').text(data.proposal.program);
 						$('#vtitle').text(data.proposal.title);
 						$('#varea').text(data.proposal.area);
