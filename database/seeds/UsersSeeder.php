@@ -21,6 +21,5 @@ class UsersSeeder extends Seeder
         $user->type = 'ADMIN';
 
         $user->save();
-
     }
 }
