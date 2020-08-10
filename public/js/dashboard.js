@@ -100,7 +100,6 @@ $(function() {
 			data: {data:'titles', search:search, tab:tab},
 			datatype: 'JSON',
 			success: function(data) {
-				console.log(data);
 				if (data.proposals.length == 0) {
 					$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing proposals.</div></div>');
 				} else {
@@ -238,7 +237,7 @@ $(function() {
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
-	var updateId, check, editsn, editid, search = '', tab = 'all';
+	var updateId, check, event = '', editsn, editid, search = '', tab = 'all';
 	var sn_error = {snum1:false, snum2:false, snum3:false, snum4:false, snum5:false};
 	retrieveProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
@@ -392,7 +391,7 @@ $(function() {
 			$.ajax({
 				type: 'POST',
 				url: 'titles/' + updateId + '/update',
-				data: {title:title, program:program, area:area, adviser_id:adviser, keywords:keywords, overview:overview},
+				data: {title:title, program:program, area:area, adviser_id:adviser, keywords:keywords, overview:overview, created_at:date},
 				datatype: 'JSON',
 				success: function(response) {
 					clearStatus();
@@ -424,7 +423,8 @@ $(function() {
 	});
 
 	$('body').delegate('.remove', 'click', function() {
-		check = this;
+		var button = this;
+		event = 'Remove';
 		$(this).addClass('is-loading');
 		Swal.fire({
 			html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -467,13 +467,15 @@ $(function() {
 										timer: 2500,
 									}).then(function() {
 										retrieveProposals();
-										$(check).removeClass('is-loading');
+										event = '';
+										$(button).removeClass('is-loading');
 									});
 								}
 							},
 							error: function(err) {
 								ajaxError(err);
-								$(check).removeClass('is-loading');
+								event = '';
+								$(button).removeClass('is-loading');
 							}
 						});
 					}
@@ -481,13 +483,15 @@ $(function() {
 			},
 			error: function(err) {
 				ajaxError(err);
-				$(check).removeClass('is-loading');
+				event = '';
+				$(button).removeClass('is-loading');
 			}
 		});
 	});
 
 	$('body').delegate('.edit', 'click', function() {
 		var button = this;
+		event = 'Edit';
 		$(this).addClass('is-loading');
 		Swal.fire({
 			html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -506,13 +510,18 @@ $(function() {
 			url: 'titles/' + updateId + '/edit',
 			datatype: 'JSON',
 			success: function(data) {
-				$('#program').val(data.program);
-				$('#title').val(data.title);
-				$('#area').val(data.area);
-				$('#adviser').val(data.adviser);
-				$('#overview').val(data.overview);
-				$('#date').val(data.created_at);
-				document.getElementById('keywords').BulmaTagsInput().add(data.keywords);
+				event = '';
+				let advisers = '', date = new Date(data.proposal.created_at);
+				for (i in data.advisers)
+					advisers += '<option value="' + data.advisers[i].id + '">' + data.advisers[i].name + '</option>'
+				$('#program').val(data.proposal.program);
+				$('#title').val(data.proposal.title);
+				$('#area').val(data.proposal.area);
+				$('#adviser').append(advisers).val(data.proposal.adviser_id);
+				$('#overview').val(data.proposal.overview);
+				date = date.getFullYear() + '-' + ((date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + '-' + date.getDate();
+				$('#date').val(date);
+				if (data.proposal.keywords) document.getElementById('keywords').BulmaTagsInput().add(data.proposal.keywords);
 				$('#edit .modal-card-title').text('Edit Proposal');
 				$('#submit').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
 				Swal.close();
@@ -522,58 +531,57 @@ $(function() {
 			},
 			error: function(err) {
 				ajaxError(err);
+				event = '';
 				$(button).removeClass('is-loading');
 			}
 		});
 	});
 
 	$('body').delegate('#contents a.box', 'click', function() {
-		let id = $(this).data('id');
-		$('#view .field-body').empty();
-		$('#view .field').removeClass('is-hidden');
-		Swal.fire({
-			html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
-			showConfirmButton: false,
-			allowOutsideClick: false,
-			allowEscapeKey: false
-		});
-		window.setTimeout(function() {
-			if (!$('#edit').hasClass('is-active') && !$(check).hasClass('is-loading')) {
-				$.ajax({
-					type: 'POST',
-					url: 'titles/' + id,
-					data: {data:'view'},
-					datatype: 'JSON',
-					success: function(data) {
-						let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
-						for (let i in keywords)
-							keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
-						if (data.proposal.students) {
-							for (let i in data.proposal.students)
-								sistring += '<span class="tag is-info is-light">' + data.proposal.students[i].name + '</span>';
-							$('#vsi').append('<div class="tags are-medium">' + sistring + '</div>');
-							$('#vadviser').text(data.proposal.adviser);
-						} else {
-							$('#vsi-label').addClass('is-hidden');
-							$('#vadviser-label').addClass('is-hidden');
-						}
-						let date = new Date(data.proposal.created_at);
-						$('#vdate').text((date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear());
-						$('#vprogram').text(data.proposal.program);
-						$('#vtitle').text(data.proposal.title);
-						$('#varea').text(data.proposal.area);
-						$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
-						$('#voverview').text(data.proposal.overview);
-						Swal.close();
-						$('#view').addClass('is-active');
-						$('html').addClass('is-clipped');
-					},
-					error: function(err) {
-						ajaxError(err);
+		if (event == '') {
+			let id = $(this).data('id');
+			$('#view .field-body').empty();
+			$('#view .field').removeClass('is-hidden');
+			Swal.fire({
+				html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
+				showConfirmButton: false,
+				allowOutsideClick: false,
+				allowEscapeKey: false
+			});
+			$.ajax({
+				type: 'POST',
+				url: 'titles/' + id,
+				data: {data:'view'},
+				datatype: 'JSON',
+				success: function(data) {
+					let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
+					for (let i in keywords)
+						keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
+					if (data.proposal.students) {
+						for (let i in data.proposal.students)
+							sistring += '<span class="tag is-info is-light">' + data.proposal.students[i].name + '</span>';
+						$('#vsi').append('<div class="tags are-medium">' + sistring + '</div>');
+						$('#vadviser').text(data.proposal.adviser);
+					} else {
+						$('#vsi-label').addClass('is-hidden');
+						$('#vadviser-label').addClass('is-hidden');
 					}
-				});
-			}
-		}, 1000);
+					let date = new Date(data.proposal.created_at);
+					$('#vdate').text((date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear());
+					$('#vprogram').text(data.proposal.program);
+					$('#vtitle').text(data.proposal.title);
+					$('#varea').text(data.proposal.area);
+					$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
+					$('#voverview').text(data.proposal.overview);
+					Swal.close();
+					$('#view').addClass('is-active');
+					$('html').addClass('is-clipped');
+				},
+				error: function(err) {
+					ajaxError(err);
+				}
+			});
+		}
 	});
 
 	$('#myp').click(function() {

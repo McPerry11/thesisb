@@ -126,9 +126,9 @@ class TitlesController extends Controller
             'program',
             'overview',
             'keywords',
-            'created_at'
         ]));
 
+        $proposal->created_at = $request->created_at;
         $proposal->adviser_id = $request->adviser_id;
         $proposal->registration_id = '2020-1-TP';
         switch($request->program) {
@@ -190,6 +190,7 @@ class TitlesController extends Controller
             }
             return response()->json(['proposal' => $proposal]);
         }
+        return Title::select('title')->find($id);
     }
 
     /**
@@ -200,7 +201,11 @@ class TitlesController extends Controller
      */
     public function edit($id)
     {
-        return Title::find($id);
+        if (Auth::user()->type == 'ADMIN') {
+            $proposal = Title::find($id);
+            $advisers = User::select('id', 'name')->where('type', 'ADVISER')->get();
+            return response()->json(['proposal' => $proposal, 'advisers' => $advisers]);
+        }
     }
 
     /**
@@ -223,6 +228,7 @@ class TitlesController extends Controller
             'keywords'
         ]));
 
+        $proposal->created_at = $request->created_at;
         $proposal->updated_at = Carbon::now('+8:00');
         $proposal->save();
         Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
