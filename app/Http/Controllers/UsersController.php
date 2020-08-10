@@ -109,7 +109,7 @@ class UsersController extends Controller
      */
     public function edit($id)
     {
-        if (Auth::user()->user() == 'ADMIN') {
+        if (Auth::user()->type == 'ADMIN') {
             return User::select('name', 'student_number')->find($id);
         }
     }
