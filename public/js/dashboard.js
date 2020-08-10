@@ -100,6 +100,7 @@ $(function() {
 			data: {data:'titles', search:search, tab:tab},
 			datatype: 'JSON',
 			success: function(data) {
+				$('#contents').append('<div class="subtitle is-5">Resutls: ' + data.proposals.length + '</div>');
 				if (data.proposals.length == 0) {
 					$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing proposals.</div></div>');
 				} else {
@@ -146,6 +147,7 @@ $(function() {
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
+				$('#contents').append('<div class="subtitle is-5">Resutls: ' + data.length + '</div>');
 				$('#contents').append('<div id="logs_table" class="table-container"><table class="table is-fullwidth"><tr><th>Log ID</th><th>Description</th><th>Date & Time</th></tr></table></div>');
 				if (data.length > 0) {
 					for (i in data) {
@@ -178,6 +180,7 @@ $(function() {
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
+				$('#contents').append('<div class="subtitle is-5">Resutls: ' + data.length + '</div>');
 				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>Student Number</th><th>Name</th><th>Actions</th></tr></table></div>');
 				if (data.length > 0) {
 					for (i in data)
@@ -208,6 +211,7 @@ $(function() {
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
+				$('#contents').append('<div class="subtitle is-5">Resutls: ' + data.length + '</div>');
 				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>ID Number</th><th>Name</th><th>Actions</th></tr></table></div>');
 				if (data.length > 0) {
 					for (i in data)
@@ -588,6 +592,7 @@ $(function() {
 		if (!$(this).hasClass('is-active')) {
 			if ($('#loading').hasClass('is-hidden')) {
 				$('.tabs li').removeClass('is-active');
+				$('#contents .subtitle.is-5').remove();
 				$(this).addClass('is-active');
 				$('#search input').val('');
 				tab = 'myp', search = '';
@@ -604,6 +609,7 @@ $(function() {
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Proposal');
 				$('#logout').removeClass('is-hidden');
+				$('#contents .subtitle.is-5').remove();
 				$('#search input').val('').attr('placeholder', 'Search title, keyword, or name...');
 				$('#clear').attr('disabled', true);
 				tab = 'all', search = '';
@@ -619,6 +625,7 @@ $(function() {
 				$(this).addClass('is-active');
 				$('.column:nth-child(2)').addClass('is-hidden');
 				$('#logout').removeClass('is-hidden');
+				$('#contents .subtitle.is-5').remove();
 				$('#search input').val('').attr('placeholder', 'Search description, date, or time...');
 				$('#clear').attr('disabled', true);
 				search = '';
@@ -634,6 +641,7 @@ $(function() {
 				$(this).addClass('is-active');
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Student');
+				$('#contents .subtitle.is-5').remove();
 				$('#search input').val('').attr('placeholder', 'Search name or student number...');
 				$('#clear').attr('disabled', true);
 				search = '';
@@ -649,6 +657,7 @@ $(function() {
 				$(this).addClass('is-active');
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Adviser');
+				$('#contents .subtitle.is-5').remove();
 				$('#search input').val('').attr('placeholder', 'Search name or number...');
 				$('#clear').attr('disabled', true);
 				search = '';
@@ -664,6 +673,7 @@ $(function() {
 	$('#search').submit(function(e) {
 		e.preventDefault();
 		if ($('#loading').hasClass('is-hidden')) {
+			$('#contents .subtitle.is-5').remove();
 			if (tab == 'myp') {
 				$('#myp').removeClass('is-active');
 				$('#thesis').addClass('is-active');
@@ -685,6 +695,7 @@ $(function() {
 	$('#clear').click(function() {
 		if ($('#loading').hasClass('is-hidden')) {
 			$('#search input').val('');
+			$('#contents .subtitle.is-5').remove();
 			$(this).attr('disabled', true);
 			tab = 'all', search = '';
 			if ($('#thesis').hasClass('is-active')) {
