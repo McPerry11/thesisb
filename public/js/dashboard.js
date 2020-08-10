@@ -94,6 +94,7 @@ $(function() {
 		$('#contents .box').remove();
 		$('.table-container').remove();
 		$('.notif').remove();
+		$('#contents .subtitle.is-5').remove();
 		$.ajax({
 			type: 'POST',
 			url: 'titles',
@@ -139,6 +140,7 @@ $(function() {
 		$('#contents .box').remove();
 		$('.table-container').remove();
 		$('.notif').remove();
+		$('#contents .subtitle.is-5').remove();
 		$.ajax({
 			type: 'POST',
 			url: 'logs',
@@ -172,6 +174,7 @@ $(function() {
 		$('#contents .box').remove();
 		$('.table-container').remove();
 		$('.notif').remove();
+		$('#contents .subtitle.is-5').remove();
 		$.ajax({
 			type: 'POST',
 			url: 'users',
@@ -203,6 +206,7 @@ $(function() {
 		$('#contents .box').remove();
 		$('.table-container').remove();
 		$('.notif').remove();
+		$('#contents .subtitle.is-5').remove();
 		$.ajax({
 			type: 'POST',
 			url: 'users',
@@ -592,7 +596,6 @@ $(function() {
 		if (!$(this).hasClass('is-active')) {
 			if ($('#loading').hasClass('is-hidden')) {
 				$('.tabs li').removeClass('is-active');
-				$('#contents .subtitle.is-5').remove();
 				$(this).addClass('is-active');
 				$('#search input').val('');
 				tab = 'myp', search = '';
@@ -609,7 +612,6 @@ $(function() {
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Proposal');
 				$('#logout').removeClass('is-hidden');
-				$('#contents .subtitle.is-5').remove();
 				$('#search input').val('').attr('placeholder', 'Search title, keyword, or name...');
 				$('#clear').attr('disabled', true);
 				tab = 'all', search = '';
@@ -625,7 +627,6 @@ $(function() {
 				$(this).addClass('is-active');
 				$('.column:nth-child(2)').addClass('is-hidden');
 				$('#logout').removeClass('is-hidden');
-				$('#contents .subtitle.is-5').remove();
 				$('#search input').val('').attr('placeholder', 'Search description, date, or time...');
 				$('#clear').attr('disabled', true);
 				search = '';
@@ -641,7 +642,6 @@ $(function() {
 				$(this).addClass('is-active');
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Student');
-				$('#contents .subtitle.is-5').remove();
 				$('#search input').val('').attr('placeholder', 'Search name or student number...');
 				$('#clear').attr('disabled', true);
 				search = '';
@@ -657,7 +657,6 @@ $(function() {
 				$(this).addClass('is-active');
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Adviser');
-				$('#contents .subtitle.is-5').remove();
 				$('#search input').val('').attr('placeholder', 'Search name or number...');
 				$('#clear').attr('disabled', true);
 				search = '';
@@ -673,7 +672,6 @@ $(function() {
 	$('#search').submit(function(e) {
 		e.preventDefault();
 		if ($('#loading').hasClass('is-hidden')) {
-			$('#contents .subtitle.is-5').remove();
 			if (tab == 'myp') {
 				$('#myp').removeClass('is-active');
 				$('#thesis').addClass('is-active');
@@ -695,7 +693,6 @@ $(function() {
 	$('#clear').click(function() {
 		if ($('#loading').hasClass('is-hidden')) {
 			$('#search input').val('');
-			$('#contents .subtitle.is-5').remove();
 			$(this).attr('disabled', true);
 			tab = 'all', search = '';
 			if ($('#thesis').hasClass('is-active')) {
