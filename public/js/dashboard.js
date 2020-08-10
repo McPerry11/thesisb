@@ -24,6 +24,7 @@ $(function() {
 		$('select').removeAttr('disabled');
 		$('input').removeAttr('readonly');
 		$('textarea').removeAttr('readonly');
+		$('.name').attr('readonly', true);
 		$('#edit_user button.is-fullwidth').attr('disabled', true);
 		if ($('#search input').val() == '') $('#clear').attr('disabled', true);
 	}
@@ -48,7 +49,7 @@ $(function() {
 	function loadNames(adviser, students) {
 		let tags = '<span class="tag is-info">' + adviser + '</span>';
 		for (let i in students) {
-			tags += '<span class="tag is-info is-light">' + students[i] + '</span>';
+			tags += '<span class="tag is-info is-light">' + students[i].name + '</span>';
 		}
 		return tags;
 	}
@@ -103,28 +104,21 @@ $(function() {
 					$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing proposals.</div></div>');
 				} else {
 					for (let i in data.proposals) {
-						$('#contents').append(
-							'<a class="box has-ribbon" data-id="' + data.proposals[i].id + '">' + addRibbon(data.proposals[i].program) +
-							'<div class="columns">' +
-							'<div class="column">' +
-							'<h3 class="title is-4">' + data.proposals[i].title + '</h3>' +
-							'<h4 class="subtitle is-5">' + data.proposals[i].registration_id + '</h4>' +
-							'<div class="tags">' + loadKeywords(data.proposals[i].keywords, data.proposals[i].area) + '</div>' +
-							'</div></div></a>'
-							);
-						if (data.proposals[i].students) {
-							$('#contents .box:last-child .tags').addClass('is-hidden-mobile');
-							$('#contents .box:last-child .column').append(
-								'<div class="tags">' + loadNames(data.proposals[i].adviser, data.proposals[i].students) + '</div>'
-								);
-							$('#contents .box:last-child .columns').append(
-								'<div class="column is-2-desktop is-3-tablet">' +
-								'<div class="buttons">' +
-								'<button class="button edit" data-id="' + data.proposals[i].id + '" title="Edit ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>' +
-								'<button class="button is-danger is-inverted remove" data-id="' + data.proposals[i].id + '" title="Delete ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>' +
-								'</div></div>'
-								);
+						let proposal = '<a class="box has-ribbon" data-id="' + data.proposals[i].id + '">' + addRibbon(data.proposals[i].program);
+						proposal += '<div class="columns"><div class="column">';
+						proposal += '<h3 class="title is-4">' + data.proposals[i].title + '</h3>';
+						if (data.proposals[i].registration_id) proposal += '<h4 class="subtitle is-5">' + data.proposals[i].registration_id + '</h4>';
+						proposal += '<div class="tags">' + loadKeywords(data.proposals[i].keywords, data.proposals[i].area) + '</div>';
+						if (data.proposals[i].students) proposal += '<div class="tags">' + loadNames(data.proposals[i].adviser, data.proposals[i].students) + '</div>';
+						if (data.proposals[i].edit) {
+							proposal += '</div><div class="column is-2-desktopn is-3-tablet">';
+							proposal += '<div class="buttons is-right">';
+							proposal += '<button class="button edit" data-id="' + data.proposals[i].id + '" title="Edit ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>';
+							proposal += '<button class="button is-danger is-inverted remove" data-id="' + data.proposals[i].id + '" title="Remove ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>';
+							proposal += '</div>';
 						}
+						proposal += '</div></div></a>';
+						$('#contents').append(proposal);
 					}
 				}
 				$('#loading').addClass('is-hidden');
@@ -231,10 +225,20 @@ $(function() {
 		});
 	}
 
+	function sn_proposalCheck() {
+		for (let i in sn_error) {
+			if (sn_error[i] == true) {
+				$('#submit').attr('disabled', true);
+				break;
+			}
+		}
+	}
+
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
-	var updateId, check, editsn, editid, search = '', tab = 'all';
+	var updateId, check, event = '', editsn, editid, search = '', tab = 'all';
+	var sn_error = {snum1:false, snum2:false, snum3:false, snum4:false, snum5:false};
 	retrieveProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
 	responsiveViewport();
@@ -249,6 +253,7 @@ $(function() {
 				$('#edit .select').removeClass('is-hidden');
 				$('#submit').removeAttr('disabled');
 				$('.name').attr('readonly', true);
+				$('input').removeClass('is-danger');
 				$('#adviser').empty();
 				Swal.fire({
 					html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -352,7 +357,7 @@ $(function() {
 		$('input').attr('readonly', true);
 		$('textarea').attr('readonly', true);
 		$('#submit').addClass('is-loading').removeAttr('disabled');
-		var program = $('#program').val(), title = $('#title').val(), adviser = $('#adviser').val(), overview = $('#overview').val(), area = $('#area').val();
+		var program = $('#program').val(), title = $('#title').val(), adviser = $('#adviser').val(), overview = $('#overview').val(), area = $('#area').val(), date = $('#date').val();
 		var keywords = document.getElementById('keywords').BulmaTagsInput().value;
 		if ($('#submit span:nth-child(2)').text() == 'Add') {
 			var studentnums = [];
@@ -360,7 +365,7 @@ $(function() {
 			$.ajax({
 				type: 'POST',
 				url: 'titles/create',
-				data: {program:program, title:title, area:area, adviser_id:adviser, overview:overview, keywords:keywords, numbers:studentnums},
+				data: {program:program, title:title, area:area, adviser_id:adviser, overview:overview, keywords:keywords, numbers:studentnums, created_at:date},
 				datatype: 'JSON',
 				success: function(response) {
 					clearStatus();
@@ -386,7 +391,7 @@ $(function() {
 			$.ajax({
 				type: 'POST',
 				url: 'titles/' + updateId + '/update',
-				data: {title:title, program:program, area:area, adviser:adviser, keywords:keywords, overview:overview},
+				data: {title:title, program:program, area:area, adviser_id:adviser, keywords:keywords, overview:overview, created_at:date},
 				datatype: 'JSON',
 				success: function(response) {
 					clearStatus();
@@ -418,7 +423,8 @@ $(function() {
 	});
 
 	$('body').delegate('.remove', 'click', function() {
-		check = this;
+		var button = this;
+		event = 'Remove';
 		$(this).addClass('is-loading');
 		Swal.fire({
 			html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -461,13 +467,15 @@ $(function() {
 										timer: 2500,
 									}).then(function() {
 										retrieveProposals();
-										$(check).removeClass('is-loading');
+										event = '';
+										$(button).removeClass('is-loading');
 									});
 								}
 							},
 							error: function(err) {
 								ajaxError(err);
-								$(check).removeClass('is-loading');
+								event = '';
+								$(button).removeClass('is-loading');
 							}
 						});
 					}
@@ -475,13 +483,15 @@ $(function() {
 			},
 			error: function(err) {
 				ajaxError(err);
-				$(check).removeClass('is-loading');
+				event = '';
+				$(button).removeClass('is-loading');
 			}
 		});
 	});
 
 	$('body').delegate('.edit', 'click', function() {
 		var button = this;
+		event = 'Edit';
 		$(this).addClass('is-loading');
 		Swal.fire({
 			html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -500,12 +510,18 @@ $(function() {
 			url: 'titles/' + updateId + '/edit',
 			datatype: 'JSON',
 			success: function(data) {
-				$('#program').val(data.program);
-				$('#title').val(data.title);
-				$('#area').val(data.area);
-				$('#adviser').val(data.adviser);
-				$('#overview').val(data.overview);
-				document.getElementById('keywords').BulmaTagsInput().add(data.keywords);
+				event = '';
+				let advisers = '', date = new Date(data.proposal.created_at);
+				for (i in data.advisers)
+					advisers += '<option value="' + data.advisers[i].id + '">' + data.advisers[i].name + '</option>'
+				$('#program').val(data.proposal.program);
+				$('#title').val(data.proposal.title);
+				$('#area').val(data.proposal.area);
+				$('#adviser').append(advisers).val(data.proposal.adviser_id);
+				$('#overview').val(data.proposal.overview);
+				date = date.getFullYear() + '-' + ((date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + '-' + date.getDate();
+				$('#date').val(date);
+				if (data.proposal.keywords) document.getElementById('keywords').BulmaTagsInput().add(data.proposal.keywords);
 				$('#edit .modal-card-title').text('Edit Proposal');
 				$('#submit').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
 				Swal.close();
@@ -515,55 +531,57 @@ $(function() {
 			},
 			error: function(err) {
 				ajaxError(err);
+				event = '';
 				$(button).removeClass('is-loading');
 			}
 		});
 	});
 
 	$('body').delegate('#contents a.box', 'click', function() {
-		let id = $(this).data('id');
-		$('#view .field-body').empty();
-		Swal.fire({
-			html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
-			showConfirmButton: false,
-			allowOutsideClick: false,
-			allowEscapeKey: false
-		});
-		window.setTimeout(function() {
-			if (!$('#edit').hasClass('is-active') && !$(check).hasClass('is-loading')) {
-				$.ajax({
-					type: 'POST',
-					url: 'titles/' + id,
-					data: {data:'view'},
-					datatype: 'JSON',
-					success: function(data) {
-						let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
-						for (let i in keywords)
-							keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
-						if (data.status != 'limited') {
-							for (let i in data.students)
-								sistring += '<span class="tag is-info is-light">' + data.students[i].name + '</span>';
-							$('#vsi').append('<div class="tags are-medium">' + keystring + '</div>');
-							$('#vadviser').text(data.proposal.adviser);
-						} else {
-							$('#vsi-label').addClass('is-hidden');
-							$('#vadviser-label').addClass('is-hidden');
-						}
-						$('#vprogram').text(data.proposal.program);
-						$('#vtitle').text(data.proposal.title);
-						$('#varea').text(data.proposal.area);
-						$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
-						$('#voverview').text(data.proposal.overview);
-						Swal.close();
-						$('#view').addClass('is-active');
-						$('html').addClass('is-clipped');
-					},
-					error: function(err) {
-						ajaxError(err);
+		if (event == '') {
+			let id = $(this).data('id');
+			$('#view .field-body').empty();
+			$('#view .field').removeClass('is-hidden');
+			Swal.fire({
+				html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
+				showConfirmButton: false,
+				allowOutsideClick: false,
+				allowEscapeKey: false
+			});
+			$.ajax({
+				type: 'POST',
+				url: 'titles/' + id,
+				data: {data:'view'},
+				datatype: 'JSON',
+				success: function(data) {
+					let sistring = keystring = '', keywords = data.proposal.keywords.split(',');
+					for (let i in keywords)
+						keystring += '<span class="tag is-info is-light">' + keywords[i] + '</span>';
+					if (data.proposal.students) {
+						for (let i in data.proposal.students)
+							sistring += '<span class="tag is-info is-light">' + data.proposal.students[i].name + '</span>';
+						$('#vsi').append('<div class="tags are-medium">' + sistring + '</div>');
+						$('#vadviser').text(data.proposal.adviser);
+					} else {
+						$('#vsi-label').addClass('is-hidden');
+						$('#vadviser-label').addClass('is-hidden');
 					}
-				});
-			}
-		}, 1000);
+					let date = new Date(data.proposal.created_at);
+					$('#vdate').text((date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear());
+					$('#vprogram').text(data.proposal.program);
+					$('#vtitle').text(data.proposal.title);
+					$('#varea').text(data.proposal.area);
+					$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
+					$('#voverview').text(data.proposal.overview);
+					Swal.close();
+					$('#view').addClass('is-active');
+					$('html').addClass('is-clipped');
+				},
+				error: function(err) {
+					ajaxError(err);
+				}
+			});
+		}
 	});
 
 	$('#myp').click(function() {
@@ -618,7 +636,6 @@ $(function() {
 				$('#add span:nth-child(2)').text('Add Student');
 				$('#search input').val('').attr('placeholder', 'Search name or student number...');
 				$('#clear').attr('disabled', true);
-				$('#sn').attr('placeholder', 'XXXXXXXXXXX');
 				search = '';
 				retrieveStudents();
 			}
@@ -634,7 +651,6 @@ $(function() {
 				$('#add span:nth-child(2)').text('Add Adviser');
 				$('#search input').val('').attr('placeholder', 'Search name or number...');
 				$('#clear').attr('disabled', true);
-				$('#sn').attr('placeholder', 'XXXXX');
 				search = '';
 				retrieveAdvisers();
 			}
@@ -829,6 +845,13 @@ $(function() {
 		$('button').attr('disabled', true);
 		$('input').attr('readonly', true);
 		$('#upload').addClass('is-hidden');
+		if ($('#students').hasClass('is-active')) {
+			$('#sn_field').removeClass('is-hidden');
+			$('#sn_field input').attr('required', true);
+		} else {
+			$('#sn_field').addClass('is-hidden');
+			$('#sn_field input').removeAttr('required');
+		}
 		var id = $(this).data('id');
 		editid = id;
 		Swal.fire({
@@ -886,14 +909,14 @@ $(function() {
 				Swal.fire({
 					icon: 'warning',
 					title: 'Confirm Delete',
-					text: 'Are you sure you want to delete ' + data.name + ' (' + data.student_number + ')?',
+					html: '<div>Are you sure you want to delete ' + data.name + ' (' + data.student_number + ')?<div><div class="help">Any proposals and logs related to this user will be permanently deleted.</div>',
 					confirmButtonText: 'Yes',
 					showCancelButton: true,
 					cancelButtonText: 'No',
 				}).then((result) => {
 					if (result.value) {
 						Swal.fire({
-							title: 'Deleting Proposal',
+							title: 'Deleting User',
 							html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
 							showConfirmButton: false,
 							allowOutsideClick: false,
@@ -925,5 +948,42 @@ $(function() {
 				ajaxError(err);
 			}
 		});
+	});
+
+	$('.sn').keyup(function() {
+		var id = $(this).attr('id');
+		$(this).removeClass('is-danger');
+		$('#' + id + '_name').removeClass('has-text-danger').val('');
+		if ($(this).val().length > 11) $(this).val($(this).val().slice(0, 11));
+		if ($(this).val().length == 11) {
+			let sn = $(this).val();
+			$('#' + id + '_control').addClass('is-loading');
+			$('#' + id).attr('readonly', true);
+			$('button').attr('disabled', true);
+			$.ajax({
+				type: 'POST',
+				url: 'users/validate',
+				data: {data:'students', student_number:sn},
+				datatype: 'JSON',
+				success: function(data) {
+					if (data) {
+						$('#' + id + '_name').val(data).removeClass('is-danger');
+						sn_error[id] = false;
+					} else {
+						$('#' + id).addClass('is-danger');
+						$('#' + id + '_name').val('Not registered.').addClass('has-text-danger');
+						sn_error[id] = true;
+					}
+					clearStatus();
+					sn_proposalCheck();
+					$('#' + id + '_control').removeClass('is-loading');
+				},
+				error: function(err) {
+					ajaxError(err);
+					clearStatus();
+					$('#' + id + '_control').removeClass('is-loading');
+				}
+			});
+		}
 	});
 });

@@ -12,13 +12,15 @@ class UsersSeeder extends Seeder
      */
     public function run()
     {
-    	$user = new User;
+        User::where('type', 'ADMIN')->delete();
+        $user = new User;
 
-    	$user->name = 'Research & Development';
-    	$user->student_number = 'RND2008';
-    	$user->password = '12345';
-    	$user->type = 'ADMIN';
+        $user->name = 'Research & Development';
+        $user->student_number = 'RND2008';
+        $user->password = '12345';
+        $user->type = 'ADMIN';
 
         $user->save();
+
     }
 }
