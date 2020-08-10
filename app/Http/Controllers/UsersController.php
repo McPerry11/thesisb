@@ -60,28 +60,30 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
-        $user = new User;
+        if (Auth::user()->type == 'ADMIN') {
+            $user = new User;
 
-        $user->fill($request->only([
-            'name',
-            'type'
-        ]));
+            $user->fill($request->only([
+                'name',
+                'type'
+            ]));
 
-        if ($user->type == 'STUDENT')
-            $user->student_number = $request->student_number;
-        else {
-            $string = strtoupper(substr(str_replace(',', '', str_replace(' ', '', $user->name)), 0, 3));
-            do {
-                $user->student_number = $string . str_pad(rand(0, pow(10, 4) - 1), 4, '0', STR_PAD_LEFT);
-            } while (User::where('student_number', $user->student_number)->where('type', 'ADVISER')->count() > 0);
+            if ($user->type == 'STUDENT')
+                $user->student_number = $request->student_number;
+            else {
+                $string = strtoupper(substr(str_replace(',', '', str_replace(' ', '', $user->name)), 0, 3));
+                do {
+                    $user->student_number = $string . str_pad(rand(0, pow(10, 4) - 1), 4, '0', STR_PAD_LEFT);
+                } while (User::where('student_number', $user->student_number)->where('type', 'ADVISER')->count() > 0);
+            }
+
+            $user->password = '12345';
+
+            $user->save();
+            Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' registered a new ' . strtolower($user->type) . ': ' . $user->name . '.']);
+
+            return response()->json(['msg' => 'Registered Successfully']);
         }
-
-        $user->password = '12345';
-
-        $user->save();
-        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' registered a new ' . strtolower($user->type) . ': ' . $user->name . '.']);
-
-        return response()->json(['msg' => 'Registered Successfully']);
     }
 
     /**
@@ -107,7 +109,9 @@ class UsersController extends Controller
      */
     public function edit($id)
     {
-        return User::select('name', 'student_number')->find($id);
+        if (Auth::user()->user() == 'ADMIN') {
+            return User::select('name', 'student_number')->find($id);
+        }
     }
 
     /**
@@ -119,19 +123,21 @@ class UsersController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
+        if (Auth::user()->type == 'ADMIN') {
+            $user = User::find($id);
 
-        $user->fill($request->only([
-            'name',
-        ]));
+            $user->fill($request->only([
+                'name',
+            ]));
 
-        if ($request->type == 'STUDENT')
-            $user->student_number = $request->student_number;
+            if ($request->type == 'STUDENT')
+                $user->student_number = $request->student_number;
 
-        $user->save();
-        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a registered ' . strtolower($user->type) . ': ' . $user->name . '.']);
+            $user->save();
+            Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a registered ' . strtolower($user->type) . ': ' . $user->name . '.']);
 
-        return response()->json(['msg' => 'Updated Successfully']);
+            return response()->json(['msg' => 'Updated Successfully']);
+        }
     }
 
     /**
@@ -142,11 +148,13 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::find($id);
+        if (Auth::user()->type == 'ADMIN') {
+            $user = User::find($id);
 
-        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' deleted a registered ' . strtolower($user->type) . ': ' . $user->name . '.']);
-        $user->delete();
+            Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' deleted a registered ' . strtolower($user->type) . ': ' . $user->name . '.']);
+            $user->delete();
 
-        return response()->json(['msg' => 'Deleted Successfully']);
+            return response()->json(['msg' => 'Deleted Successfully']);
+        }
     }
 }

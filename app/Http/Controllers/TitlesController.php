@@ -118,56 +118,58 @@ class TitlesController extends Controller
      */
     public function store(Request $request)
     {
-        $proposal = new Title;
+        if (Auth::user()->type == 'ADMIN') {
+            $proposal = new Title;
 
-        $proposal->fill($request->only([
-            'title',
-            'area',
-            'program',
-            'overview',
-            'keywords',
-        ]));
+            $proposal->fill($request->only([
+                'title',
+                'area',
+                'program',
+                'overview',
+                'keywords',
+            ]));
 
-        $proposal->created_at = $request->created_at;
-        $proposal->adviser_id = $request->adviser_id;
-        $proposal->registration_id = '2020-1-TP';
-        switch($request->program) {
-            case 'BSCS':
-            $proposal->registration_id .= 'CS';
-            break;
+            $proposal->created_at = $request->created_at;
+            $proposal->adviser_id = $request->adviser_id;
+            $proposal->registration_id = '2020-1-TP';
+            switch($request->program) {
+                case 'BSCS':
+                $proposal->registration_id .= 'CS';
+                break;
 
-            case 'BSIT':
-            $proposal->registration_id .= 'IT';
-            break;
+                case 'BSIT':
+                $proposal->registration_id .= 'IT';
+                break;
 
-            case 'BSEMCDA':
-            $proposal->registration_id .= 'DA';
-            break;
+                case 'BSEMCDA':
+                $proposal->registration_id .= 'DA';
+                break;
 
-            case 'BSEMCGD':
-            $proposal->registration_id .= 'GD';
-            break;
+                case 'BSEMCGD':
+                $proposal->registration_id .= 'GD';
+                break;
 
-            case 'BSIS':
-            $proposal->registration_id .= 'IS';
-            break;
+                case 'BSIS':
+                $proposal->registration_id .= 'IS';
+                break;
+            }
+            $id = Title::latest('id')->value('id');
+            $id ? $id++ : $id = 1;
+            $proposal->registration_id .= '-' . $id;
+
+            $proposal->updated_at = Carbon::now('+8:00');
+            $proposal->save();
+
+            $students = User::whereIn('student_number', $request->numbers)->get();
+            $student_numbers = [];
+            foreach ($students as $student)
+                array_push($student_numbers, $student->id);
+            $proposal->users()->sync($student_numbers);
+
+            Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' added a new proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
+
+            return response()->json(['msg' => 'Thesis Title Proposal Added']);
         }
-        $id = Title::latest('id')->value('id');
-        $id ? $id++ : $id = 1;
-        $proposal->registration_id .= '-' . $id;
-
-        $proposal->updated_at = Carbon::now('+8:00');
-        $proposal->save();
-
-        $students = User::whereIn('student_number', $request->numbers)->get();
-        $student_numbers = [];
-        foreach ($students as $student)
-            array_push($student_numbers, $student->id);
-        $proposal->users()->sync($student_numbers);
-
-        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' added a new proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
-
-        return response()->json(['msg' => 'Thesis Title Proposal Added']);
     }
 
     /**
@@ -217,23 +219,25 @@ class TitlesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $proposal = Title::find($id);
+        if (Auth::user()->type == 'ADMIN') {
+            $proposal = Title::find($id);
 
-        $proposal->fill($request->only([
-            'title',
-            'area',
-            'program',
-            'adviser',
-            'overview',
-            'keywords'
-        ]));
+            $proposal->fill($request->only([
+                'title',
+                'area',
+                'program',
+                'adviser',
+                'overview',
+                'keywords'
+            ]));
 
-        $proposal->created_at = $request->created_at;
-        $proposal->updated_at = Carbon::now('+8:00');
-        $proposal->save();
-        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
+            $proposal->created_at = $request->created_at;
+            $proposal->updated_at = Carbon::now('+8:00');
+            $proposal->save();
+            Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
 
-        return response()->json(['msg' => $proposal->title . ' has been updated']);
+            return response()->json(['msg' => $proposal->title . ' has been updated']);
+        }
     }
 
     /**
@@ -244,11 +248,13 @@ class TitlesController extends Controller
      */
     public function destroy($id)
     {
-        $proposal = Title::find($id);
+        if (Auth::user()->type == 'ADMIN') {
+            $proposal = Title::find($id);
 
-        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' deleted a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
-        $proposal->delete();
+            Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' deleted a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
+            $proposal->delete();
 
-        return response()->json(['status' => 'success']);
+            return response()->json(['status' => 'success']);
+        }
     }
 }
