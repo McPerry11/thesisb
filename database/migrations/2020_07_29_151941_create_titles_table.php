@@ -28,7 +28,7 @@ class CreateTitlesTable extends Migration
             $table->foreignId('adviser_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->longText('overview');
             $table->longText('keywords');
-            $table->boolean('approved');
+            $table->string('filename')->nullable();
             $table->timestamps();
         });
     }

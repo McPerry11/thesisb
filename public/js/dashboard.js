@@ -272,7 +272,7 @@ $(function() {
 								$('#adviser').append('<option value="' + data[i].id + '">' + data[i].name + '</option>')
 							}
 						} else {
-							$('#edit .select').addClass('is-hidden');
+							$('#adviser_select').addClass('is-hidden');
 							$('#thesis_note').removeClass('is-hidden');
 							$('#submit').attr('disabled', true);
 						}

@@ -307,7 +307,7 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control is-expanded">
-							<div class="select is-fullwidth">
+							<div id="adviser_select" class="select is-fullwidth">
 								<select id="adviser"></select>
 							</div>
 							<div id="thesis_note" class="has-text-danger is-hidden">No advisers registered.</div>
@@ -348,6 +348,33 @@
 					<div class="field">
 						<div class="control is-expanded">
 							<input type="date" id="date" class="input" required>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Approval Form</label>
+				</div>
+				<div class="field-body">
+					<div class="field">
+						<div class="control">
+							<div id="file" class="file has-name is-fullwidth">
+								<label class="file-label">
+									<input type="file" class="file-input">
+									<div class="file-cta">
+										<span class="icon">
+											<i class="fas fa-upload"></i>
+										</span>
+										<span class="file-label">
+											Choose a file
+										</span>
+									</div>
+									<div class="file-name">
+										No file uploaded
+									</div>
+								</label>
+							</div>
 						</div>
 					</div>
 				</div>
