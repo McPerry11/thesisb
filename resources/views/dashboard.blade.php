@@ -9,6 +9,32 @@
 
 @section('body')
 <div class="box">
+	<div class="columns">
+		<div class="column is-hidden-mobile">
+			<figure class="image is-64x64"><img src="{{ asset('img/CCSSlogo.png') }}" alt="CCSS Logo"></figure>
+		</div>
+		<div class="column">
+			<div class="title is-4 has-text-centered">Thesis Archiving</div>
+		</div>
+		<div class="column">
+			<a class="rnd" title="About Developers">
+				<figure class="image is-64x64 is-hidden-mobile is-pulled-right"><img src="{{ asset('img/RnDlogo.png') }}" alt="UE Logo"></figure>
+			</a>
+			<div class="level is-hidden-tablet is-mobile">
+				<div class="level-item">
+					<figure class="image is-48x48"><img src="{{ asset('img/UElogo.png') }}" alt="UE Logo"></figure>
+				</div>
+				<div class="level-item">
+					<figure class="image is-48x48"><img src="{{ asset('img/CCSSlogo.png') }}" alt="CCSS Logo"></figure>
+				</div>
+				<div class="level-item">
+					<a class="rnd" title="About Developers">
+						<figure class="image is-48x48"><img src="{{ asset('img/RnDlogo.png') }}" alt="UE Logo"></figure>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div id="header" class="columns is-mobile">
 		<div class="column is-8">
 			@if (Auth::user()->type == 'STUDENT') 
@@ -509,6 +535,23 @@
 			</div>
 		</footer>
 	</form>
+</div>
+
+<div id="rnd_details" class="modal">
+	<div class="modal-background"></div>
+	<div class="modal-card">
+		<header class="modal-card-head">
+			<div class="modal-card-title">About Developers</div>
+			<span class="delete"></span>
+		</header>
+		<section class="modal-card-body">
+			<figure class="image is-64x64 is-pulled-left"><img src="{{ asset('img/RnDlogo.png') }}" alt="UE Logo"></figure>
+			<p class='help'>V1.2.0</p>
+			<p>The UE CCSS Research and Development Unit (R&D) is the research arm of University of the East - College of Computer Studies and Systems.</p>
+			<p>The R&D unit, led by R&D coordinator Melie Jim Sarmiento and R&D team leader Mack Perry Co, has been creating systems and applications benefiting the students of the college and the university.</p>
+			<p><br>This system is designed and developed by R&D team leader Mack Perry Co for the incoming upperclassmen who are pursuing Methods of Research (MERIT). This system is copyrighted to the UE CCSS R&D Unit.</p>
+		</section>
+	</div>
 </div>
 @endsection
 

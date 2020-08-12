@@ -34,3 +34,7 @@
 	min-width: 120px;
 	width: 120px;
 }
+
+#rnd_details figure {
+	margin-right: 10px;
+}

@@ -346,6 +346,7 @@ $(function() {
 			$('#edit_user').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
+		$('#rnd_details').removeClass('is-active');
 	});
 
 	$('.cancel').click(function() {
@@ -1051,5 +1052,9 @@ $(function() {
 				clearStatus();
 			}
 		});
+	});
+
+	$('.rnd').click(function() {
+		$('#rnd_details').addClass('is-active');
 	});
 });
