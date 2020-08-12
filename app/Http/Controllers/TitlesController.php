@@ -38,18 +38,12 @@ class TitlesController extends Controller
                 if (Auth::user()->type == 'STUDENT') {
                     $proposals = Auth::user()->titles()->select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
                     ->orderBy('updated_at', 'desc')->get();
-                    foreach ($proposals as $proposal) {
-                        $proposal->students = $proposal->users()->select('name')->get();
-                        $proposal->adviser = User::find($proposal->adviser_id)->name;
+                    foreach ($proposals as $proposal)
                         $proposal->edit = false;
-                    }
                 } else if (Auth::user()->type == 'ADVISER') {
                     $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')->where('adviser_id', Auth::id())->orderBy('updated_at', 'desc')->get();
-                    foreach ($proposals as $proposal) {
-                        $proposal->students = $proposal->users()->select('name')->get();
-                        $proposal->adviser = Auth::user()->name;
+                    foreach ($proposals as $proposal)
                         $proposal->edit = false;
-                    }
                 }   
             } else {
                 if (Auth::user()->type == 'ADMIN') {
@@ -107,6 +101,20 @@ class TitlesController extends Controller
                 }
             } 
             return response()->json(['proposals' => $proposals]);
+        } else if ($request->data == 'validate') {
+            $existing = Title::where('title', $request->title)->count();
+            if ($existing > 0) {
+                return response()->json(['status' => 'error']);
+            } else {
+                $words = explode(' ' , $request->title);
+                $proposals = Title::all();
+                foreach ($proposals as $proposal) {
+                    $difference = count(array_diff($words, explode(' ', preg_replace("/[^A-Za-z0-9' -]/", '', $proposal->title))));
+                    if ($difference == 0)
+                        return response()->json(['status' => 'error']);
+                }
+                return response()->json(['status' => 'validated']);
+            }
         }
     }
 
@@ -121,16 +129,13 @@ class TitlesController extends Controller
         if (Auth::user()->type == 'ADMIN') {
             $proposal = new Title;
 
-            $proposal->fill($request->only([
-                'title',
-                'area',
-                'program',
-                'overview',
-                'keywords',
-            ]));
-
-            $proposal->created_at = $request->created_at;
-            $proposal->adviser_id = $request->adviser_id;
+            $proposal->title = strip_tags($request->title);
+            $proposal->area = strip_tags($request->area);
+            $proposal->program = strip_tags($request->program);
+            $proposal->overview = strip_tags($request->overview);
+            $proposal->keywords = strip_tags($request->keywords);
+            $proposal->created_at = strip_tags($request->created_at);
+            $proposal->adviser_id = strip_tags($request->adviser_id);
             $proposal->registration_id = '2020-1-TP';
             switch($request->program) {
                 case 'BSCS':
@@ -181,15 +186,10 @@ class TitlesController extends Controller
     public function show(Request $request, $id)
     {
         if ($request->data == 'view') {
-            $owner = Auth::user()->titles()->where('id', $id)->count();
-            $adviser = Title::where('adviser_id', Auth::id())->where('id', $id)->count();
-            if (Auth::user()->type == 'ADMIN' || $owner > 0 || $adviser > 0) {
+            if (Auth::user()->type == 'ADMIN')
                 $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'adviser_id', 'created_at')->find($id);
-                $proposal->students = $proposal->users()->select('name')->get();
-                $proposal->adviser = User::find($proposal->adviser_id)->name;
-            } else {
+            else
                 $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'created_at')->find($id);
-            }
             return response()->json(['proposal' => $proposal]);
         }
         return Title::select('title')->find($id);
@@ -222,15 +222,11 @@ class TitlesController extends Controller
         if (Auth::user()->type == 'ADMIN') {
             $proposal = Title::find($id);
 
-            $proposal->fill($request->only([
-                'title',
-                'area',
-                'program',
-                'adviser',
-                'overview',
-                'keywords'
-            ]));
-
+            $proposal->title = strip_tags($request->title);
+            $proposal->area = strip_tags($request->area);
+            $proposal->program = strip_tags($request->program);
+            $proposal->overview = strip_tags($request->overview);
+            $proposal->keywords = strip_tags($request->keywords);
             $proposal->created_at = $request->created_at;
             $proposal->updated_at = Carbon::now('+8:00');
             $proposal->save();

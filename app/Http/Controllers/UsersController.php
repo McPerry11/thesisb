@@ -18,19 +18,17 @@ class UsersController extends Controller
     {
         if ($request->data == 'students') {
             if ($request->search == '') {
-                return User::where('type', 'STUDENT')->orderby('updated_at', 'desc')->get();
+                return User::select('id', 'name')->where('type', 'STUDENT')->orderby('updated_at', 'desc')->get();
             }
-            return User::where('type', 'STUDENT')
+            return User::select('id', 'name')->where('type', 'STUDENT')
             ->where('name', 'LIKE', '%' . $request->search . '%')
-            ->orWhere('student_number', 'LIKE', '%' . $request->search . '%')
             ->orderBy('updated_at', 'desc')->get();
         } else if ($request->data == 'advisers') {
             if ($request->search == '') {
-                return User::where('type', 'ADVISER')->orderBy('updated_at', 'desc')->get();
+                return User::select('id', 'name')->where('type', 'ADVISER')->orderBy('updated_at', 'desc')->get();
             }
-            return User::where('type', 'ADVISER')
+            return User::select('id', 'name')->where('type', 'ADVISER')
             ->where('name', 'LIKE', '%' . $request->search . '%')
-            ->orWhere('student_number', 'LIKE', '%' . $request->search . '%')
             ->orderBy('updated_at', 'desc')->get();
         }
     }
@@ -63,13 +61,11 @@ class UsersController extends Controller
         if (Auth::user()->type == 'ADMIN') {
             $user = new User;
 
-            $user->fill($request->only([
-                'name',
-                'type'
-            ]));
+            $user->name = strip_tags($request->name);
+            $user->type = strip_tags($request->type);
 
             if ($user->type == 'STUDENT')
-                $user->student_number = $request->student_number;
+                $user->student_number = strip_tags($request->student_number);
             else {
                 $string = strtoupper(substr(str_replace(',', '', str_replace(' ', '', $user->name)), 0, 3));
                 do {
@@ -107,11 +103,12 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        if (Auth::user()->type == 'ADMIN') {
+        if (Auth::user()->type == 'ADMIN' && $request->password == 'rndccss2008') {
             return User::select('name', 'student_number')->find($id);
         }
+        return response()->json(['status' => 'error', 'msg' => 'Only authorized personel can access this information']);
     }
 
     /**
@@ -126,12 +123,10 @@ class UsersController extends Controller
         if (Auth::user()->type == 'ADMIN') {
             $user = User::find($id);
 
-            $user->fill($request->only([
-                'name',
-            ]));
+            $user->name = strip_tags($request->name);
 
             if ($request->type == 'STUDENT')
-                $user->student_number = $request->student_number;
+                $user->student_number = strip_tags($request->student_number);
 
             $user->save();
             Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a registered ' . strtolower($user->type) . ': ' . $user->name . '.']);

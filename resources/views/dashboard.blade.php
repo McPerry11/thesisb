@@ -197,7 +197,7 @@
 				</div>
 				<div class="field-body">
 					<div class="field">
-						<div class="control is-expanded">
+						<div id="title_control" class="control is-expanded">
 							<input type="text" id="title" class="input" maxlength="250" placeholder="Proposed thesis title" required>
 						</div>
 					</div>

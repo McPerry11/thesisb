@@ -101,7 +101,7 @@ $(function() {
 			data: {data:'titles', search:search, tab:tab},
 			datatype: 'JSON',
 			success: function(data) {
-				$('#contents').append('<div class="subtitle is-5">Resutls: ' + data.proposals.length + '</div>');
+				$('#contents').append('<div class="subtitle is-5">Results: ' + data.proposals.length + '</div>');
 				if (data.proposals.length == 0) {
 					$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing proposals.</div></div>');
 				} else {
@@ -149,7 +149,7 @@ $(function() {
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
-				$('#contents').append('<div class="subtitle is-5">Resutls: ' + data.length + '</div>');
+				$('#contents').append('<div class="subtitle is-5">Results: ' + data.length + '</div>');
 				$('#contents').append('<div id="logs_table" class="table-container"><table class="table is-fullwidth"><tr><th>Log ID</th><th>Description</th><th>Date & Time</th></tr></table></div>');
 				if (data.length > 0) {
 					for (i in data) {
@@ -183,11 +183,11 @@ $(function() {
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
-				$('#contents').append('<div class="subtitle is-5">Resutls: ' + data.length + '</div>');
+				$('#contents').append('<div class="subtitle is-5">Results: ' + data.length + '</div>');
 				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>Student Number</th><th>Name</th><th>Actions</th></tr></table></div>');
 				if (data.length > 0) {
 					for (i in data)
-						$('table').append('<tr><td>' + data[i].student_number + '</td><td>' + data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data[i].id + '" title="Edit ' + data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data[i].id + '" title="Remove ' + data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+						$('table').append('<tr><td>●●●●●●●●●●●</td><td>' + data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data[i].id + '" title="Edit ' + data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data[i].id + '" title="Remove ' + data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
 				} else {
 					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No students registered.</div></td></tr>');
 				}
@@ -215,11 +215,11 @@ $(function() {
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
-				$('#contents').append('<div class="subtitle is-5">Resutls: ' + data.length + '</div>');
+				$('#contents').append('<div class="subtitle is-5">Results: ' + data.length + '</div>');
 				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>ID Number</th><th>Name</th><th>Actions</th></tr></table></div>');
 				if (data.length > 0) {
 					for (i in data)
-						$('table').append('<tr><td>' + data[i].student_number + '</td><td>' + data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data[i].id + '" title="Edit ' + data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data[i].id + '" title="Remove ' + data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+						$('table').append('<tr><td>●●●●●●●</td><td>' + data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data[i].id + '" title="Edit ' + data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data[i].id + '" title="Remove ' + data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
 				} else {
 					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No advisers registered.</div></td></tr>');
 				}
@@ -261,7 +261,8 @@ $(function() {
 				$('#edit .select').removeClass('is-hidden');
 				$('#submit').removeAttr('disabled');
 				$('.name').attr('readonly', true);
-				$('input').removeClass('is-danger');
+				$('input').removeClass('is-danger').removeClass('is-success');
+				$('#edit .help').remove();
 				$('#adviser').empty();
 				Swal.fire({
 					html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -286,7 +287,7 @@ $(function() {
 						}
 						$('#edit').addClass('is-active');
 						$('html').addClass('is-clipped');
-						$('.modal-card-title').text('Add Proposal');
+						$('#edit .modal-card-title').text('Add Proposal');
 						$('.modal input').val('');
 						$('textarea').val('');
 						$('#program').val('BSCS');
@@ -312,14 +313,14 @@ $(function() {
 				$('#edit_user').addClass('is-active');
 				$('html').addClass('is-clipped');
 				if ($('#students').hasClass('is-active')) {
-					$('.modal-card-title').text('Add Student');
+					$('#edit_user .modal-card-title').text('Add Student');
 					$('#edit_user .subtitle').text('Add an Individual Student');
 					$('#user_label').text('Student Number');
 					$('#upload').removeClass('is-hidden');
 					$('#sn_field').removeClass('is-hidden');
 					$('#sn_field input').attr('required', true);
 				} else {
-					$('.modal-card-title').text('Add Adviser');
+					$('#edit_user .modal-card-title').text('Add Adviser');
 					$('#edit_user .subtitle').text('Add an Individual Adviser');
 					$('#user_label').text('ID Number');
 					$('#upload').addClass('is-hidden');
@@ -337,11 +338,11 @@ $(function() {
 			$('#view').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
-		if (!$('#submit').hasClass('is-loading')) {
+		if (!$('#submit').hasClass('is-loading') && !$('.control').hasClass('is-loading')) {
 			$('#edit').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
-		if (!$('#submit_user').hasClass('is-loading') && !$('#sncontrol').hasClass('is-loading')) {
+		if (!$('#submit_user').hasClass('is-loading') && !$('.control').hasClass('is-loading')) {
 			$('#edit_user').removeClass('is-active');
 			$('html').removeClass('is-clipped');
 		}
@@ -849,7 +850,7 @@ $(function() {
 		}
 	});
 
-	$('body').delegate('.studedit', 'click', function() {
+	$('body').delegate('.studedit', 'click', async function() {
 		$('button').attr('disabled', true);
 		$('input').attr('readonly', true);
 		$('#upload').addClass('is-hidden');
@@ -862,40 +863,61 @@ $(function() {
 		}
 		var id = $(this).data('id');
 		editid = id;
-		Swal.fire({
-			html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
-			showConfirmButton: false,
-			allowOutsideClick: false,
-			allowEscapeKey: false
-		});
-		$.ajax({
-			type: 'POST',
-			url: 'users/' + id,
-			datatype: 'JSON',
-			success: function(data) {
-				editsn = data.student_number;
-				$('#sn').val(data.student_number);
-				$('#name').val(data.name);
-				$('#edit_user .help').remove();
-				$('#sn').removeClass('is-danger').removeClass('is-success');
-				$('#edit_user .subtitle').addClass('is-hidden');
-				if ($('#students').hasClass('is-active')) {
-					$('.modal-card-title').text('Edit Student');
-					$('#user_label').text('Student Number');
-				} else {
-					$('.modal-card-title').text('Edit Adviser');
-					$('#user_label').text('ID Number');
-				}
-				$('#submit_user').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
-				$('#edit_user').addClass('is-active');
-				$('html').addClass('is-clipped');
-				clearStatus();
-				Swal.close();
-			},
-			error: function(err) {
-				ajaxError(err);
+		const {value: password} = await Swal.fire({
+			title: 'Enter admin password',
+			input: 'password',
+			inputAttributes: {
+				autocapitalize: 'off',
+				autocorrect: 'off'
 			}
 		});
+		if (password) {
+			Swal.fire({
+				html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
+				showConfirmButton: false,
+				allowOutsideClick: false,
+				allowEscapeKey: false
+			});
+			$.ajax({
+				type: 'POST',
+				url: 'users/' + id,
+				data: {password:password},
+				datatype: 'JSON',
+				success: function(data) {
+					console.log(data);
+					if (data.status == 'error') {
+						Swal.fire({
+							icon: 'warning',
+							title: 'Unauthorized Access',
+							text: data.msg
+						});
+						clearStatus();
+					} else {
+						editsn = data.student_number;
+						$('#sn').val(data.student_number);
+						$('#name').val(data.name);
+						$('#edit_user .help').remove();
+						$('#sn').removeClass('is-danger').removeClass('is-success');
+						$('#edit_user .subtitle').addClass('is-hidden');
+						if ($('#students').hasClass('is-active')) {
+							$('#edit_user .modal-card-title').text('Edit Student');
+							$('#user_label').text('Student Number');
+						} else {
+							$('#edit_user .modal-card-title').text('Edit Adviser');
+							$('#user_label').text('ID Number');
+						}
+						$('#submit_user').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
+						$('#edit_user').addClass('is-active');
+						$('html').addClass('is-clipped');
+						clearStatus();
+						Swal.close();
+					}
+				},
+				error: function(err) {
+					ajaxError(err);
+				}
+			});
+		}
 	});
 
 	$('body').delegate('.studremove', 'click', function() {
@@ -993,5 +1015,41 @@ $(function() {
 				}
 			});
 		}
+	});
+
+	$('#title').keyup(function() {
+		$(this).removeClass('is-success').removeClass('is-danger');
+		$('#title_control .help').remove();
+		$('#submit').removeAttr('disabled');
+	});
+
+	$('#title').focusout(function() {
+		$('#title_control').addClass('is-loading');
+		$('button').attr('disabled', true);
+		$(this).removeClass('is-success').removeClass('is-danger');
+		$('#title_control .help').remove();
+		var title = $(this).val();
+		$.ajax({
+			type: 'POST',
+			url: 'titles',
+			data: {data:'validate', title:title},
+			datatype: 'JSON',
+			success: function(response) {
+				$('#title_control').removeClass('is-loading');
+				clearStatus();
+				if (response.status == 'validated') {
+					$('#title').addClass('is-success');
+				} else if (response.status == 'error') {
+					$('#title').addClass('is-danger');
+					$('#title_control').append('<div class="help is-danger">This title already exists</div>');
+					$('#submit').attr('disabled', true);
+				}
+			},
+			error: function(err) {
+				$('#title_control').removeClass('is-loading');
+				ajaxError(err);
+				clearStatus();
+			}
+		});
 	});
 });
