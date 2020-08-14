@@ -885,14 +885,12 @@ $(function() {
 				data: {password:password},
 				datatype: 'JSON',
 				success: function(data) {
-					console.log(data);
 					if (data.status == 'error') {
 						Swal.fire({
 							icon: 'warning',
 							title: 'Unauthorized Access',
 							text: data.msg
 						});
-						clearStatus();
 					} else {
 						editsn = data.student_number;
 						$('#sn').val(data.student_number);
@@ -910,14 +908,16 @@ $(function() {
 						$('#submit_user').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
 						$('#edit_user').addClass('is-active');
 						$('html').addClass('is-clipped');
-						clearStatus();
 						Swal.close();
 					}
+					clearStatus();
 				},
 				error: function(err) {
 					ajaxError(err);
 				}
 			});
+		} else {
+			clearStatus();
 		}
 	});
 
@@ -1056,5 +1056,10 @@ $(function() {
 
 	$('.rnd').click(function() {
 		$('#rnd_details').addClass('is-active');
+	});
+
+	$('#file input').change(function(e) {
+		if (e.target.files.length > 0)
+			$('.file-name').text(e.target.files[0].name);
 	});
 });
