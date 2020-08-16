@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('login', 'LoginController@get_login')->name('login');
 Route::post('login', 'LoginController@post_login')->middleware('throttle:10,5');
 
+Route::get('test', 'LoginController@hello');
+Route::post('test', 'LoginController@world');
+
 Route::group(['middleware' => 'auth'], function() {
 	Route::get('/', 'LoginController@dashboard');
 	Route::post('/', 'LoginController@logout');
