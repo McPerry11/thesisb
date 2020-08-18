@@ -159,8 +159,8 @@ class TitlesController extends Controller
                 $proposal->registration_id .= 'IS';
                 break;
             }
-            $id = Title::latest('id')->value('id');
-            $id ? $id++ : $id = 1;
+            
+            $id = Title::where('program', $proposal->program)->count() + 1;
             $proposal->registration_id .= '-' . $id;
 
             $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
