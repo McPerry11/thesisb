@@ -321,7 +321,7 @@ $(function() {
 					$('#user_label').text('Student Number');
 					$('#upload').removeClass('is-hidden');
 					$('#sn_field').removeClass('is-hidden');
-					$('#sn_field input').attr('required', true);
+					$('#sn_field input').attr('required', true).removeClass('is-static').removeAttr('readonly').attr('required');
 				} else {
 					$('#edit_user .modal-card-title').text('Add Adviser');
 					$('#edit_user .subtitle').text('Add an Individual Adviser');
@@ -789,7 +789,7 @@ $(function() {
 	});
 
 	$('#sn').keyup(function() {
-		if (!$('#sncontrol').hasClass('is-loading')) {
+		if (!$('#sncontrol').hasClass('is-loading') && $('#sn_field input').attr('readonly') != 'readonly') {
 			$(this).removeClass('is-success').removeClass('is-danger');
 			$('#edit_user .help').remove();
 			$('#submit_user').removeAttr('disabled');
@@ -873,12 +873,11 @@ $(function() {
 		$('button').attr('disabled', true);
 		$('input').attr('readonly', true);
 		$('#upload').addClass('is-hidden');
+		$('#sn_field').removeClass('is-hidden');
 		if ($('#students').hasClass('is-active')) {
-			$('#sn_field').removeClass('is-hidden');
-			$('#sn_field input').attr('required', true);
+			$('#sn_field input').attr('required', true).removeAttr('readonly').removeClass('is-static').removeClass('is-hidden');
 		} else {
-			$('#sn_field').addClass('is-hidden');
-			$('#sn_field input').removeAttr('required');
+			$('#sn_field input').removeAttr('required').addClass('is-static').removeClass('is-hidden');
 		}
 		var id = $(this).data('id');
 		editid = id;
@@ -929,6 +928,8 @@ $(function() {
 						Swal.close();
 					}
 					clearStatus();
+					if ($('#advisers').hasClass('is-active'))
+						$('#sn_field input').attr('readonly', true);
 				},
 				error: function(err) {
 					ajaxError(err);
