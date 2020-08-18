@@ -664,6 +664,7 @@ $(function() {
 				$(this).addClass('is-active');
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Proposal');
+				$($('#add').parent()).removeClass('is-hidden');
 				$('#logout').removeClass('is-hidden');
 				$('#search input').val('').attr('placeholder', 'Search title, keyword, or name...');
 				$('#clear').attr('disabled', true);
@@ -680,6 +681,7 @@ $(function() {
 				$(this).addClass('is-active');
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#logout').removeClass('is-hidden');
+				$($('#add').parent()).addClass('is-hidden');
 				$('#search input').val('').attr('placeholder', 'Search description, date, or time...');
 				$('#clear').attr('disabled', true);
 				search = '', link = 'logs';
@@ -694,6 +696,7 @@ $(function() {
 				$('.tabs li').removeClass('is-active');
 				$(this).addClass('is-active');
 				$('#add span:nth-child(2)').text('Add Student');
+				$($('#add').parent()).removeClass('is-hidden');
 				$('#search input').val('').attr('placeholder', 'Search name or student number...');
 				$('#clear').attr('disabled', true);
 				search = '', link = 'users';
@@ -709,6 +712,7 @@ $(function() {
 				$(this).addClass('is-active');
 				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Adviser');
+				$($('#add').parent()).removeClass('is-hidden');
 				$('#search input').val('').attr('placeholder', 'Search name or number...');
 				$('#clear').attr('disabled', true);
 				search = '', link = 'users';
@@ -980,64 +984,77 @@ $(function() {
 		}
 	});
 
-	$('body').delegate('.studremove', 'click', function() {
+	$('body').delegate('.studremove', 'click', async function() {
 		$('button').attr('disabled', true);
 		$('input').attr('readonly', true);
 		var id = $(this).data('id');
-		Swal.fire({
-			html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
-			showConfirmButton: false,
-			allowOutsideClick: false,
-			allowEscapeKey: false
-		});
-		$.ajax({
-			type: 'POST',
-			url: 'users/' + id,
-			datatype: 'JSOON',
-			success: function(data) {
-				clearStatus();
-				Swal.fire({
-					icon: 'warning',
-					title: 'Confirm Delete',
-					html: '<div>Are you sure you want to delete ' + data.name + ' (' + data.student_number + ')?<div><div class="help">Any proposals and logs related to this user will be permanently deleted.</div>',
-					confirmButtonText: 'Yes',
-					showCancelButton: true,
-					cancelButtonText: 'No',
-				}).then((result) => {
-					if (result.value) {
-						Swal.fire({
-							title: 'Deleting User',
-							html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
-							showConfirmButton: false,
-							allowOutsideClick: false,
-							allowEscapeKey: false
-						});
-						$.ajax({
-							type: 'POST',
-							url: 'users/' + id + '/delete',
-							datatype: 'JSON',
-							success: function(response) {
-								Swal.fire({
-									icon: 'success',
-									title: response.msg,
-									showConfirmButton: false,
-									timer: 2500
-								}).then(function() {
-									$('#students').hasClass('is-active') ? retrieveStudents() : retrieveAdvisers();
-								});
-							},
-							error: function(err) {
-								ajaxError(err);
-							}
-						});
-					}
-				});
-			},
-			error: function(err) {
-				clearStatus();
-				ajaxError(err);
+		const {value: password} = await Swal.fire({
+			title: 'Enter admin password',
+			input: 'password',
+			inputAttributes: {
+				autocapitalize: 'off',
+				autocorrect: 'off'
 			}
 		});
+		if (password) {
+			Swal.fire({
+				html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
+				showConfirmButton: false,
+				allowOutsideClick: false,
+				allowEscapeKey: false
+			});
+			$.ajax({
+				type: 'POST',
+				url: 'users/' + id,
+				data: {password:password},
+				datatype: 'JSON',
+				success: function(data) {
+					clearStatus();
+					Swal.fire({
+						icon: 'warning',
+						title: 'Confirm Delete',
+						html: '<div>Are you sure you want to delete ' + data.name + ' (' + data.student_number + ')?<div><div class="help">Any proposals and logs related to this user will be permanently deleted.</div>',
+						confirmButtonText: 'Yes',
+						showCancelButton: true,
+						cancelButtonText: 'No',
+					}).then((result) => {
+						if (result.value) {
+							Swal.fire({
+								title: 'Deleting User',
+								html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
+								showConfirmButton: false,
+								allowOutsideClick: false,
+								allowEscapeKey: false
+							});
+							$.ajax({
+								type: 'POST',
+								url: 'users/' + id + '/delete',
+								datatype: 'JSON',
+								success: function(response) {
+									Swal.fire({
+										icon: 'success',
+										title: response.msg,
+										showConfirmButton: false,
+										timer: 2500
+									}).then(function() {
+										$('#students').hasClass('is-active') ? retrieveStudents() : retrieveAdvisers();
+									});
+								},
+								error: function(err) {
+									ajaxError(err);
+								}
+							});
+						}
+					});
+				},
+				error: function(err) {
+					clearStatus();
+					ajaxError(err);
+				}
+			});
+		} else {
+			clearStatus();
+		}
 	});
 
 	$('.sn').keyup(function() {
