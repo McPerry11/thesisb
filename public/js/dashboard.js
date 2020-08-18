@@ -646,7 +646,7 @@ $(function() {
 			if ($('#loading').hasClass('is-hidden')) {
 				$('.tabs li').removeClass('is-active');
 				$(this).addClass('is-active');
-				$('.column:nth-child(2)').addClass('is-hidden');
+				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#logout').removeClass('is-hidden');
 				$('#search input').val('').attr('placeholder', 'Search description, date, or time...');
 				$('#clear').attr('disabled', true);
