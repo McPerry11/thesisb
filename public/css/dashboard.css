@@ -38,3 +38,7 @@
 #rnd_details figure {
 	margin-right: 10px;
 }
+
+nav.pagination {
+	padding-top: 20px;
+}

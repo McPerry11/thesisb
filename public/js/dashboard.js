@@ -89,38 +89,50 @@ $(function() {
 		return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' - ' + strTime;
 	}
 
+	function pagination(current, prev, next, last, lastpage) {
+		$('#body').append('<nav class="pagination is-right"></nav>');
+		if (prev != null) $('.pagination').append('<a class="pagination-previous" data-url="' + prev + '">Previous</a>');
+		if (next != null) $('.pagination').append('<a class="pagination-next" data-url="' + next + '">Next</a>');
+		if (lastpage >= 3) $('.pagination').append('<form class="pagination-list"><div class="field has-addons"><div class="control"><button id="goto" class="button is-info" type="submit">Go to</button></div><div id="page" class="control"><input type="number" class="input" min="1" max="' + lastpage + '" value="' + current + '" placeholder="Page #"></div><div class="control"><a class="button is-static">/ ' + lastpage + '</a></div></div></form>');
+	}
+
 	function retrieveProposals() {
 		$('#loading').removeClass('is-hidden');
 		$('#contents .box').remove();
 		$('.table-container').remove();
+		$('.pagination').remove();
 		$('.notif').remove();
 		$('#contents .subtitle.is-5').remove();
 		$.ajax({
 			type: 'POST',
-			url: 'titles',
+			url: link,
 			data: {data:'titles', search:search, tab:tab},
 			datatype: 'JSON',
 			success: function(data) {
-				$('#contents').append('<div class="subtitle is-5">Results: ' + data.proposals.length + '</div>');
-				if (data.proposals.length == 0) {
+				$('#contents').append('<div class="subtitle is-5">Results: ' + data.proposals.total + '</div>');
+				if (data.proposals.total == 0) {
 					$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing proposals.</div></div>');
 				} else {
-					for (let i in data.proposals) {
-						let proposal = '<a class="box has-ribbon" data-id="' + data.proposals[i].id + '">' + addRibbon(data.proposals[i].program);
+					for (let i in data.proposals.data) {
+						let proposal = '<a class="box has-ribbon" data-id="' + data.proposals.data[i].id + '">' + addRibbon(data.proposals.data[i].program);
 						proposal += '<div class="columns"><div class="column">';
-						proposal += '<h3 class="title is-4">' + data.proposals[i].title + '</h3>';
-						if (data.proposals[i].registration_id) proposal += '<h4 class="subtitle is-5">' + data.proposals[i].registration_id + '</h4>';
-						proposal += '<div class="tags">' + loadKeywords(data.proposals[i].keywords, data.proposals[i].area) + '</div>';
-						if (data.proposals[i].students) proposal += '<div class="tags">' + loadNames(data.proposals[i].adviser, data.proposals[i].students) + '</div>';
-						if (data.proposals[i].edit) {
+						proposal += '<h3 class="title is-4">' + data.proposals.data[i].title + '</h3>';
+						if (data.proposals.data[i].registration_id) proposal += '<h4 class="subtitle is-5">' + data.proposals.data[i].registration_id + '</h4>';
+						proposal += '<div class="tags">' + loadKeywords(data.proposals.data[i].keywords, data.proposals.data[i].area) + '</div>';
+						if (data.proposals.data[i].students) proposal += '<div class="tags">' + loadNames(data.proposals.data[i].adviser, data.proposals.data[i].students) + '</div>';
+						if (data.proposals.data[i].edit) {
 							proposal += '</div><div class="column is-2-desktopn is-3-tablet">';
 							proposal += '<div class="buttons is-right">';
-							proposal += '<button class="button edit" data-id="' + data.proposals[i].id + '" title="Edit ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>';
-							proposal += '<button class="button is-danger is-inverted remove" data-id="' + data.proposals[i].id + '" title="Remove ' + data.proposals[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>';
+							proposal += '<button class="button edit" data-id="' + data.proposals.data[i].id + '" title="Edit ' + data.proposals.data[i].registration_id + '"><span class="icon"><i class="fas fa-edit"></i></span></button>';
+							proposal += '<button class="button is-danger is-inverted remove" data-id="' + data.proposals.data[i].id + '" title="Remove ' + data.proposals.data[i].registration_id + '"><span class="icon"><i class="fas fa-trash"></i></span></button>';
 							proposal += '</div>';
 						}
 						proposal += '</div></div></a>';
 						$('#contents').append(proposal);
+					}
+					if (data.proposals.last_page > 1) {
+						currentPage = data.proposals.current_page, prevPage = data.proposals.prev_page_url, nextPage = data.proposals.next_page_url, lastPage = data.proposals.last_page_url;
+						pagination(currentPage, prevPage, nextPage, lastPage, data.proposals.last_page);
 					}
 				}
 				$('#loading').addClass('is-hidden');
@@ -139,22 +151,28 @@ $(function() {
 		$('#loading').removeClass('is-hidden');
 		$('#contents .box').remove();
 		$('.table-container').remove();
+		$('.pagination').remove();
 		$('.notif').remove();
 		$('#contents .subtitle.is-5').remove();
 		$.ajax({
 			type: 'POST',
-			url: 'logs',
+			url: link,
 			data: {search:search},
 			datatype: 'JSON',
 			success: function(data) {
+				console.log(data);
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
-				$('#contents').append('<div class="subtitle is-5">Results: ' + data.length + '</div>');
+				$('#contents').append('<div class="subtitle is-5">Results: ' + data.total + '</div>');
 				$('#contents').append('<div id="logs_table" class="table-container"><table class="table is-fullwidth"><tr><th>Log ID</th><th>Description</th><th>Date & Time</th></tr></table></div>');
-				if (data.length > 0) {
-					for (i in data) {
-						let timestamp = new Date(data[i].created_at);
-						$('table').append('<tr><td>' + data[i].id + '</td><td>' + data[i].description + '</td><td>' + formatDate(timestamp) + '</td></tr>');
+				if (data.total > 0) {
+					for (i in data.data) {
+						let timestamp = new Date(data.data[i].created_at);
+						$('table').append('<tr><td>' + data.data[i].id + '</td><td>' + data.data[i].description + '</td><td>' + formatDate(timestamp) + '</td></tr>');
+					}
+					if (data.last_page > 1) {
+						currentPage = data.current_page, prevPage = data.prev_page_url, nextPage = data.next_page_url, lastPage = data.last_page_url;
+						pagination(currentPage, prevPage, nextPage, lastPage, data.last_page);
 					}
 				} else {
 					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing logs.</div></td></tr>');
@@ -173,21 +191,26 @@ $(function() {
 		$('#loading').removeClass('is-hidden');
 		$('#contents .box').remove();
 		$('.table-container').remove();
+		$('.pagination').remove();
 		$('.notif').remove();
 		$('#contents .subtitle.is-5').remove();
 		$.ajax({
 			type: 'POST',
-			url: 'users',
+			url: link,
 			data: {data:'students', search:search},
 			datatype: 'JSON',
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
-				$('#contents').append('<div class="subtitle is-5">Results: ' + data.length + '</div>');
+				$('#contents').append('<div class="subtitle is-5">Results: ' + data.total + '</div>');
 				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>Student Number</th><th>Name</th><th>Actions</th></tr></table></div>');
-				if (data.length > 0) {
-					for (i in data)
-						$('table').append('<tr><td>●●●●●●●●●●●</td><td>' + data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data[i].id + '" title="Edit ' + data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data[i].id + '" title="Remove ' + data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+				if (data.total > 0) {
+					for (i in data.data)
+						$('table').append('<tr><td>●●●●●●●●●●●</td><td>' + data.data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data.data[i].id + '" title="Edit ' + data.data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data.data[i].id + '" title="Remove ' + data.data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+					if (data.last_page > 1) {
+						currentPage = data.current_page, prevPage = data.prev_page_url, nextPage = data.next_page_url, lastPage = data.last_page_url;
+						pagination(currentPage, prevPage, nextPage, lastPage, data.last_page);
+					}
 				} else {
 					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No students registered.</div></td></tr>');
 				}
@@ -205,21 +228,26 @@ $(function() {
 		$('#loading').removeClass('is-hidden');
 		$('#contents .box').remove();
 		$('.table-container').remove();
+		$('.pagination').remove();
 		$('.notif').remove();
 		$('#contents .subtitle.is-5').remove();
 		$.ajax({
 			type: 'POST',
-			url: 'users',
+			url: link,
 			data: {data:'advisers', search:search},
 			datatype: 'JSON',
 			success: function(data) {
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
-				$('#contents').append('<div class="subtitle is-5">Results: ' + data.length + '</div>');
+				$('#contents').append('<div class="subtitle is-5">Results: ' + data.total + '</div>');
 				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>ID Number</th><th>Name</th><th>Actions</th></tr></table></div>');
-				if (data.length > 0) {
-					for (i in data)
-						$('table').append('<tr><td>●●●●●●●</td><td>' + data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data[i].id + '" title="Edit ' + data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data[i].id + '" title="Remove ' + data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+				if (data.total > 0) {
+					for (i in data.data)
+						$('table').append('<tr><td>●●●●●●●</td><td>' + data.data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data.data[i].id + '" title="Edit ' + data.data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data.data[i].id + '" title="Remove ' + data.data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+					if (data.last_page > 1) {
+						currentPage = data.current_page, prevPage = data.prev_page_url, nextPage = data.next_page_url, lastPage = data.last_page_url;
+						pagination(currentPage, prevPage, nextPage, lastPage, data.last_page);
+					}
 				} else {
 					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No advisers registered.</div></td></tr>');
 				}
@@ -245,7 +273,7 @@ $(function() {
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
-	var updateId, dlfile, check, event = '', editsn, editid, search = '', tab = 'all';
+	var updateId, dlfile, check, currentPage, prevPage, nextPage, lastPage, event = '', editsn, editid, search = '', tab = 'all', link = 'titles';
 	var sn_error = {snum1:false, snum2:false, snum3:false, snum4:false, snum5:false};
 	retrieveProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
@@ -619,7 +647,7 @@ $(function() {
 				$('.tabs li').removeClass('is-active');
 				$(this).addClass('is-active');
 				$('#search input').val('');
-				tab = 'myp', search = '';
+				tab = 'myp', search = '', link = 'titles';
 				retrieveProposals();
 			}
 		}
@@ -635,7 +663,7 @@ $(function() {
 				$('#logout').removeClass('is-hidden');
 				$('#search input').val('').attr('placeholder', 'Search title, keyword, or name...');
 				$('#clear').attr('disabled', true);
-				tab = 'all', search = '';
+				tab = 'all', search = '', link = 'titles';
 				retrieveProposals();
 			}
 		}
@@ -650,7 +678,7 @@ $(function() {
 				$('#logout').removeClass('is-hidden');
 				$('#search input').val('').attr('placeholder', 'Search description, date, or time...');
 				$('#clear').attr('disabled', true);
-				search = '';
+				search = '', link = 'logs';
 				retrieveLogs();
 			}
 		}
@@ -664,7 +692,7 @@ $(function() {
 				$('#add span:nth-child(2)').text('Add Student');
 				$('#search input').val('').attr('placeholder', 'Search name or student number...');
 				$('#clear').attr('disabled', true);
-				search = '';
+				search = '', link = 'users';
 				retrieveStudents();
 			}
 		}
@@ -679,7 +707,7 @@ $(function() {
 				$('#add span:nth-child(2)').text('Add Adviser');
 				$('#search input').val('').attr('placeholder', 'Search name or number...');
 				$('#clear').attr('disabled', true);
-				search = '';
+				search = '', link = 'users';
 				retrieveAdvisers();
 			}
 		}
@@ -699,12 +727,16 @@ $(function() {
 			$('#search button[title="Search"]').addClass('is-loading');
 			tab = 'all', search = $('#search input').val();
 			if ($('#thesis').hasClass('is-active')) {
+				link = 'thesis';
 				retrieveProposals();
 			} else if ($('#logs').hasClass('is-active')) {
+				link = 'logs';
 				retrieveLogs();
 			} else if ($('#students').hasClass('is-active')) {
+				link = 'users';
 				retrieveStudents();
 			} else if ($('#advisers').hasClass('is-active')) {
+				link = 'users';
 				retrieveAdvisers();
 			}
 		}	
@@ -716,12 +748,16 @@ $(function() {
 			$(this).attr('disabled', true);
 			tab = 'all', search = '';
 			if ($('#thesis').hasClass('is-active')) {
+				link = 'titles';
 				retrieveProposals();
 			} else if ($('#logs').hasClass('is-active')) {
+				link = 'logs';
 				retrieveLogs();
 			} else if ($('#students').hasClass('is-active')) {
+				link = 'users';
 				retrieveStudents();
 			} else if ($('#advisers').hasClass('is-active')) {
+				link = 'users';
 				retrieveAdvisers();
 			}
 		}
@@ -1092,5 +1128,44 @@ $(function() {
 	$('body').delegate('#vfile a', 'click', function() {
 		// window.open('/thesisb/public/titles/' + dlfile + '/attachment', '_blank');
 		window.open('/thesisarchiving/titles/' + dlfile + '/attachment', '_blank');
+	});
+
+	$('body').delegate('.pagination a', 'click', function() {
+		link = $(this).data('url');
+		if ($('#thesis').hasClass('is-active')) {
+			retrieveProposals();
+		} else if ($('#logs').hasClass('is-active')) {
+			retrieveLogs();
+		} else if ($('#students').hasClass('is-active')) {
+			retrieveStudents();
+		} else if ($('#advisers').hasClass('is-active')) {
+			retrieveAdvisers();
+		}
+	});
+
+	$('body').delegate('.pagination form', 'submit', function(e) {
+		e.preventDefault();
+		let page = $('#page input').val();
+		if (page > lastPage || page < 0) {
+			$('#page input').addClass('is-danger');
+		} else {
+			if ($('#thesis').hasClass('is-active')) {
+				link = 'http://localhost/thesisb/public/titles?page=' + page;
+				// link = 'http://localhost/thesisarchiving/titles?page=' + page;
+				retrieveProposals();
+			} else if ($('#logs').hasClass('is-active')) {
+				link = 'http://localhost/thesisb/public/logs?page=' + page;
+				// link = 'http://localhost/thesisarchiving/logs?page=' + page;
+				retrieveLogs();
+			} else if ($('#students').hasClass('is-active')) {
+				link = 'http://localhost/thesisb/public/users?page=' + page;
+				// link = 'http://localhost/thesisarchiving/users?page=' + page;
+				retrieveStudents();
+			} else if ($('#advisers').hasClass('is-active')) {
+				link = 'http://localhost/thesisb/public/users?page=' + page;
+				// link = 'http://localhost/thesisarchiving/users?page=' + page;
+				retrieveAdvisers();
+			}
+		}
 	});
 });

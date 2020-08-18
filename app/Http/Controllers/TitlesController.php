@@ -23,7 +23,7 @@ class TitlesController extends Controller
             if ($request->search == '' && $request->tab == 'all') {
                 if (Auth::user()->type == 'ADMIN') {
                     $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
-                    ->orderBy('updated_at', 'desc')->get();
+                    ->orderBy('updated_at', 'desc')->paginate('10');
                     foreach ($proposals as $proposal) {
                         $proposal->students = $proposal->users()->select('name')->get();
                         $proposal->adviser = User::find($proposal->adviser_id)->name;
@@ -31,18 +31,18 @@ class TitlesController extends Controller
                     }
                 } else {
                     $proposals = Title::select('id', 'title', 'area', 'program', 'keywords')
-                    ->orderBy('updated_at', 'desc')->get();
+                    ->orderBy('updated_at', 'desc')->paginate('10');
                     foreach ($proposals as $proposal)
                         $proposal->edit = false;
                 }
             } else if ($request->tab == 'myp') {
                 if (Auth::user()->type == 'STUDENT') {
                     $proposals = Auth::user()->titles()->select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
-                    ->orderBy('updated_at', 'desc')->get();
+                    ->orderBy('updated_at', 'desc')->paginate('10');
                     foreach ($proposals as $proposal)
                         $proposal->edit = false;
                 } else if (Auth::user()->type == 'ADVISER') {
-                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')->where('adviser_id', Auth::id())->orderBy('updated_at', 'desc')->get();
+                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')->where('adviser_id', Auth::id())->orderBy('updated_at', 'desc')->paginate('10');
                     foreach ($proposals as $proposal)
                         $proposal->edit = false;
                 }   
@@ -55,40 +55,11 @@ class TitlesController extends Controller
                     ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
-                    ->orderBy('updated_at', 'desc')->get();
+                    ->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'))
+                    ->orderBy('updated_at', 'desc')->paginate('10');
                     foreach ($proposals as $proposal) {
                         $proposal->students = $proposal->users()->select('name')->get();
                         $proposal->adviser = User::find($proposal->adviser_id)->name;
-                    }
-
-                    $students = User::select('id', 'name')
-                    ->where('name', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('student_number', 'LIKE', '%' . $request->search . '%')
-                    ->orderBy('updated_at', 'desc')->get();
-                    foreach ($students as $student) {
-                        $student_proposals = $student->titles()->select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
-                        ->orderBy('updated_at', 'desc')->get();
-                        foreach ($student_proposals as $proposal) {
-                            $proposal->students = $proposal->users()->select('name')->get();
-                            $proposal->adviser = User::find($proposal->adviser_id)->name;
-                        }
-                        $proposals = $student_proposals->merge($proposals);
-                    }
-
-                    $advisers = User::select('id', 'name')
-                    ->where('name', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('student_number', 'LIKE', '%' . $request->search . '%')
-                    ->orderBy('updated_at', 'desc')->get();
-                    foreach ($advisers as $adviser) {
-                        $adviser_proposals = Title::where('adviser_id', $adviser->id)->orderBy('updated_at', 'desc')->get();
-                        foreach ($adviser_proposals as $proposal) {
-                            $proposal->students = $proposal->users()->select('name')->get();
-                            $proposal->adviser = User::find($proposal->adviser_id)->name;
-                        }
-                        $proposals = $adviser_proposals->merge($proposals);
-                    }
-
-                    foreach ($proposals as $proposal) {
                         $proposal->edit = true;
                     }
                 } else {
@@ -98,7 +69,7 @@ class TitlesController extends Controller
                     ->orWhere('program', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
-                    ->orderBy('updated_at', 'desc')->get();
+                    ->orderBy('updated_at', 'desc')->paginate('10');
                 }
             } 
             return response()->json(['proposals' => $proposals]);

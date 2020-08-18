@@ -42,9 +42,9 @@ class LoginController extends Controller
 		if ($request->search) {
 			return Log::where('description', 'LIKE', '%' . $request->search . '%')
 			->orWhere('created_at', 'LIKE', '%' . $request->search . '%')
-			->orderBy('updated_at', 'desc')->get();
+			->orderBy('updated_at', 'desc')->paginate('50');
 		} else {
-			return Log::orderBy('updated_at', 'desc')->get();
+			return Log::orderBy('updated_at', 'desc')->paginate('50');
 		}
 	}
 

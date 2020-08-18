@@ -18,18 +18,18 @@ class UsersController extends Controller
     {
         if ($request->data == 'students') {
             if ($request->search == '') {
-                return User::select('id', 'name')->where('type', 'STUDENT')->orderby('updated_at', 'desc')->get();
+                return User::select('id', 'name')->where('type', 'STUDENT')->orderby('updated_at', 'desc')->paginate('20');
             }
             return User::select('id', 'name')->where('type', 'STUDENT')
             ->where('name', 'LIKE', '%' . $request->search . '%')
-            ->orderBy('updated_at', 'desc')->get();
+            ->orderBy('updated_at', 'desc')->paginate('20');
         } else if ($request->data == 'advisers') {
             if ($request->search == '') {
-                return User::select('id', 'name')->where('type', 'ADVISER')->orderBy('updated_at', 'desc')->get();
+                return User::select('id', 'name')->where('type', 'ADVISER')->orderBy('updated_at', 'desc')->paginate('20');
             }
             return User::select('id', 'name')->where('type', 'ADVISER')
             ->where('name', 'LIKE', '%' . $request->search . '%')
-            ->orderBy('updated_at', 'desc')->get();
+            ->orderBy('updated_at', 'desc')->paginate('20');
         }
     }
 
