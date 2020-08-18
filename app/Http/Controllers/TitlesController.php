@@ -135,7 +135,7 @@ class TitlesController extends Controller
             $proposal->registration_id .= '-' . $id;
 
             $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
-            $request->file->move(public_path('uploads'), $proposal->filename);
+            $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
 
             $proposal->updated_at = Carbon::now('+8:00');
             $proposal->save();
@@ -214,7 +214,7 @@ class TitlesController extends Controller
 
             Storage::disk('public')->delete('uploads/' . $proposal->filename);
             $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
-            $request->file->move(public_path('uploads'), $proposal->filename);
+            $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
 
             $proposal->save();
             Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);

@@ -290,6 +290,7 @@ $(function() {
 				$('.name').attr('readonly', true);
 				$('input').removeClass('is-danger').removeClass('is-success');
 				$('#title_control .help').remove();
+				$('#vfile-label').removeClass('is-hidden');
 				$('.file-cta').css('width', 'fit-content');
 				$('#file input').val('');
 				$('.file-name').text('No file uploaded');
@@ -554,6 +555,7 @@ $(function() {
 		$('.name').attr('readonly', true);
 		$('.si input').removeAttr('required');
 		$('#note').removeClass('is-hidden');
+		$('#vfile-label').removeClass('is-hidden');
 		updateId = $(this).data('id');
 		$.ajax({
 			type: 'POST',
@@ -627,7 +629,10 @@ $(function() {
 					$('#voverview').text(data.proposal.overview);
 					if (data.proposal.filename) {
 						dlfile = id;
+						$('#vfile-label').removeClass('is-hidden');
 						$('#vfile').append('<a title="Download approval form">' + data.proposal.filename + '</a>');
+					} else {
+						$('#vfile-label').addClass('is-hidden');
 					}
 					Swal.close();
 					$('#view').addClass('is-active');
