@@ -385,10 +385,10 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control">
-							<div id="file" class="file has-name is-fullwidth">
+							<div id="file" class="file has-name">
 								<label class="file-label">
-									<input type="file" class="file-input">
-									<div class="file-cta">
+									<input type="file" class="file-input" required>
+									<div class="file-cta" title="Upload a file">
 										<span class="icon">
 											<i class="fas fa-upload"></i>
 										</span>
@@ -476,6 +476,12 @@
 				</div>
 				<div id="vdate" class="field-body"></div>
 			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Approval Form</label>
+				</div>
+				<div id="vfile" class="field-body"></div>
+			</div>
 		</section>
 	</div>
 </div>
@@ -546,7 +552,7 @@
 		</header>
 		<section class="modal-card-body">
 			<figure class="image is-64x64 is-pulled-left"><img src="{{ asset('img/RnDlogo.png') }}" alt="UE Logo"></figure>
-			<p class='help'>V1.2.0</p>
+			<p class='help'>V1.3.0</p>
 			<p>The UE CCSS Research and Development Unit (R&D) is the research arm of University of the East - College of Computer Studies and Systems.</p>
 			<p>The R&D unit, led by R&D coordinator Melie Jim Sarmiento and R&D team leader Mack Perry Co, has been creating systems and applications benefiting the students of the college and the university.</p>
 			<p><br>This system is designed and developed by R&D team leader Mack Perry Co for the incoming upperclassmen who are pursuing Methods of Research (MERIT). This system is copyrighted to the UE CCSS R&D Unit.</p>

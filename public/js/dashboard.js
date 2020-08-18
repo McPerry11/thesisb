@@ -245,7 +245,7 @@ $(function() {
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
-	var updateId, check, event = '', editsn, editid, search = '', tab = 'all';
+	var updateId, dlfile, check, event = '', editsn, editid, search = '', tab = 'all';
 	var sn_error = {snum1:false, snum2:false, snum3:false, snum4:false, snum5:false};
 	retrieveProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
@@ -262,7 +262,10 @@ $(function() {
 				$('#submit').removeAttr('disabled');
 				$('.name').attr('readonly', true);
 				$('input').removeClass('is-danger').removeClass('is-success');
-				$('#edit .help').remove();
+				$('#title_control .help').remove();
+				$('.file-cta').css('width', 'fit-content');
+				$('#file input').val('');
+				$('.file-name').text('No file uploaded');
 				$('#adviser').empty();
 				Swal.fire({
 					html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -367,15 +370,24 @@ $(function() {
 		$('input').attr('readonly', true);
 		$('textarea').attr('readonly', true);
 		$('#submit').addClass('is-loading').removeAttr('disabled');
-		var program = $('#program').val(), title = $('#title').val(), adviser = $('#adviser').val(), overview = $('#overview').val(), area = $('#area').val(), date = $('#date').val();
-		var keywords = document.getElementById('keywords').BulmaTagsInput().value;
+		var data = new FormData($(this)[0]);
+		data.append('program', $('#program').val());
+		data.append('title', $('#title').val());
+		data.append('adviser_id', $('#adviser').val());
+		data.append('overview', $('#overview').val());
+		data.append('area', $('#area').val());
+		data.append('created_at', $('#date').val());
+		data.append('keywords', document.getElementById('keywords').BulmaTagsInput().value);
+		data.append('file', $('#file input')[0].files[0]);
 		if ($('#submit span:nth-child(2)').text() == 'Add') {
 			var studentnums = [];
-			studentnums = getStudentInfo(studentnums);
+			data.append('numbers', getStudentInfo(studentnums));
 			$.ajax({
 				type: 'POST',
 				url: 'titles/create',
-				data: {program:program, title:title, area:area, adviser_id:adviser, overview:overview, keywords:keywords, numbers:studentnums, created_at:date},
+				data: data,
+				processData: false,
+				contentType: false,
 				datatype: 'JSON',
 				success: function(response) {
 					clearStatus();
@@ -401,7 +413,9 @@ $(function() {
 			$.ajax({
 				type: 'POST',
 				url: 'titles/' + updateId + '/update',
-				data: {title:title, program:program, area:area, adviser_id:adviser, keywords:keywords, overview:overview, created_at:date},
+				data: data,
+				processData: false,
+				contentType: false,
 				datatype: 'JSON',
 				success: function(response) {
 					clearStatus();
@@ -448,6 +462,7 @@ $(function() {
 			url: 'titles/' + id,
 			datatype: 'JSON',
 			success: function(data) {
+				$(button).removeClass('is-loading');
 				Swal.fire({
 					icon: 'warning',
 					title: 'Confirm Delete',
@@ -478,14 +493,12 @@ $(function() {
 									}).then(function() {
 										retrieveProposals();
 										event = '';
-										$(button).removeClass('is-loading');
 									});
 								}
 							},
 							error: function(err) {
 								ajaxError(err);
 								event = '';
-								$(button).removeClass('is-loading');
 							}
 						});
 					}
@@ -533,6 +546,8 @@ $(function() {
 				$('#date').val(date);
 				if (data.proposal.keywords) document.getElementById('keywords').BulmaTagsInput().add(data.proposal.keywords);
 				$('#edit .modal-card-title').text('Edit Proposal');
+				$('.file-cta').css('width', '50px');
+				$('.file-name').text(data.proposal.filename);
 				$('#submit').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
 				Swal.close();
 				$('#edit').addClass('is-active');
@@ -583,6 +598,10 @@ $(function() {
 					$('#varea').text(data.proposal.area);
 					$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
 					$('#voverview').text(data.proposal.overview);
+					if (data.proposal.filename) {
+						dlfile = id;
+						$('#vfile').append('<a title="Download approval form">' + data.proposal.filename + '</a>');
+					}
 					Swal.close();
 					$('#view').addClass('is-active');
 					$('html').addClass('is-clipped');
@@ -986,6 +1005,9 @@ $(function() {
 		$(this).removeClass('is-danger');
 		$('#' + id + '_name').removeClass('has-text-danger').val('');
 		if ($(this).val().length > 11) $(this).val($(this).val().slice(0, 11));
+		sn_error[id] = false;
+		clearStatus();
+		sn_proposalCheck();
 		if ($(this).val().length == 11) {
 			let sn = $(this).val();
 			$('#' + id + '_control').addClass('is-loading');
@@ -1056,5 +1078,19 @@ $(function() {
 
 	$('.rnd').click(function() {
 		$('#rnd_details').addClass('is-active');
+	});
+
+	$('#file').change(function(e) {
+		if (e.target.files.length > 0) {
+			$('.file-name').text(e.target.files[0].name);
+			$('.file-cta').animate({
+				width: '50px'
+			});
+		}
+	});
+
+	$('body').delegate('#vfile a', 'click', function() {
+		window.open('/thesisb/public/titles/' + dlfile + '/attachment', '_blank');
+		// window.open('/thesisb/titles/' + dlfile + '/attachment', '_blank');
 	});
 });

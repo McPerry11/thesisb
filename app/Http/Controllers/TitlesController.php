@@ -8,6 +8,7 @@ use App\Title;
 use App\Log;
 use Carbon\Carbon;
 use Auth;
+use Illuminate\Support\Facades\Storage;
 
 class TitlesController extends Controller
 {
@@ -162,9 +163,13 @@ class TitlesController extends Controller
             $id ? $id++ : $id = 1;
             $proposal->registration_id .= '-' . $id;
 
+            $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
+            $request->file->move(public_path('uploads'), $proposal->filename);
+
             $proposal->updated_at = Carbon::now('+8:00');
             $proposal->save();
 
+            $request->numbers = explode(',', $request->numbers);
             $students = User::whereIn('student_number', $request->numbers)->get();
             $student_numbers = [];
             foreach ($students as $student)
@@ -186,10 +191,15 @@ class TitlesController extends Controller
     public function show(Request $request, $id)
     {
         if ($request->data == 'view') {
-            if (Auth::user()->type == 'ADMIN')
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'adviser_id', 'created_at')->find($id);
-            else
+            $owner = Title::find($id)->users()->where('id', Auth::id())->count();
+            $adviser = Title::where('adviser_id', Auth::id())->find($id);
+            if (Auth::user()->type == 'ADMIN') {
+                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'adviser_id', 'filename', 'created_at')->find($id);
+            } else if ($owner > 0 || $adviser) {
+                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'filename', 'created_at')->find($id);
+            } else {
                 $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'created_at')->find($id);
+            }
             return response()->json(['proposal' => $proposal]);
         }
         return Title::select('title')->find($id);
@@ -227,8 +237,14 @@ class TitlesController extends Controller
             $proposal->program = strip_tags($request->program);
             $proposal->overview = strip_tags($request->overview);
             $proposal->keywords = strip_tags($request->keywords);
-            $proposal->created_at = $request->created_at;
+            $proposal->created_at = strip_tags($request->created_at);
+            $proposal->adviser_id = strip_tags($request->adviser_id);
             $proposal->updated_at = Carbon::now('+8:00');
+
+            Storage::disk('public')->delete('uploads/' . $proposal->filename);
+            $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
+            $request->file->move(public_path('uploads'), $proposal->filename);
+
             $proposal->save();
             Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
 
@@ -248,9 +264,15 @@ class TitlesController extends Controller
             $proposal = Title::find($id);
 
             Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' deleted a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
+            Storage::disk('public')->delete('uploads/' . $proposal->filename);
             $proposal->delete();
 
             return response()->json(['status' => 'success']);
         }
+    }
+
+    public function download($id) {
+        $attachment = Title::find($id)->value('filename');
+        return Storage::disk('public')->download('uploads/' . $attachment);
     }
 }

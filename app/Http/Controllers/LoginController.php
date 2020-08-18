@@ -53,12 +53,4 @@ class LoginController extends Controller
 		Auth::logout();
 		return redirect('login');
 	}
-
-	public function hello() {
-		return view('test');
-	}
-
-	public function world(Request $request) {
-		return $request->file->getClientOriginalName();
-	}
 }

@@ -30,6 +30,7 @@ Route::group(['middleware' => 'auth'], function() {
 	Route::post('titles/{id}/edit', 'TitlesController@edit');
 	Route::post('titles/{id}/update', 'TitlesController@update');
 	Route::post('titles/{id}/delete', 'TitlesController@destroy');
+	Route::get('titles/{id}/attachment', 'TitlesController@download');
 
 	Route::post('users', 'UsersController@index');
 	Route::post('users/create', 'UsersController@store');
