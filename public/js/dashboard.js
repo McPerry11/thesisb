@@ -160,7 +160,6 @@ $(function() {
 			data: {search:search},
 			datatype: 'JSON',
 			success: function(data) {
-				console.log(data);
 				$('#search button').removeClass('is-loading');
 				$('#loading').addClass('is-hidden');
 				$('#contents').append('<div class="subtitle is-5">Results: ' + data.total + '</div>');
@@ -1150,20 +1149,20 @@ $(function() {
 			$('#page input').addClass('is-danger');
 		} else {
 			if ($('#thesis').hasClass('is-active')) {
-				link = 'http://localhost/thesisb/public/titles?page=' + page;
-				// link = 'http://localhost/thesisarchiving/titles?page=' + page;
+				// link = 'http://localhost/thesisb/public/titles?page=' + page;
+				link = 'http://localhost/thesisarchiving/titles?page=' + page;
 				retrieveProposals();
 			} else if ($('#logs').hasClass('is-active')) {
-				link = 'http://localhost/thesisb/public/logs?page=' + page;
-				// link = 'http://localhost/thesisarchiving/logs?page=' + page;
+				// link = 'http://localhost/thesisb/public/logs?page=' + page;
+				link = 'http://localhost/thesisarchiving/logs?page=' + page;
 				retrieveLogs();
 			} else if ($('#students').hasClass('is-active')) {
-				link = 'http://localhost/thesisb/public/users?page=' + page;
-				// link = 'http://localhost/thesisarchiving/users?page=' + page;
+				// link = 'http://localhost/thesisb/public/users?page=' + page;
+				link = 'http://localhost/thesisarchiving/users?page=' + page;
 				retrieveStudents();
 			} else if ($('#advisers').hasClass('is-active')) {
-				link = 'http://localhost/thesisb/public/users?page=' + page;
-				// link = 'http://localhost/thesisarchiving/users?page=' + page;
+				// link = 'http://localhost/thesisb/public/users?page=' + page;
+				link = 'http://localhost/thesisarchiving/users?page=' + page;
 				retrieveAdvisers();
 			}
 		}
