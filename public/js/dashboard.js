@@ -1090,7 +1090,7 @@ $(function() {
 	});
 
 	$('body').delegate('#vfile a', 'click', function() {
-		window.open('/thesisb/public/titles/' + dlfile + '/attachment', '_blank');
-		// window.open('/thesisb/titles/' + dlfile + '/attachment', '_blank');
+		// window.open('/thesisb/public/titles/' + dlfile + '/attachment', '_blank');
+		window.open('/thesisb/titles/' + dlfile + '/attachment', '_blank');
 	});
 });
