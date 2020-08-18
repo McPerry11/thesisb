@@ -661,7 +661,6 @@ $(function() {
 			if ($('#loading').hasClass('is-hidden')) {
 				$('.tabs li').removeClass('is-active');
 				$(this).addClass('is-active');
-				$('.column:nth-child(2)').removeClass('is-hidden');
 				$('#add span:nth-child(2)').text('Add Student');
 				$('#search input').val('').attr('placeholder', 'Search name or student number...');
 				$('#clear').attr('disabled', true);

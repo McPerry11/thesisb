@@ -13,7 +13,7 @@
 						<figure class="image is-64x64 is-pulled-right"><img src="{{ asset('img/CCSSlogo.png') }}" alt="CCSS Logo"></figure>
 					</div>
 				</div>
-				<h3 class="title is-4">UE CCSS Thesis Title Proposal</h3>
+				<h3 class="title is-4">Thesis Archiving System</h3>
 				<div class="field">
 					<div class="control has-icons-left">
 						<input type="text" id="student_num" class="input" placeholder="Student Number" required>
