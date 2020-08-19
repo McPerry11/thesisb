@@ -47,7 +47,7 @@ $(function() {
 				},
 				error: function(err) {
 					console.log(err);
-					if (err.status == 409) {
+					if (err.status == 429) {
 						Swal.fire({
 							icon: 'error',
 							title: 'Too Many Log In Attempts',
