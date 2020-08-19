@@ -735,7 +735,7 @@ $(function() {
 			$('#search button[title="Search"]').addClass('is-loading');
 			tab = 'all', search = $('#search input').val();
 			if ($('#thesis').hasClass('is-active')) {
-				link = 'thesis';
+				link = 'titles';
 				retrieveProposals();
 			} else if ($('#logs').hasClass('is-active')) {
 				link = 'logs';
