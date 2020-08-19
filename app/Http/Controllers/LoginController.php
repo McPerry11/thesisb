@@ -22,13 +22,13 @@ class LoginController extends Controller
 		if ($request->data == 'login') {
 			$user = User::where('student_number', $request->student)->get();
 			if (count($user) == 0) {
-				return response()->json(['status' => 'error_ne', 'msg' => 'This student number is not registered in the system.']);
+				return response()->json(['status' => 'error_ne', 'msg' => 'This login ID is not registered in the system.']);
 			} else {
 				if (Auth::attempt(['student_number' => $request->student, 'password' => '12345'])) {
 					Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' logged in.', 'created_at' => Carbon::now('+8:00')]);
 					return response()->json(['status' => 'success', 'msg' => 'Login Successful']);
 				} else {
-					return response()->json(['status' => 'error_ne', 'msg' => 'This student number is not registered in the system.']);
+					return response()->json(['status' => 'error_ne', 'msg' => 'This login ID is not registered in the system.']);
 				}
 			}
 		}
