@@ -1172,19 +1172,19 @@ $(function() {
 		} else {
 			if ($('#thesis').hasClass('is-active')) {
 				// link = 'http://localhost/thesisb/public/titles?page=' + page;
-				link = 'http://localhost/thesisarchiving/titles?page=' + page;
+				link = 'https://ueccssrnd.tech/thesisarchiving/titles?page=' + page;
 				retrieveProposals();
 			} else if ($('#logs').hasClass('is-active')) {
 				// link = 'http://localhost/thesisb/public/logs?page=' + page;
-				link = 'http://localhost/thesisarchiving/logs?page=' + page;
+				link = 'https://ueccssrnd.tech/thesisarchiving/logs?page=' + page;
 				retrieveLogs();
 			} else if ($('#students').hasClass('is-active')) {
 				// link = 'http://localhost/thesisb/public/users?page=' + page;
-				link = 'http://localhost/thesisarchiving/users?page=' + page;
+				link = 'https://ueccssrnd.tech/thesisarchiving/users?page=' + page;
 				retrieveStudents();
 			} else if ($('#advisers').hasClass('is-active')) {
 				// link = 'http://localhost/thesisb/public/users?page=' + page;
-				link = 'http://localhost/thesisarchiving/users?page=' + page;
+				link = 'https://ueccssrnd.tech/thesisarchiving/users?page=' + page;
 				retrieveAdvisers();
 			}
 		}
