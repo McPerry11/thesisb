@@ -6,8 +6,9 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 
-class UsersImport implements ToCollection
+class UsersImport extends \PhpOffice\PhpSpreadsheet\Cell\StringValueBinder implements ToCollection, WithCustomValueBinder
 {
     /**
     * @param array $row
