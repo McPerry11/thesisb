@@ -43,7 +43,7 @@ $(function() {
 			tags = '<span class="tag is-dark">' + area + '</span>';
 		if (keystring != null && keystring != '') {
 			for (let i in keywords) {
-				tags += '<span class="tag is-capitalized">' + keywords[i] + '</span>';
+				tags += '<span class="tag">' + keywords[i] + '</span>';
 			}
 		}
 		return tags;
@@ -119,7 +119,7 @@ $(function() {
 					for (let i in data.proposals.data) {
 						let proposal = '<a class="box has-ribbon" data-id="' + data.proposals.data[i].id + '">' + addRibbon(data.proposals.data[i].program);
 						proposal += '<div class="columns"><div class="column">';
-						proposal += '<h3 class="title is-4 is-capitalized">' + data.proposals.data[i].title + '</h3>';
+						proposal += '<h3 class="title is-4">' + data.proposals.data[i].title + '</h3>';
 						if (data.proposals.data[i].registration_id) proposal += '<h4 class="subtitle is-5">' + data.proposals.data[i].registration_id + '</h4>';
 						proposal += '<div class="tags">' + loadKeywords(data.proposals.data[i].keywords, data.proposals.data[i].area) + '</div>';
 						if (data.proposals.data[i].students) proposal += '<div class="tags">' + loadNames(data.proposals.data[i].adviser, data.proposals.data[i].students) + '</div>';
@@ -208,7 +208,7 @@ $(function() {
 				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>Student Number</th><th>Name</th><th>Actions</th></tr></table></div>');
 				if (data.total > 0) {
 					for (i in data.data)
-						$('table').append('<tr><td>●●●●●●●●●●●</td><td class="is-capitalized">' + data.data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data.data[i].id + '" title="Edit ' + data.data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data.data[i].id + '" title="Remove ' + data.data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+						$('table').append('<tr><td>●●●●●●●●●●●</td><td>' + data.data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data.data[i].id + '" title="Edit ' + data.data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data.data[i].id + '" title="Remove ' + data.data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
 					if (data.last_page > 1) {
 						currentPage = data.current_page, prevPage = data.prev_page_url, nextPage = data.next_page_url, lastPage = data.last_page_url;
 						pagination(currentPage, prevPage, nextPage, lastPage, data.last_page);
@@ -245,7 +245,7 @@ $(function() {
 				$('#contents').append('<div id="stud_table" class="table-container"><table class="table is-fullwidth"><tr><th>ID Number</th><th>Name</th><th>Actions</th></tr></table></div>');
 				if (data.total > 0) {
 					for (i in data.data)
-						$('table').append('<tr><td>●●●●●●●</td><td class="is-capitalized">' + data.data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data.data[i].id + '" title="Edit ' + data.data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data.data[i].id + '" title="Remove ' + data.data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
+						$('table').append('<tr><td>●●●●●●●</td><td>' + data.data[i].name + '</td><td><div class="buttons is-right"><button class="button studedit" data-id="' + data.data[i].id + '" title="Edit ' + data.data[i].name + '"><span class="icon"><i class="fas fa-edit"></i></span></button><button class="button is-danger is-inverted studremove" data-id="' + data.data[i].id + '" title="Remove ' + data.data[i].name + '"><span class="icon"><i class="fas fa-trash"></i></span></button></div></td></tr>');
 					if (data.last_page > 1) {
 						currentPage = data.current_page, prevPage = data.prev_page_url, nextPage = data.next_page_url, lastPage = data.last_page_url;
 						pagination(currentPage, prevPage, nextPage, lastPage, data.last_page);
