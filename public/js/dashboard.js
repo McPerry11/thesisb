@@ -383,6 +383,7 @@ $(function() {
 			$('html').removeClass('is-clipped');
 		}
 		$('#rnd_details').removeClass('is-active');
+		$('html').removeClass('is-clipped');
 	});
 
 	$('.cancel').click(function() {
@@ -1142,6 +1143,7 @@ $(function() {
 
 	$('.rnd').click(function() {
 		$('#rnd_details').addClass('is-active');
+		$('html').addClass('is-clipped');
 	});
 
 	$('#file').change(function(e) {
@@ -1279,3 +1281,4 @@ $(function() {
 		}
 	});
 });
+is-active
