@@ -161,6 +161,7 @@ class UsersController extends Controller
 
     public function import(Request $request) {
         Excel::import(new UsersImport, $request->file);
+        Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' imported an excel file.']);
 
         return response()->json(['status' => 'success', 'msg' => 'Data Uploaded Successfully']);
     }
