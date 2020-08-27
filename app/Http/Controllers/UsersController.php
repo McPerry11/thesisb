@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Imports\UsersImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 use App\User;
 use App\Log;
 use Auth;
@@ -74,6 +77,8 @@ class UsersController extends Controller
             }
 
             $user->password = '12345';
+            $user->created_at = Carbon::now('+8:00');
+            $user->updated_at = Carbon::now('+8:00');
 
             $user->save();
             Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' registered a new ' . strtolower($user->type) . ': ' . $user->name . '.']);
@@ -128,6 +133,7 @@ class UsersController extends Controller
             if ($request->type == 'STUDENT')
                 $user->student_number = strip_tags($request->student_number);
 
+            $user->updated_at = Carbon::now('+8:00');
             $user->save();
             Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a registered ' . strtolower($user->type) . ': ' . $user->name . '.']);
 
@@ -151,5 +157,11 @@ class UsersController extends Controller
 
             return response()->json(['msg' => 'Deleted Successfully']);
         }
+    }
+
+    public function import(Request $request) {
+        Excel::import(new UsersImport, $request->file);
+
+        return response()->json(['status' => 'success', 'msg' => 'Data Uploaded Successfully']);
     }
 }

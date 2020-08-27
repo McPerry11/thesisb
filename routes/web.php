@@ -33,6 +33,7 @@ Route::group(['middleware' => 'auth'], function() {
 	Route::get('titles/{id}/attachment', 'TitlesController@download');
 
 	Route::post('users', 'UsersController@index');
+	Route::post('users/import', 'UsersController@import');
 	Route::post('users/create', 'UsersController@store');
 	Route::post('users/check', 'UsersController@create');
 	Route::post('users/validate', 'UsersController@show');

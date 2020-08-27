@@ -25,7 +25,6 @@ $(function() {
 		$('input').removeAttr('readonly');
 		$('textarea').removeAttr('readonly');
 		$('.name').attr('readonly', true);
-		$('#edit_user button.is-fullwidth').attr('disabled', true);
 		if ($('#search input').val() == '') $('#clear').attr('disabled', true);
 	}
 
@@ -329,9 +328,10 @@ $(function() {
 						$('.modal input').val('');
 						$('textarea').val('');
 						$('#program').val('');
-						$('.si input').attr('required', true);
-						$('#sname5').removeAttr('required');
-						$('#snum5').removeAttr('required');
+						$('#sname1').attr('required', true);
+						$('#snum1').attr('required', true);
+						$('#sname2').attr('required', true);
+						$('#snum2').attr('required', true);
 						$('.si').removeClass('is-hidden');
 						$('#note').addClass('is-hidden');
 						$('#submit').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');
@@ -354,7 +354,7 @@ $(function() {
 					$('#edit_user .modal-card-title').text('Add Student');
 					$('#edit_user .subtitle').text('Add an Individual Student');
 					$('#user_label').text('Student Number');
-					$('#upload').removeClass('is-hidden');
+					$('#upload').removeClass('is-hidden').removeClass('is-loading');
 					$('#sn_field').removeClass('is-hidden');
 					$('#sn_field input').attr('required', true).removeClass('is-static').removeAttr('readonly').attr('required');
 				} else {
@@ -935,6 +935,7 @@ $(function() {
 		const {value: password} = await Swal.fire({
 			title: 'Enter admin password',
 			input: 'password',
+			confirmButtonText: 'Submit',
 			inputAttributes: {
 				autocapitalize: 'off',
 				autocorrect: 'off'
@@ -998,6 +999,7 @@ $(function() {
 		const {value: password} = await Swal.fire({
 			title: 'Enter admin password',
 			input: 'password',
+			confirmButtonText: 'Submit',
 			inputAttributes: {
 				autocapitalize: 'off',
 				autocorrect: 'off'
@@ -1146,10 +1148,26 @@ $(function() {
 
 	$('#file').change(function(e) {
 		if (e.target.files.length > 0) {
-			$('.file-name').text(e.target.files[0].name);
-			$('.file-cta').animate({
-				width: '50px'
-			});
+			let valid = false, filename = e.target.files[0].name, validExtensions = ['.jpg', '.jpeg', '.png', '.doc', '.docx', '.pdf'];
+			for (let i = 0; i < validExtensions.length; i++) {
+				let extension = validExtensions[i];
+				if (filename.substr(filename.length - extension.length, extension.length).toLowerCase() == extension.toLowerCase()) {
+					valid = true;
+					break;
+				}
+			}
+			if (!valid) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid File',
+					text: 'Allowed files are: ' + validExtensions.join(', ')
+				});
+			} else {
+				$('.file-name').text(e.target.files[0].name);
+				$('.file-cta').animate({
+					width: '50px'
+				});
+			}
 		}
 	});
 
@@ -1200,5 +1218,66 @@ $(function() {
 	$('select').change(function() {
 		if ($(this).val() != '')
 			$(this).find('option[value=""]').remove();
+	});
+
+	$('#upload button').click(function() {
+		$('#import').click();
+	});
+
+	$('#import').change(function(e) {
+		if (e.target.files.length > 0) {
+			let valid = false, filename = e.target.files[0].name, validExtensions = ['.xlsx', '.xls'];
+			for (let i = 0; i < validExtensions.length; i++) {
+				let extension = validExtensions[i];
+				if (filename.substr(filename.length - extension.length, extension.length).toLowerCase() == extension.toLowerCase()) {
+					valid = true;
+					break;
+				}
+			}
+			if (!valid) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid File',
+					text: 'Allowed files are: ' + validExtensions.join(', ')
+				});
+				$('#submit_user').attr('disabled', true);
+			} else {
+				Swal.fire({
+					html: '<span class="icon is-large"><i class="fas fa-spinner fa-spin fa-2x"></i></span>',
+					showConfirmButton: false,
+					allowOutsideClick: false,
+					allowEscapeKey: false
+				});
+				var data = new FormData($('#user_form')[0]);
+				data.append('file', $('#import')[0].files[0]);
+				$.ajax({
+					type: 'POST',
+					url: 'users/import',
+					data: data,
+					processData: false,
+					contentType: false,
+					datatype: 'JSON',
+					success: function(response) {
+						$('.modal').removeClass('is-active');
+						$('html').removeClass('is-clipped');
+						Swal.fire({
+							icon: response.status,
+							title: response.msg,
+							showConfirmButton: false,
+							timer: 2500
+						}).then(function() {
+							retrieveStudents();
+						});
+						clearStatus();
+						$('#submit_user').removeClass('is-loading');
+					},
+					error: function(err) {
+						clearStatus();
+						$('#submit_user').removeClass('is-loading');
+						ajaxError(err);
+					}
+				});
+			}
+		}
 	});
 });
