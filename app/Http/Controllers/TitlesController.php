@@ -134,8 +134,10 @@ class TitlesController extends Controller
             $id = Title::where('program', $proposal->program)->count() + 1;
             $proposal->registration_id .= '-' . $id;
 
-            $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
-            $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
+            if ($request->file !== 'undefined') {
+                $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
+                $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
+            }
 
             $proposal->updated_at = Carbon::now('+8:00');
             $proposal->save();
@@ -212,9 +214,11 @@ class TitlesController extends Controller
             $proposal->adviser_id = strip_tags($request->adviser_id);
             $proposal->updated_at = Carbon::now('+8:00');
 
-            Storage::disk('public')->delete('uploads/' . $proposal->filename);
-            $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
-            $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
+            if ($request->file !== 'undefined') {
+                Storage::disk('public')->delete('uploads/' . $proposal->filename);
+                $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
+                $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
+            }
 
             $proposal->save();
             Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);

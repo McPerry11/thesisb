@@ -39,9 +39,13 @@ $(function() {
 	}
 
 	function loadKeywords(keystring, area) {
-		let tags = '<span class="tag is-dark">' + area + '</span>', keywords = keystring.split(',');
-		for (let i in keywords) {
-			tags += '<span class="tag">' + keywords[i] + '</span>';
+		let tags = '', keywords = keystring.split(',');
+		if (area != null && area != '')
+			tags = '<span class="tag is-dark">' + area + '</span>';
+		if (keystring != null && keystring != '') {
+			for (let i in keywords) {
+				tags += '<span class="tag">' + keywords[i] + '</span>';
+			}
 		}
 		return tags;
 	}
@@ -294,6 +298,8 @@ $(function() {
 				$('.file-cta').css('width', 'fit-content');
 				$('#file input').val('');
 				$('.file-name').text('No file uploaded');
+				if ($('#program option[value=""]').length == 0)
+					$('#program').prepend('<option value="" selected disabled>Choose Program</option>')
 				$('#adviser').empty();
 				Swal.fire({
 					html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -308,6 +314,7 @@ $(function() {
 					datatype: 'JSON',
 					success: function(data) {
 						if (data.length > 0) {
+							$('#adviser').append('<option value="" selected disabled>Choose Adviser</option>').attr('required', true);
 							for (i in data) {
 								$('#adviser').append('<option value="' + data[i].id + '">' + data[i].name + '</option>')
 							}
@@ -321,7 +328,7 @@ $(function() {
 						$('#edit .modal-card-title').text('Add Proposal');
 						$('.modal input').val('');
 						$('textarea').val('');
-						$('#program').val('BSCS');
+						$('#program').val('');
 						$('.si input').attr('required', true);
 						$('#sname5').removeAttr('required');
 						$('#snum5').removeAttr('required');
@@ -556,6 +563,8 @@ $(function() {
 		$('.si input').removeAttr('required');
 		$('#note').removeClass('is-hidden');
 		$('#vfile-label').removeClass('is-hidden');
+		$('#program option[value=""]').remove();
+		$('#adviser').empty();
 		updateId = $(this).data('id');
 		$.ajax({
 			type: 'POST',
@@ -575,8 +584,6 @@ $(function() {
 				$('#date').val(date);
 				if (data.proposal.keywords) document.getElementById('keywords').BulmaTagsInput().add(data.proposal.keywords);
 				$('#edit .modal-card-title').text('Edit Proposal');
-				$('.file-cta').css('width', '50px');
-				$('.file-name').text(data.proposal.filename);
 				$('#submit').empty().append('<span class="icon"><i class="fas fa-edit"></i></span><span>Update</span>');
 				Swal.close();
 				$('#edit').addClass('is-active');
@@ -1188,5 +1195,10 @@ $(function() {
 				retrieveAdvisers();
 			}
 		}
+	});
+
+	$('select').change(function() {
+		if ($(this).val() != '')
+			$(this).find('option[value=""]').remove();
 	});
 });

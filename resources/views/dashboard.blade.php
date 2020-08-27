@@ -205,7 +205,8 @@
 					<div class="field">
 						<div class="control">
 							<div class="select is-fullwidth">
-								<select id="program">
+								<select id="program" required>
+									<option value="" selected disabled>Choose Program</option>
 									<option value="BSCS">BSCS</option>
 									<option value="BSIT">BSIT</option>
 									<option value="BSEMCDA">BSEMC - DA</option>
@@ -236,7 +237,7 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" id="area" class="input" required>
+							<input type="text" id="area" class="input">
 						</div>
 					</div>
 				</div>
@@ -286,12 +287,12 @@
 				<div class="field-body">
 					<div class="field">
 						<div id="snum3_control" class="control">
-							<input type="number" id="snum3" class="input sn" placeholder="S.N. #3" required>
+							<input type="number" id="snum3" class="input sn" placeholder="S.N. #3">
 						</div>
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input name" id="snum3_name" readonly required>
+							<input type="text" class="input name" id="snum3_name" readonly>
 						</div>
 					</div>
 				</div>
@@ -301,12 +302,12 @@
 				<div class="field-body">
 					<div class="field">
 						<div id="snum4_control" class="control">
-							<input type="number" id="snum4" class="input sn" placeholder="S.N. #4" required>
+							<input type="number" id="snum4" class="input sn" placeholder="S.N. #4">
 						</div>
 					</div>
 					<div class="field">
 						<div class="control is-expanded">
-							<input type="text" class="input name" id="snum4_name" readonly required>
+							<input type="text" class="input name" id="snum4_name" readonly>
 						</div>
 					</div>
 				</div>
@@ -361,7 +362,7 @@
 				<div class="field-body">
 					<div class="field">
 						<div class="control is-expanded">
-							<textarea id="overview" class="textarea" required></textarea>
+							<textarea id="overview" class="textarea"></textarea>
 						</div>
 					</div>
 				</div>
@@ -387,7 +388,7 @@
 						<div class="control">
 							<div id="file" class="file has-name">
 								<label class="file-label">
-									<input type="file" class="file-input" required>
+									<input type="file" class="file-input">
 									<div class="file-cta" title="Upload a file">
 										<span class="icon">
 											<i class="fas fa-upload"></i>
@@ -552,7 +553,7 @@
 		</header>
 		<section class="modal-card-body">
 			<figure class="image is-64x64 is-pulled-left"><img src="{{ asset('img/RnDlogo.png') }}" alt="UE Logo"></figure>
-			<p class='help'>V1.4.7</p>
+			<p class='help'>V1.5.0</p>
 			<p>The UE CCSS Research and Development Unit (R&D) is the research arm of University of the East - College of Computer Studies and Systems.</p>
 			<p>The R&D unit, led by R&D coordinator Melie Jim Sarmiento and R&D team leader Mack Perry Co, has been creating systems and applications benefiting the students of the college and the university.</p>
 			<p><br>This system is designed and developed by R&D team leader Mack Perry Co for the incoming upperclassmen who are pursuing Methods of Research (MERIT). This system is copyrighted to the UE CCSS R&D Unit.</p>
