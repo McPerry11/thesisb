@@ -18,11 +18,11 @@ class UsersImport implements ToCollection
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            $exist = User::where('student_number', $row[1])->count();
+            $exist = User::where('student_number', $row[0])->count();
             if ($exist == 0) {
                 User::create([
-                    'name' => $row[0],
-                    'student_number' => $row[1],
+                    'name' => $row[1],
+                    'student_number' => $row[0],
                     'type' => 'STUDENT',
                     'password' => '12345',
                     'created_at' => Carbon::now('+8:00'),

@@ -14,7 +14,7 @@
 			<figure class="image is-64x64"><img src="{{ asset('img/CCSSlogo.png') }}" alt="CCSS Logo"></figure>
 		</div>
 		<div class="column">
-			<div class="title is-4 has-text-centered">Thesis Archiving</div>
+			<div class="title is-4 has-text-centered">CCSS Thesis Archiving</div>
 		</div>
 		<div class="column">
 			<a class="rnd" title="About Developers">
@@ -554,7 +554,7 @@
 		</header>
 		<section class="modal-card-body">
 			<figure class="image is-64x64 is-pulled-left"><img src="{{ asset('img/RnDlogo.png') }}" alt="UE Logo"></figure>
-			<p class='help'>V1.7.0</p>
+			<p class='help'>V1.7.1a</p>
 			<p>The UE CCSS Research and Development Unit (R&D) is the research arm of University of the East - College of Computer Studies and Systems.</p>
 			<p>The R&D unit, led by R&D coordinator Melie Jim Sarmiento and R&D team leader Mack Perry Co, has been creating systems and applications benefiting the students of the college and the university.</p>
 			<p><br>This system is designed and developed by R&D team leader Mack Perry Co for the incoming upperclassmen who are pursuing Methods of Research (MERIT). This system is copyrighted to the UE CCSS R&D Unit.</p>
