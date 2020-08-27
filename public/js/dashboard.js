@@ -330,8 +330,6 @@ $(function() {
 						$('#program').val('');
 						$('#sname1').attr('required', true);
 						$('#snum1').attr('required', true);
-						$('#sname2').attr('required', true);
-						$('#snum2').attr('required', true);
 						$('.si').removeClass('is-hidden');
 						$('#note').addClass('is-hidden');
 						$('#submit').empty().append('<span class="icon"><i class="fas fa-plus"></i></span><span>Add</span>');

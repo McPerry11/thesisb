@@ -138,6 +138,7 @@ class TitlesController extends Controller
                 $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
                 $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
             }
+            $proposal->registration_id = null;
 
             $proposal->updated_at = Carbon::now('+8:00');
             $proposal->save();
