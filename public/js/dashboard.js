@@ -276,7 +276,7 @@ $(function() {
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
 	var updateId, dlfile, check, currentPage, prevPage, nextPage, lastPage, event = '', editsn, editid, search = '', tab = 'all', link = 'titles';
-	var sn_error = {snum1:false, snum2:false, snum3:false, snum4:false, snum5:false};
+	var sn_error = {snum1:false, snum2:false, snum3:false, snum4:false, snum5:false, title:false};
 	retrieveProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
 	responsiveViewport();
@@ -1116,6 +1116,7 @@ $(function() {
 		$('button').attr('disabled', true);
 		$(this).removeClass('is-success').removeClass('is-danger');
 		$('#title_control .help').remove();
+		sn_error['title'] = false;
 		var title = $(this).val();
 		$.ajax({
 			type: 'POST',
@@ -1123,18 +1124,21 @@ $(function() {
 			data: {data:'validate', title:title},
 			datatype: 'JSON',
 			success: function(response) {
-				$('#title_control').removeClass('is-loading');
-				clearStatus();
 				if (response.status == 'validated') {
 					$('#title').addClass('is-success');
 				} else if (response.status == 'error') {
 					$('#title').addClass('is-danger');
 					$('#title_control').append('<div class="help is-danger">This title already exists</div>');
-					$('#submit').attr('disabled', true);
+					sn_error['title'] = true;
 				}
+				$('#title_control').removeClass('is-loading');
+				clearStatus();
+				sn_proposalCheck();
 			},
 			error: function(err) {
 				$('#title_control').removeClass('is-loading');
+				sn_error['title'] = true;
+				sn_proposalCheck();
 				ajaxError(err);
 				clearStatus();
 			}
@@ -1281,4 +1285,3 @@ $(function() {
 		}
 	});
 });
-is-active
