@@ -250,7 +250,7 @@ class TitlesController extends Controller
     }
 
     public function download($id) {
-        $attachment = Title::find($id)->value('filename');
-        return Storage::disk('public')->download('uploads/' . $attachment);
+        $proposal = Title::find($id);
+        return Storage::disk('public')->download('uploads/' . $proposal->filename);
     }
 }
