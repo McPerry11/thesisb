@@ -406,6 +406,26 @@
 					</div>
 				</div>
 			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Status</label>
+				</div>
+				<div class="field-body">
+					<div class="field">
+						<div class="control is-expanded">
+							<div class="select is-fullwidth">
+								<select id="status" required>
+									<option value="" selected disabled>Choose Status</option>
+									<option value="PROPOSAL">Proposal</option>
+									<option value="DEVELOPMENT">Development</option>
+									<option value="DEPLOYMENT">Deployment</option>
+									<option value="COMPLETED">Completed</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</section>
 		<footer class="modal-card-foot">
 			<div class="buttons">
@@ -483,6 +503,12 @@
 				</div>
 				<div id="vfile" class="field-body"></div>
 			</div>
+			<div class="field is-horizontal">
+				<div class="field-label">
+					<label class="label">Status</label>
+				</div>
+				<div id="vstatus" class="field-body"></div>
+			</div>
 		</section>
 	</div>
 </div>
@@ -554,7 +580,7 @@
 		</header>
 		<section class="modal-card-body">
 			<figure class="image is-64x64 is-pulled-left"><img src="{{ asset('img/RnDlogo.png') }}" alt="R&D Logo"></figure>
-			<p class='help'>V1.10.2b</p>
+			<p class='help'>V1.11.0</p>
 			<p>The UE CCSS Research and Development Unit (R&D) is the research arm of University of the East - College of Computer Studies and Systems.</p>
 			<p>The R&D unit, led by R&D coordinator Melie Jim Sarmiento and R&D team leader Mack Perry Co, has been creating systems and applications benefiting the students of the college and the university.</p>
 			<p><br>This system is designed and developed by R&D team leader Mack Perry Co for the incoming upperclassmen who are pursuing Methods of Research (MERIT). This system is copyrighted to the UE CCSS R&D Unit.</p>

@@ -108,6 +108,7 @@ class TitlesController extends Controller
             $proposal->keywords = strip_tags($request->keywords);
             $proposal->created_at = strip_tags($request->created_at);
             $proposal->adviser_id = strip_tags($request->adviser_id);
+            $proposal->status = strip_tags($request->status);
 
             if (Carbon::parse($proposal->created_at)->year >= 2020) {
                 $proposal->registration_id = Carbon::now('+8:00')->year . '-1-TP';
@@ -170,11 +171,11 @@ class TitlesController extends Controller
             $owner = Title::find($id)->users()->where('id', Auth::id())->count();
             $adviser = Title::where('adviser_id', Auth::id())->find($id);
             if (Auth::user()->type == 'ADMIN') {
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'adviser_id', 'filename', 'created_at')->find($id);
+                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'adviser_id', 'filename', 'created_at', 'status')->find($id);
             } else if ($owner > 0 || $adviser) {
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'filename', 'created_at')->find($id);
+                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'filename', 'created_at', 'status')->find($id);
             } else {
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'created_at')->find($id);
+                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'created_at', 'status')->find($id);
             }
             return response()->json(['proposal' => $proposal]);
         }
@@ -215,6 +216,7 @@ class TitlesController extends Controller
             $proposal->keywords = strip_tags($request->keywords);
             $proposal->created_at = strip_tags($request->created_at);
             $proposal->adviser_id = strip_tags($request->adviser_id);
+            $proposal->status = strip_tags($request->status);
             $proposal->updated_at = Carbon::now('+8:00');
 
             if ($request->file !== 'undefined') {

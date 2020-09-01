@@ -298,7 +298,9 @@ $(function() {
 				$('#file input').val('');
 				$('.file-name').text('No file uploaded');
 				if ($('#program option[value=""]').length == 0)
-					$('#program').prepend('<option value="" selected disabled>Choose Program</option>')
+					$('#program').prepend('<option value="" selected disabled>Choose Program</option>');
+				if ($('#status option[value=""]').length == 0)
+					$('#status').prepend('<option value="" selected disabled>Choose Status</option>');
 				$('#adviser').empty();
 				Swal.fire({
 					html: '<span class="icon is-large"><i class="fas fa-spin fa-spinner fa-2x"></i></span>',
@@ -411,6 +413,7 @@ $(function() {
 		data.append('overview', $('#overview').val());
 		data.append('area', $('#area').val());
 		data.append('created_at', $('#date').val());
+		data.append('status', $('#status').val());
 		data.append('keywords', document.getElementById('keywords').BulmaTagsInput().value);
 		data.append('file', $('#file input')[0].files[0]);
 		if ($('#submit span:nth-child(2)').text() == 'Add') {
@@ -563,6 +566,7 @@ $(function() {
 		$('#note').removeClass('is-hidden');
 		$('#vfile-label').removeClass('is-hidden');
 		$('#program option[value=""]').remove();
+		$('#status option[value=""]').remove();
 		$('#adviser').empty();
 		updateId = $(this).data('id');
 		$.ajax({
@@ -575,6 +579,7 @@ $(function() {
 				for (i in data.advisers)
 					advisers += '<option value="' + data.advisers[i].id + '">' + data.advisers[i].name + '</option>'
 				$('#program').val(data.proposal.program);
+				$('#status').val(data.proposal.status);
 				$('#title').val(data.proposal.title);
 				$('#area').val(data.proposal.area);
 				$('#adviser').append(advisers).val(data.proposal.adviser_id);
@@ -629,6 +634,7 @@ $(function() {
 					let date = new Date(data.proposal.created_at);
 					$('#vdate').text((date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear());
 					$('#vprogram').text(data.proposal.program);
+					$('#vstatus').text(data.proposal.status);
 					$('#vtitle').text(data.proposal.title);
 					$('#varea').text(data.proposal.area);
 					$('#vkeywords').append('<div class="tags are-medium">' + keystring + '</div>');
