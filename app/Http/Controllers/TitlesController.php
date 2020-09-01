@@ -133,7 +133,7 @@ class TitlesController extends Controller
                     break;
                 }
 
-                $id = Title::where('program', $proposal->program)->where('created_at', Carbon::now('+8:00')->year)->count() + 1;
+                $id = Title::where('program', $proposal->program)->whereYear('created_at', Carbon::now('+8:00')->year)->count() + 1;
                 $proposal->registration_id .= '-' . $id;
 
                 if ($request->file !== 'undefined') {
