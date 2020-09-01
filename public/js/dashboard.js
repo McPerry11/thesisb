@@ -330,6 +330,7 @@ $(function() {
 						$('.modal input').val('');
 						$('textarea').val('');
 						$('#program').val('');
+						$('#status').val('');
 						$('#sname1').attr('required', true);
 						$('#snum1').attr('required', true);
 						$('.si').removeClass('is-hidden');
