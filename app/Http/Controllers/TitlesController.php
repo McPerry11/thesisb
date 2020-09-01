@@ -108,37 +108,39 @@ class TitlesController extends Controller
             $proposal->keywords = strip_tags($request->keywords);
             $proposal->created_at = strip_tags($request->created_at);
             $proposal->adviser_id = strip_tags($request->adviser_id);
-            $proposal->registration_id = '2020-1-TP';
-            switch($request->program) {
-                case 'BSCS':
-                $proposal->registration_id .= 'CS';
-                break;
 
-                case 'BSIT':
-                $proposal->registration_id .= 'IT';
-                break;
+            if (Carbon::parse($proposal->created_at)->year >= 2020) {
+                $proposal->registration_id = Carbon::now('+8:00')->year . '-1-TP';
+                switch($request->program) {
+                    case 'BSCS':
+                    $proposal->registration_id .= 'CS';
+                    break;
 
-                case 'BSEMCDA':
-                $proposal->registration_id .= 'DA';
-                break;
+                    case 'BSIT':
+                    $proposal->registration_id .= 'IT';
+                    break;
 
-                case 'BSEMCGD':
-                $proposal->registration_id .= 'GD';
-                break;
+                    case 'BSEMCDA':
+                    $proposal->registration_id .= 'DA';
+                    break;
 
-                case 'BSIS':
-                $proposal->registration_id .= 'IS';
-                break;
+                    case 'BSEMCGD':
+                    $proposal->registration_id .= 'GD';
+                    break;
+
+                    case 'BSIS':
+                    $proposal->registration_id .= 'IS';
+                    break;
+                }
+
+                $id = Title::where('program', $proposal->program)->where('created_at', Carbon::now('+8:00')->year)->count() + 1;
+                $proposal->registration_id .= '-' . $id;
+
+                if ($request->file !== 'undefined') {
+                    $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
+                    $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
+                }
             }
-            
-            $id = Title::where('program', $proposal->program)->count() + 1;
-            $proposal->registration_id .= '-' . $id;
-
-            if ($request->file !== 'undefined') {
-                $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
-                $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
-            }
-            $proposal->registration_id = null;
 
             $proposal->updated_at = Carbon::now('+8:00');
             $proposal->save();
