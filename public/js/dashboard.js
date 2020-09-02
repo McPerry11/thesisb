@@ -741,13 +741,12 @@ $(function() {
 	$('#search').submit(function(e) {
 		e.preventDefault();
 		if ($('#loading').hasClass('is-hidden')) {
-			if (tab == 'myp') {
-				$('#myp').removeClass('is-active');
-				$('#thesis').addClass('is-active');
-			}
 			$('#search button[title="Search"]').addClass('is-loading');
-			tab = 'all', search = $('#search input').val();
+			search = $('#search input').val();
 			if ($('#thesis').hasClass('is-active')) {
+				link = 'titles';
+				retrieveProposals();
+			} else if ($('#myp').hasClass('is-active')) {
 				link = 'titles';
 				retrieveProposals();
 			} else if ($('#logs').hasClass('is-active')) {
@@ -767,8 +766,11 @@ $(function() {
 		if ($('#loading').hasClass('is-hidden')) {
 			$('#search input').val('');
 			$(this).attr('disabled', true);
-			tab = 'all', search = '';
+			search = '';
 			if ($('#thesis').hasClass('is-active')) {
+				link = 'titles';
+				retrieveProposals();
+			} else if ($('#myp').hasClass('is-active')) {
 				link = 'titles';
 				retrieveProposals();
 			} else if ($('#logs').hasClass('is-active')) {

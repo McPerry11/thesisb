@@ -35,17 +35,42 @@ class TitlesController extends Controller
                     foreach ($proposals as $proposal)
                         $proposal->edit = false;
                 }
-            } else if ($request->tab == 'myp') {
+            } else if ($request->search == '' && $request->tab == 'myp') {
                 if (Auth::user()->type == 'STUDENT') {
                     $proposals = Auth::user()->titles()->select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
                     ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                    foreach ($proposals as $proposal)
-                        $proposal->edit = false;
                 } else if (Auth::user()->type == 'ADVISER') {
-                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')->where('adviser_id', Auth::id())->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                    foreach ($proposals as $proposal)
-                        $proposal->edit = false;
+                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')->where('adviser_id', Auth::id())
+                    ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
                 }   
+                foreach ($proposals as $proposal)
+                    $proposal->edit = false;
+            } else if ($request->tab == 'myp') {
+                if (Auth::user()->type == 'STUDENT') {
+                    $proposals = Auth::user()->titles()->select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
+                    ->where(function ($query) use ($request) {
+                        $query->where('title', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('area', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('program', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
+                        ->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'));
+                    })->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+                } else if (Auth::user()->type == 'ADVISER') {
+                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
+                    ->where('adviser_id', Auth::id())
+                    ->where(function ($query) use ($request) {
+                        $query->where('title', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('area', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('program', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%');
+                    })->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+                }
+                foreach ($proposals as $proposal)
+                    $proposal->edit = false;
             } else {
                 if (Auth::user()->type == 'ADMIN') {
                     $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
@@ -70,6 +95,8 @@ class TitlesController extends Controller
                     ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
                     ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+                    foreach ($proposals as $proposal)
+                        $proposal->edit = false;
                 }
             } 
             return response()->json(['proposals' => $proposals]);
