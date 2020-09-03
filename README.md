@@ -1,3 +1,12 @@
+# Thesis Archiving
+Thesis archiving is a system made to archive thesis proposals varying from proposed to completed theses. This project is made to promote a paperless system in UE CCSS, especially since students and professors are pushed to work online.
+
+## Collaborator
+ - [Mack Perry Co](https://github.com/McPerry11)
+
+Copyright @ 2020 UE CCSS R&D
+
+# Framework Used
 <p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
 
 <p align="center">
