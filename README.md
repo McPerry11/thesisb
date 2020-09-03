@@ -4,7 +4,7 @@ Thesis archiving is a system made to archive thesis proposals varying from propo
 ## Collaborator
  - [Mack Perry Co](https://github.com/McPerry11)
 
-Copyright @ 2020 UE CCSS R&D
+Copyright © 2020 UE CCSS R&D
 
 # Framework Used
 <p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
