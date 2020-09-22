@@ -42,6 +42,7 @@ $(function() {
 							text: response.msg,
 							confirmButtonText: 'Try Again'
 						});
+						$('input').val('');
 					}
 					clearStatus();
 				},

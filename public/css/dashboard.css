@@ -16,6 +16,11 @@
 	right: 20px;
 }
 
+.tag:not(body) {
+	white-space: normal;
+	height: fit-content;
+}
+
 #logs_table th:nth-child(1) {
 	min-width: 75px;
 	width: 75px;
