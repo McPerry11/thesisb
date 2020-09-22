@@ -19,6 +19,7 @@
 .tag:not(body) {
 	white-space: normal;
 	height: fit-content;
+	padding: 3px 9px;
 }
 
 #logs_table th:nth-child(1) {
