@@ -569,6 +569,8 @@ $(function() {
 		$('#program option[value=""]').remove();
 		$('#status option[value=""]').remove();
 		$('#adviser').empty();
+		$('#file input').val('');
+		$('.file-name').text('Upload new file');
 		updateId = $(this).data('id');
 		$.ajax({
 			type: 'POST',
