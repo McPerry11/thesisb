@@ -767,7 +767,7 @@ $(function() {
 			link = 'users';
 			retrieveAdvisers();
 		}
-	}, 500));
+	}, 750));
 
 	$('#search').submit(function(e) {
 		e.preventDefault();
