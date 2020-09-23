@@ -105,10 +105,10 @@ class TitlesController extends Controller
             if ($existing > 0) {
                 return response()->json(['status' => 'error']);
             } else {
-                $words = explode(' ' , $request->title);
+                $words = explode(' ' , strtolower($request->title));
                 $proposals = Title::all();
                 foreach ($proposals as $proposal) {
-                    $difference = count(array_diff($words, explode(' ', preg_replace("/[^A-Za-z0-9' -]/", '', $proposal->title))));
+                    $difference = count(array_diff($words, explode(' ', preg_replace("/[^A-Za-z0-9' -]/", '', strtolower($proposal->title)))));
                     if ($difference == 0)
                         return response()->json(['status' => 'error']);
                 }
