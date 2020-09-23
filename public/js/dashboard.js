@@ -272,6 +272,14 @@ $(function() {
 		}
 	}
 
+	function delay(fn, ms) {
+		let timer = 0
+		return function(...args) {
+			clearTimeout(timer)
+			timer = setTimeout(fn.bind(this, ...args), ms || 0)
+		}
+	}
+
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
@@ -740,6 +748,27 @@ $(function() {
 		$(this).val() != '' ? $('#clear').removeAttr('disabled') : $('#clear').attr('disabled', true);
 	});
 
+	$('#search input').keyup(delay(function(e) {
+		$('#search button[title="Search"]').addClass('is-loading');
+		search = $(this).val();
+		if ($('#thesis').hasClass('is-active')) {
+			link = 'titles';
+			retrieveProposals();
+		} else if ($('#myp').hasClass('is-active')) {
+			link = 'titles';
+			retrieveProposals();
+		} else if ($('#logs').hasClass('is-active')) {
+			link = 'logs';
+			retrieveLogs();
+		} else if ($('#students').hasClass('is-active')) {
+			link = 'users';
+			retrieveStudents();
+		} else if ($('#advisers').hasClass('is-active')) {
+			link = 'users';
+			retrieveAdvisers();
+		}
+	}, 500));
+
 	$('#search').submit(function(e) {
 		e.preventDefault();
 		if ($('#loading').hasClass('is-hidden')) {
@@ -761,7 +790,7 @@ $(function() {
 				link = 'users';
 				retrieveAdvisers();
 			}
-		}	
+		}
 	});
 
 	$('#clear').click(function() {
