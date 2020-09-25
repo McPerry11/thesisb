@@ -161,7 +161,8 @@ class TitlesController extends Controller
                     break;
                 }
 
-                $id = Title::where('program', $proposal->program)->whereYear('created_at', Carbon::now('+8:00')->year)->count() + 1;
+                $latest = Title::where('program', $proposal->program)->whereYear('created_at', Carbon::now('+8:00')->year)->orderBy('id', 'desc')->first();
+                $id = $latest ==  null ? 1: substr($latest->registration_id, -1) + 1;
                 $proposal->registration_id .= '-' . $id;
 
                 if ($request->file !== 'undefined') {
