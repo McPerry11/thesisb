@@ -140,12 +140,24 @@ $(function() {
 				}
 				$('#loading').addClass('is-hidden');
 				$('#search button').removeClass('is-loading');
+				if (pending == true) {
+					pending = false;
+					retrieveProposals();
+				} else {
+					request = false;
+				}
 			},
 			error: function(err) {
 				$('#loading').addClass('is-hidden');
 				$('#search button').removeClass('is-loading');
 				$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve proposals. Try again later.</div></div>');
 				ajaxError(err);
+				if (pending == true) {
+					pending = false;
+					retrieveProposals();
+				} else {
+					request = false;
+				}
 			}
 		});
 	}
@@ -179,12 +191,24 @@ $(function() {
 				} else {
 					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No existing logs.</div></td></tr>');
 				}
+				if (pending == true) {
+					pending = false;
+					retrieveProposals();
+				} else {
+					request = false;
+				}
 			},
 			error: function(err) {
 				$('#loading').addClass('is-hidden');
 				$('#search button').removeClass('is-loading');
 				$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve logs. Try again later.</div></div>');
 				ajaxError(err);
+				if (pending == true) {
+					pending = false;
+					retrieveProposals();
+				} else {
+					request = false;
+				}
 			}
 		});
 	}
@@ -216,12 +240,24 @@ $(function() {
 				} else {
 					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No students registered.</div></td></tr>');
 				}
+				if (pending == true) {
+					pending = false;
+					retrieveProposals();
+				} else {
+					request = false;
+				}
 			},
 			error: function(err) {
 				$('#loading').addClass('is-hidden');
 				$('#search button').removeClass('is-loading');
 				$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve students. Try again later.</div></div>');
 				ajaxError(err);
+				if (pending == true) {
+					pending = false;
+					retrieveProposals();
+				} else {
+					request = false;
+				}
 			}
 		});
 	}
@@ -253,12 +289,24 @@ $(function() {
 				} else {
 					$('table').append('<tr><td colspan="3" class="has-text-centered"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">No advisers registered.</div></td></tr>');
 				}
+				if (pending == true) {
+					pending = false;
+					retrieveProposals();
+				} else {
+					request = false;
+				}
 			},
 			error: function(err) {
 				$('#loading').addClass('is-hidden');
 				$('#search button').removeClass('is-loading');
 				$('#contents').append('<div class="has-text-centered notif"><span class="icon"><i class="fas fa-exclamation-circle"></i></span><div class="subtitle is-6">Cannot retrieve advisers. Try again later.</div></div>');
 				ajaxError(err);
+				if (pending == true) {
+					pending = false;
+					retrieveProposals();
+				} else {
+					request = false;
+				}
 			}
 		});
 	}
@@ -283,7 +331,7 @@ $(function() {
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
-	var updateId, dlfile, check, currentPage, prevPage, nextPage, lastPage, event = '', editsn, editid, search = '', tab = 'all', link = 'titles';
+	var updateId, dlfile, check, currentPage, prevPage, nextPage, lastPage, event = '', editsn, editid, search = '', tab = 'all', link = 'titles', request = false, pending = false;
 	var sn_error = {snum1:false, snum2:false, snum3:false, snum4:false, snum5:false, title:false};
 	retrieveProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
@@ -751,21 +799,26 @@ $(function() {
 	$('#search input').keyup(delay(function(e) {
 		$('#search button[title="Search"]').addClass('is-loading');
 		search = $(this).val();
-		if ($('#thesis').hasClass('is-active')) {
-			link = 'titles';
-			retrieveProposals();
-		} else if ($('#myp').hasClass('is-active')) {
-			link = 'titles';
-			retrieveProposals();
-		} else if ($('#logs').hasClass('is-active')) {
-			link = 'logs';
-			retrieveLogs();
-		} else if ($('#students').hasClass('is-active')) {
-			link = 'users';
-			retrieveStudents();
-		} else if ($('#advisers').hasClass('is-active')) {
-			link = 'users';
-			retrieveAdvisers();
+		if (request == false) {
+			request = true, pending = false;
+			if ($('#thesis').hasClass('is-active')) {
+				link = 'titles';
+				retrieveProposals();
+			} else if ($('#myp').hasClass('is-active')) {
+				link = 'titles';
+				retrieveProposals();
+			} else if ($('#logs').hasClass('is-active')) {
+				link = 'logs';
+				retrieveLogs();
+			} else if ($('#students').hasClass('is-active')) {
+				link = 'users';
+				retrieveStudents();
+			} else if ($('#advisers').hasClass('is-active')) {
+				link = 'users';
+				retrieveAdvisers();
+			}
+		} else {
+			pending = true;
 		}
 	}, 750));
 
