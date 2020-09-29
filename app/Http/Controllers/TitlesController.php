@@ -81,11 +81,11 @@ class TitlesController extends Controller
                     $pattern = "/[0-9]{4}-[0-9]/i";
                     if (preg_match($pattern, $request->search) > 0) {
                         $search = explode('-', $request->search);
-                        if ($search[1] == 1) {
+                        if ($search[1] == '1') {
                             $start = Carbon::create($search[0], 6, 1, 0, 0 ,0);
-                            $end = Carbon::create($search[0], 9, 31, 23, 59, 59);
-                        } else if ($search[1] == 2) {
-                            $start = Carbon::create($search[0], 10, 1, 0, 0 ,0);
+                            $end = Carbon::create($search[0], 10, 31, 23, 59, 59);
+                        } else if ($search[1] == '2') {
+                            $start = Carbon::create($search[0], 11, 1, 0, 0 ,0);
                             $end = Carbon::create($search[0] + 1, 3, 31, 23, 59, 59);
                         }
                     }
@@ -96,9 +96,14 @@ class TitlesController extends Controller
                     ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
-                    ->orWhereYear('created_at', $request->search)
                     ->orWhereMonth('created_at', $request->search)
-                    ->orWhereBetween('created_at', [$start, $end])
+                    ->orWhere(function($query) use ($request, $start, $end) {
+                        if ($start) {
+                            $query->whereBetween('created_at', [$start, $end]);
+                        } else {
+                            $query->whereYear('created_at', $request->search);
+                        }
+                    })
                     ->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'))
                     ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
                     foreach ($proposals as $proposal) {
