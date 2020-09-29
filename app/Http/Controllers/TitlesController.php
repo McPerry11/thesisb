@@ -77,6 +77,18 @@ class TitlesController extends Controller
                     $proposal->edit = false;
             } else {
                 if (Auth::user()->type == 'ADMIN') {
+                    $start = $end = null;
+                    $pattern = "/[0-9]{4}-[0-9]/i";
+                    if (preg_match($pattern, $request->search) > 0) {
+                        $search = explode('-', $request->search);
+                        if ($search[1] == 1) {
+                            $start = Carbon::create($search[0], 6, 1, 0, 0 ,0);
+                            $end = Carbon::create($search[0], 10, 1, 0, 0, 0);
+                        } else if ($search[1] == 2) {
+                            $start = Carbon::create($search[0], 11, 1, 0, 0 ,0);
+                            $end = Carbon::create($search[0] + 1, 3, 1, 0, 0, 0);
+                        }
+                    }
                     $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
                     ->where('title', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('area', 'LIKE', '%' . $request->search . '%')
@@ -86,6 +98,7 @@ class TitlesController extends Controller
                     ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
                     ->orWhereYear('created_at', $request->search)
                     ->orWhereMonth('created_at', $request->search)
+                    ->orWhereBetween('created_at', [$start, $end])
                     ->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'))
                     ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
                     foreach ($proposals as $proposal) {

@@ -331,7 +331,7 @@ $(function() {
 	$('.pageloader .title').text('Loading Dashboard');
 	$('#thesis').addClass('is-active');
 	$('#loading').removeClass('is-hidden');
-	var updateId, dlfile, check, currentPage, prevPage, nextPage, lastPage, event = '', editsn, editid, search = '', tab = 'all', link = 'titles', request = false, pending = false;
+	var updateId, dlfile, check, currentPage, prevPage, nextPage, lastPage, event = '', editsn, editid, search = '', tab = 'all', link = 'titles', request = false, pending = false, searchMethod = 'auto';
 	var sn_error = {snum1:false, snum2:false, snum3:false, snum4:false, snum5:false, title:false};
 	retrieveProposals();
 	BulmaTagsInput.attach('input[data-type="tags"], input[type="tags"]');
@@ -800,7 +800,7 @@ $(function() {
 		$('#search button[title="Search"]').addClass('is-loading');
 		search = $(this).val();
 		if (request == false) {
-			request = true, pending = false;
+			request = true, pending = false, searchMethod = 'auto';
 			if ($('#thesis').hasClass('is-active')) {
 				link = 'titles';
 				retrieveProposals();
@@ -817,7 +817,7 @@ $(function() {
 				link = 'users';
 				retrieveAdvisers();
 			}
-		} else {
+		} else if (searchMethod == 'auto') {
 			pending = true;
 		}
 	}, 750));
@@ -825,23 +825,26 @@ $(function() {
 	$('#search').submit(function(e) {
 		e.preventDefault();
 		if ($('#loading').hasClass('is-hidden')) {
-			$('#search button[title="Search"]').addClass('is-loading');
-			search = $('#search input').val();
-			if ($('#thesis').hasClass('is-active')) {
-				link = 'titles';
-				retrieveProposals();
-			} else if ($('#myp').hasClass('is-active')) {
-				link = 'titles';
-				retrieveProposals();
-			} else if ($('#logs').hasClass('is-active')) {
-				link = 'logs';
-				retrieveLogs();
-			} else if ($('#students').hasClass('is-active')) {
-				link = 'users';
-				retrieveStudents();
-			} else if ($('#advisers').hasClass('is-active')) {
-				link = 'users';
-				retrieveAdvisers();
+			if (request == false) {
+				request = true, searchMethod = 'manual';
+				$('#search button[title="Search"]').addClass('is-loading');
+				search = $('#search input').val();
+				if ($('#thesis').hasClass('is-active')) {
+					link = 'titles';
+					retrieveProposals();
+				} else if ($('#myp').hasClass('is-active')) {
+					link = 'titles';
+					retrieveProposals();
+				} else if ($('#logs').hasClass('is-active')) {
+					link = 'logs';
+					retrieveLogs();
+				} else if ($('#students').hasClass('is-active')) {
+					link = 'users';
+					retrieveStudents();
+				} else if ($('#advisers').hasClass('is-active')) {
+					link = 'users';
+					retrieveAdvisers();
+				}
 			}
 		}
 	});
