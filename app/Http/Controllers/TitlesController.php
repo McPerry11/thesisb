@@ -89,7 +89,6 @@ class TitlesController extends Controller
                             $end = Carbon::create($search[0] + 1, 3, 31, 0, 0, 0);
                         }
                     }
-                    return $end;
                     $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
                     ->where('title', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('area', 'LIKE', '%' . $request->search . '%')
