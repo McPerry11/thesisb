@@ -83,12 +83,13 @@ class TitlesController extends Controller
                         $search = explode('-', $request->search);
                         if ($search[1] == 1) {
                             $start = Carbon::create($search[0], 6, 1, 0, 0 ,0);
-                            $end = Carbon::create($search[0], 10, 1, 0, 0, 0);
+                            $end = Carbon::create($search[0], 10, 31, 0, 0, 0);
                         } else if ($search[1] == 2) {
                             $start = Carbon::create($search[0], 11, 1, 0, 0 ,0);
-                            $end = Carbon::create($search[0] + 1, 3, 1, 0, 0, 0);
+                            $end = Carbon::create($search[0] + 1, 3, 31, 0, 0, 0);
                         }
                     }
+                    return $end;
                     $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
                     ->where('title', 'LIKE', '%' . $request->search . '%')
                     ->orWhere('area', 'LIKE', '%' . $request->search . '%')
