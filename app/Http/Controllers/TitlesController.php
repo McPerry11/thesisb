@@ -98,11 +98,10 @@ class TitlesController extends Controller
                     ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
                     ->orWhereMonth('created_at', $request->search)
                     ->orWhere(function($query) use ($request, $start, $end) {
-                        if ($start) {
+                        if ($start)
                             $query->whereBetween('created_at', [$start, $end]);
-                        } else {
+                        else
                             $query->whereYear('created_at', $request->search);
-                        }
                     })
                     ->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'))
                     ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
