@@ -85,7 +85,7 @@ class TitlesController extends Controller
                             $start = Carbon::create($search[0], 6, 1, 0, 0 ,0);
                             $end = Carbon::create($search[0], 9, 31, 23, 59, 59);
                         } else if ($search[1] == 2) {
-                            $start = Carbon::create($search[0], 11, 1, 0, 0 ,0);
+                            $start = Carbon::create($search[0], 10, 1, 0, 0 ,0);
                             $end = Carbon::create($search[0] + 1, 3, 31, 23, 59, 59);
                         }
                     }
@@ -98,7 +98,7 @@ class TitlesController extends Controller
                     ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
                     ->orWhereYear('created_at', $request->search)
                     ->orWhereMonth('created_at', $request->search)
-                    ->orWhereBetween('created_at', [$end, $start])
+                    ->orWhereBetween('created_at', [$start, $end])
                     ->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'))
                     ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
                     foreach ($proposals as $proposal) {
