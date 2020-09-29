@@ -98,7 +98,7 @@ class TitlesController extends Controller
                     ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
                     ->orWhereYear('created_at', $request->search)
                     ->orWhereMonth('created_at', $request->search)
-                    ->orWhereBetween('created_at', [$start, $end])
+                    ->orWhereBetween('created_at', [$end, $start])
                     ->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'))
                     ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
                     foreach ($proposals as $proposal) {
