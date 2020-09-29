@@ -88,7 +88,7 @@ class TitlesController extends Controller
                             // $end = Carbon::create($search[0], 10, 31, 23, 59, 59);
                         } else if ($search[1] == 2) {
                             $start = date($search[0] . '-11-01');
-                            $end = date($search[0] + 1. '-03-31');
+                            $end = date(($search[0] + 1) . '-03-31');
                             // $start = Carbon::create($search[0], 11, 1, 0, 0 ,0);
                             // $end = Carbon::create($search[0] + 1, 3, 31, 23, 59, 59);
                         }
