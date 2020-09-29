@@ -82,11 +82,15 @@ class TitlesController extends Controller
                     if (preg_match($pattern, $request->search) > 0) {
                         $search = explode('-', $request->search);
                         if ($search[1] == 1) {
-                            $start = Carbon::create($search[0], 6, 1, 0, 0 ,0);
-                            $end = Carbon::create($search[0], 10, 31, 0, 0, 0);
+                            $start = date($search[0] . '-6-1');
+                            $end = date($search[0]. '-10-31');
+                            // $start = Carbon::create($search[0], 6, 1, 0, 0 ,0);
+                            // $end = Carbon::create($search[0], 10, 31, 23, 59, 59);
                         } else if ($search[1] == 2) {
-                            $start = Carbon::create($search[0], 11, 1, 0, 0 ,0);
-                            $end = Carbon::create($search[0] + 1, 3, 31, 0, 0, 0);
+                            $start = date($search[0] . '-11-1');
+                            $end = date($search[0] + 1. '-3-31');
+                            // $start = Carbon::create($search[0], 11, 1, 0, 0 ,0);
+                            // $end = Carbon::create($search[0] + 1, 3, 31, 23, 59, 59);
                         }
                     }
                     $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
