@@ -19,127 +19,127 @@ class TitlesController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->data == 'titles') {
-            if ($request->search == '' && $request->tab == 'all') {
-                if (Auth::user()->type == 'ADMIN') {
-                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
-                    ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                    foreach ($proposals as $proposal) {
-                        $proposal->students = $proposal->users()->select('name')->get();
-                        $proposal->adviser = User::find($proposal->adviser_id)->name;
-                        $proposal->edit = true;
-                    }
-                } else {
-                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords')
-                    ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                    foreach ($proposals as $proposal)
-                        $proposal->edit = false;
-                }
-            } else if ($request->search == '' && $request->tab == 'myp') {
-                if (Auth::user()->type == 'STUDENT') {
-                    $proposals = Auth::user()->titles()->select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
-                    ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                } else if (Auth::user()->type == 'ADVISER') {
-                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')->where('adviser_id', Auth::id())
-                    ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                }   
-                foreach ($proposals as $proposal)
-                    $proposal->edit = false;
-            } else if ($request->tab == 'myp') {
-                if (Auth::user()->type == 'STUDENT') {
-                    $proposals = Auth::user()->titles()->select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
-                    ->where(function ($query) use ($request) {
-                        $query->where('title', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('area', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('program', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
-                        ->orWhereYear('created_at', $request->search)
-                        ->orWhereMonth('created_at', $request->search)
-                        ->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'));
-                    })->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                } else if (Auth::user()->type == 'ADVISER') {
-                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
-                    ->where('adviser_id', Auth::id())
-                    ->where(function ($query) use ($request) {
-                        $query->where('title', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('area', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('program', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
-                        ->orWhereYear('created_at', $request->search)
-                        ->orWhereMonth('created_at', $request->search)
-                        ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%');
-                    })->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                }
-                foreach ($proposals as $proposal)
-                    $proposal->edit = false;
-            } else {
-                if (Auth::user()->type == 'ADMIN') {
-                    $start = $end = null;
-                    $pattern = "/[0-9]{4}-[0-9]/i";
-                    if (preg_match($pattern, $request->search) > 0) {
-                        $search = explode('-', $request->search);
-                        if ($search[1] == '1') {
-                            $start = Carbon::create($search[0], 6, 1, 0, 0 ,0);
-                            $end = Carbon::create($search[0], 10, 31, 23, 59, 59);
-                        } else if ($search[1] == '2') {
-                            $start = Carbon::create($search[0], 11, 1, 0, 0 ,0);
-                            $end = Carbon::create($search[0] + 1, 3, 31, 23, 59, 59);
-                        }
-                    }
-                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
-                    ->where('title', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('area', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('program', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
-                    ->orWhereMonth('created_at', $request->search)
-                    ->orWhere(function($query) use ($request, $start, $end) {
-                        if ($start)
-                            $query->whereBetween('created_at', [$start, $end]);
-                        else
-                            $query->whereYear('created_at', $request->search);
-                    })
-                    ->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'))
-                    ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                    foreach ($proposals as $proposal) {
-                        $proposal->students = $proposal->users()->select('name')->get();
-                        $proposal->adviser = User::find($proposal->adviser_id)->name;
-                        $proposal->edit = true;
-                    }
-                } else {
-                    $proposals = Title::select('id', 'title', 'area', 'program', 'keywords')
-                    ->where('title', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('area', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('program', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('overview', 'LIKE', '%' . $request->search . '%')
-                    ->orWhereYear('created_at', $request->search)
-                    ->orWhereMonth('created_at', $request->search)
-                    ->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
-                    foreach ($proposals as $proposal)
-                        $proposal->edit = false;
-                }
-            } 
-            return response()->json(['proposals' => $proposals]);
-        } else if ($request->data == 'validate') {
-            $existing = Title::where('title', $request->title)->count();
-            if ($existing > 0) {
-                return response()->json(['status' => 'error']);
-            } else {
-                $words = explode(' ' , strtolower($request->title));
-                $proposals = Title::all();
-                foreach ($proposals as $proposal) {
-                    $difference = count(array_diff($words, explode(' ', preg_replace("/[^A-Za-z0-9' -]/", '', strtolower($proposal->title)))));
-                    if ($difference == 0)
-                        return response()->json(['status' => 'error']);
-                }
-                return response()->json(['status' => 'validated']);
-            }
-        }
+    	if ($request->data == 'titles') {
+    		if ($request->search == '' && $request->tab == 'all') {
+    			if (Auth::user()->type == 'ADMIN') {
+    				$proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
+    				->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+    				foreach ($proposals as $proposal) {
+    					$proposal->students = $proposal->users()->select('name')->get();
+    					$proposal->adviser = User::find($proposal->adviser_id)->name;
+    					$proposal->edit = true;
+    				}
+    			} else {
+    				$proposals = Title::select('id', 'title', 'area', 'program', 'keywords')
+    				->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+    				foreach ($proposals as $proposal)
+    					$proposal->edit = false;
+    			}
+    		} else if ($request->search == '' && $request->tab == 'myp') {
+    			if (Auth::user()->type == 'STUDENT') {
+    				$proposals = Auth::user()->titles()->select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
+    				->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+    			} else if (Auth::user()->type == 'ADVISER') {
+    				$proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')->where('adviser_id', Auth::id())
+    				->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+    			}   
+    			foreach ($proposals as $proposal)
+    				$proposal->edit = false;
+    		} else if ($request->tab == 'myp') {
+    			if (Auth::user()->type == 'STUDENT') {
+    				$proposals = Auth::user()->titles()->select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
+    				->where(function ($query) use ($request) {
+    					$query->where('title', 'LIKE', '%' . $request->search . '%')
+    					->orWhere('area', 'LIKE', '%' . $request->search . '%')
+    					->orWhere('program', 'LIKE', '%' . $request->search . '%')
+    					->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
+    					->orWhere('overview', 'LIKE', '%' . $request->search . '%')
+    					->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
+    					->orWhereYear('created_at', $request->search)
+    					->orWhereMonth('created_at', $request->search)
+    					->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'));
+    				})->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+    			} else if (Auth::user()->type == 'ADVISER') {
+    				$proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
+    				->where('adviser_id', Auth::id())
+    				->where(function ($query) use ($request) {
+    					$query->where('title', 'LIKE', '%' . $request->search . '%')
+    					->orWhere('area', 'LIKE', '%' . $request->search . '%')
+    					->orWhere('program', 'LIKE', '%' . $request->search . '%')
+    					->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
+    					->orWhere('overview', 'LIKE', '%' . $request->search . '%')
+    					->orWhereYear('created_at', $request->search)
+    					->orWhereMonth('created_at', $request->search)
+    					->orWhere('registration_id', 'LIKE', '%' . $request->search . '%');
+    				})->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+    			}
+    			foreach ($proposals as $proposal)
+    				$proposal->edit = false;
+    		} else {
+    			if (Auth::user()->type == 'ADMIN') {
+    				$start = $end = null;
+    				$pattern = "/[0-9]{4}-[0-9]/i";
+    				if (preg_match($pattern, $request->search) > 0) {
+    					$search = explode('-', $request->search);
+    					if ($search[1] == '1') {
+    						$start = Carbon::create($search[0], 6, 1, 0, 0 ,0);
+    						$end = Carbon::create($search[0], 10, 31, 23, 59, 59);
+    					} else if ($search[1] == '2') {
+    						$start = Carbon::create($search[0], 11, 1, 0, 0 ,0);
+    						$end = Carbon::create($search[0] + 1, 3, 31, 23, 59, 59);
+    					}
+    				}
+    				$proposals = Title::select('id', 'title', 'area', 'program', 'keywords', 'adviser_id', 'registration_id')
+    				->where('title', 'LIKE', '%' . $request->search . '%')
+    				->orWhere('area', 'LIKE', '%' . $request->search . '%')
+    				->orWhere('program', 'LIKE', '%' . $request->search . '%')
+    				->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
+    				->orWhere('overview', 'LIKE', '%' . $request->search . '%')
+    				->orWhere('registration_id', 'LIKE', '%' . $request->search . '%')
+    				->orWhereMonth('created_at', $request->search)
+    				->orWhere(function($query) use ($request, $start, $end) {
+    					if ($start)
+    						$query->whereBetween('created_at', [$start, $end]);
+    					else
+    						$query->whereYear('created_at', $request->search);
+    				})
+    				->orWhereIn('adviser_id', User::select('id')->where('name', 'LIKE', '%' . $request->search . '%'))
+    				->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+    				foreach ($proposals as $proposal) {
+    					$proposal->students = $proposal->users()->select('name')->get();
+    					$proposal->adviser = User::find($proposal->adviser_id)->name;
+    					$proposal->edit = true;
+    				}
+    			} else {
+    				$proposals = Title::select('id', 'title', 'area', 'program', 'keywords')
+    				->where('title', 'LIKE', '%' . $request->search . '%')
+    				->orWhere('area', 'LIKE', '%' . $request->search . '%')
+    				->orWhere('program', 'LIKE', '%' . $request->search . '%')
+    				->orWhere('keywords', 'LIKE', '%' . $request->search . '%')
+    				->orWhere('overview', 'LIKE', '%' . $request->search . '%')
+    				->orWhereYear('created_at', $request->search)
+    				->orWhereMonth('created_at', $request->search)
+    				->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->paginate('10');
+    				foreach ($proposals as $proposal)
+    					$proposal->edit = false;
+    			}
+    		} 
+    		return response()->json(['proposals' => $proposals]);
+    	} else if ($request->data == 'validate') {
+    		$existing = Title::where('title', $request->title)->count();
+    		if ($existing > 0) {
+    			return response()->json(['status' => 'error']);
+    		} else {
+    			$words = explode(' ' , strtolower($request->title));
+    			$proposals = Title::all();
+    			foreach ($proposals as $proposal) {
+    				$difference = count(array_diff($words, explode(' ', preg_replace("/[^A-Za-z0-9' -]/", '', strtolower($proposal->title)))));
+    				if ($difference == 0)
+    					return response()->json(['status' => 'error']);
+    			}
+    			return response()->json(['status' => 'validated']);
+    		}
+    	}
     }
 
     /**
@@ -150,66 +150,66 @@ class TitlesController extends Controller
      */
     public function store(Request $request)
     {
-        if (Auth::user()->type == 'ADMIN') {
-            $proposal = new Title;
+    	if (Auth::user()->type == 'ADMIN') {
+    		$proposal = new Title;
 
-            $proposal->title = strip_tags($request->title);
-            $proposal->area = strip_tags($request->area);
-            $proposal->program = strip_tags($request->program);
-            $proposal->overview = strip_tags($request->overview);
-            $proposal->keywords = strip_tags($request->keywords);
-            $proposal->created_at = strip_tags($request->created_at);
-            $proposal->adviser_id = strip_tags($request->adviser_id);
-            $proposal->status = strip_tags($request->status);
+    		$proposal->title = strip_tags($request->title);
+    		$proposal->area = strip_tags($request->area);
+    		$proposal->program = strip_tags($request->program);
+    		$proposal->overview = strip_tags($request->overview);
+    		$proposal->keywords = strip_tags($request->keywords);
+    		$proposal->created_at = strip_tags($request->created_at);
+    		$proposal->adviser_id = strip_tags($request->adviser_id);
+    		$proposal->status = strip_tags($request->status);
 
-            if (Carbon::parse($proposal->created_at)->year >= 2020) {
-                $proposal->registration_id = Carbon::now('+8:00')->year . '-1-TP';
-                switch($request->program) {
-                    case 'BSCS':
-                    $proposal->registration_id .= 'CS';
-                    break;
+    		if (Carbon::parse($proposal->created_at)->year >= 2020) {
+    			$proposal->registration_id = Carbon::now('+8:00')->year . '-1-TP';
+    			switch($request->program) {
+    				case 'BSCS':
+    				$proposal->registration_id .= 'CS';
+    				break;
 
-                    case 'BSIT':
-                    $proposal->registration_id .= 'IT';
-                    break;
+    				case 'BSIT':
+    				$proposal->registration_id .= 'IT';
+    				break;
 
-                    case 'BSEMCDA':
-                    $proposal->registration_id .= 'DA';
-                    break;
+    				case 'BSEMCDA':
+    				$proposal->registration_id .= 'DA';
+    				break;
 
-                    case 'BSEMCGD':
-                    $proposal->registration_id .= 'GD';
-                    break;
+    				case 'BSEMCGD':
+    				$proposal->registration_id .= 'GD';
+    				break;
 
-                    case 'BSIS':
-                    $proposal->registration_id .= 'IS';
-                    break;
-                }
+    				case 'BSIS':
+    				$proposal->registration_id .= 'IS';
+    				break;
+    			}
 
-                $latest = Title::where('program', $proposal->program)->whereYear('created_at', Carbon::now('+8:00')->year)->orderBy('id', 'desc')->first();
-                $id = $latest ==  null ? 1: substr($latest->registration_id, -1) + 1;
-                $proposal->registration_id .= '-' . $id;
+    			$latest = Title::where('program', $proposal->program)->whereYear('created_at', Carbon::now('+8:00')->year)->orderBy('id', 'desc')->first();
+    			$id = $latest ==  null ? 1: explode('-', $latest->registration_id)[3] + 1;
+    			$proposal->registration_id .= '-' . $id;
 
-                if ($request->file !== 'undefined') {
-                    $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
-                    $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
-                }
-            }
+    			if ($request->file !== 'undefined') {
+    				$proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
+    				$request->file->move(storage_path('app/public/uploads'), $proposal->filename);
+    			}
+    		}
 
-            $proposal->updated_at = Carbon::now('+8:00');
-            $proposal->save();
+    		$proposal->updated_at = Carbon::now('+8:00');
+    		$proposal->save();
 
-            $request->numbers = explode(',', $request->numbers);
-            $students = User::whereIn('student_number', $request->numbers)->get();
-            $student_numbers = [];
-            foreach ($students as $student)
-                array_push($student_numbers, $student->id);
-            $proposal->users()->sync($student_numbers);
+    		$request->numbers = explode(',', $request->numbers);
+    		$students = User::whereIn('student_number', $request->numbers)->get();
+    		$student_numbers = [];
+    		foreach ($students as $student)
+    			array_push($student_numbers, $student->id);
+    		$proposal->users()->sync($student_numbers);
 
-            Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' added a new proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
+    		Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' added a new proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
 
-            return response()->json(['msg' => 'Thesis Title Proposal Added']);
-        }
+    		return response()->json(['msg' => 'Thesis Title Proposal Added']);
+    	}
     }
 
     /**
@@ -220,19 +220,19 @@ class TitlesController extends Controller
      */
     public function show(Request $request, $id)
     {
-        if ($request->data == 'view') {
-            $owner = Title::find($id)->users()->where('id', Auth::id())->count();
-            $adviser = Title::where('adviser_id', Auth::id())->find($id);
-            if (Auth::user()->type == 'ADMIN') {
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'adviser_id', 'filename', 'created_at', 'status')->find($id);
-            } else if ($owner > 0 || $adviser) {
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'filename', 'created_at', 'status')->find($id);
-            } else {
-                $proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'created_at', 'status')->find($id);
-            }
-            return response()->json(['proposal' => $proposal]);
-        }
-        return Title::select('title')->find($id);
+    	if ($request->data == 'view') {
+    		$owner = Title::find($id)->users()->where('id', Auth::id())->count();
+    		$adviser = Title::where('adviser_id', Auth::id())->find($id);
+    		if (Auth::user()->type == 'ADMIN') {
+    			$proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'adviser_id', 'filename', 'created_at', 'status')->find($id);
+    		} else if ($owner > 0 || $adviser) {
+    			$proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'filename', 'created_at', 'status')->find($id);
+    		} else {
+    			$proposal = Title::select('id', 'title', 'area', 'program', 'keywords', 'overview', 'created_at', 'status')->find($id);
+    		}
+    		return response()->json(['proposal' => $proposal]);
+    	}
+    	return Title::select('title')->find($id);
     }
 
     /**
@@ -243,11 +243,11 @@ class TitlesController extends Controller
      */
     public function edit($id)
     {
-        if (Auth::user()->type == 'ADMIN') {
-            $proposal = Title::find($id);
-            $advisers = User::select('id', 'name')->where('type', 'ADVISER')->get();
-            return response()->json(['proposal' => $proposal, 'advisers' => $advisers]);
-        }
+    	if (Auth::user()->type == 'ADMIN') {
+    		$proposal = Title::find($id);
+    		$advisers = User::select('id', 'name')->where('type', 'ADVISER')->get();
+    		return response()->json(['proposal' => $proposal, 'advisers' => $advisers]);
+    	}
     }
 
     /**
@@ -259,30 +259,30 @@ class TitlesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (Auth::user()->type == 'ADMIN') {
-            $proposal = Title::find($id);
+    	if (Auth::user()->type == 'ADMIN') {
+    		$proposal = Title::find($id);
 
-            $proposal->title = strip_tags($request->title);
-            $proposal->area = strip_tags($request->area);
-            $proposal->program = strip_tags($request->program);
-            $proposal->overview = strip_tags($request->overview);
-            $proposal->keywords = strip_tags($request->keywords);
-            $proposal->created_at = strip_tags($request->created_at);
-            $proposal->adviser_id = strip_tags($request->adviser_id);
-            $proposal->status = strip_tags($request->status);
-            $proposal->updated_at = Carbon::now('+8:00');
+    		$proposal->title = strip_tags($request->title);
+    		$proposal->area = strip_tags($request->area);
+    		$proposal->program = strip_tags($request->program);
+    		$proposal->overview = strip_tags($request->overview);
+    		$proposal->keywords = strip_tags($request->keywords);
+    		$proposal->created_at = strip_tags($request->created_at);
+    		$proposal->adviser_id = strip_tags($request->adviser_id);
+    		$proposal->status = strip_tags($request->status);
+    		$proposal->updated_at = Carbon::now('+8:00');
 
-            if ($request->file !== 'undefined') {
-                Storage::disk('public')->delete('uploads/' . $proposal->filename);
-                $proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
-                $request->file->move(storage_path('app/public/uploads'), $proposal->filename);
-            }
+    		if ($request->file !== 'undefined') {
+    			Storage::disk('public')->delete('uploads/' . $proposal->filename);
+    			$proposal->filename = $proposal->registration_id . '.' . $request->file->getClientOriginalExtension();
+    			$request->file->move(storage_path('app/public/uploads'), $proposal->filename);
+    		}
 
-            $proposal->save();
-            Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
+    		$proposal->save();
+    		Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' updated a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
 
-            return response()->json(['msg' => $proposal->title . ' has been updated']);
-        }
+    		return response()->json(['msg' => $proposal->title . ' has been updated']);
+    	}
     }
 
     /**
@@ -293,19 +293,19 @@ class TitlesController extends Controller
      */
     public function destroy($id)
     {
-        if (Auth::user()->type == 'ADMIN') {
-            $proposal = Title::find($id);
+    	if (Auth::user()->type == 'ADMIN') {
+    		$proposal = Title::find($id);
 
-            Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' deleted a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
-            Storage::disk('public')->delete('uploads/' . $proposal->filename);
-            $proposal->delete();
+    		Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' deleted a proposal: ' . $proposal->title . '.', 'created_at' => Carbon::now('+8:00')]);
+    		Storage::disk('public')->delete('uploads/' . $proposal->filename);
+    		$proposal->delete();
 
-            return response()->json(['status' => 'success']);
-        }
+    		return response()->json(['status' => 'success']);
+    	}
     }
 
     public function download($id) {
-        $proposal = Title::find($id);
-        return Storage::disk('public')->download('uploads/' . $proposal->filename);
+    	$proposal = Title::find($id);
+    	return Storage::disk('public')->download('uploads/' . $proposal->filename);
     }
-}
+  }
