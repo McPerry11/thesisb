@@ -625,6 +625,9 @@ $(function() {
 		$('#program option[value=""]').remove();
 		$('#status option[value=""]').remove();
 		$('#adviser').empty();
+		$('.modal input').val('');
+		document.getElementById('keywords').BulmaTagsInput().flush();
+		$('.file-cta').css('width', 'fit-content');
 		$('#file input').val('');
 		$('.file-name').text('Upload new file');
 		updateId = $(this).data('id');
