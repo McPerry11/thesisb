@@ -639,14 +639,14 @@ $(function() {
 				event = '';
 				let advisers = '', date = new Date(data.proposal.created_at);
 				for (i in data.advisers)
-					advisers += '<option value="' + data.advisers[i].id + '">' + data.advisers[i].name + '</option>'
+					advisers += '<option value="' + data.advisers[i].id + '">' + data.advisers[i].name + '</option>';
 				$('#program').val(data.proposal.program);
 				$('#status').val(data.proposal.status);
 				$('#title').val(data.proposal.title);
 				$('#area').val(data.proposal.area);
 				$('#adviser').append(advisers).val(data.proposal.adviser_id);
 				$('#overview').val(data.proposal.overview);
-				date = date.getFullYear() + '-' + ((date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + '-' + date.getDate();
+				date = date.getFullYear() + '-' + ((date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + '-' + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
 				$('#date').val(date);
 				if (data.proposal.keywords) document.getElementById('keywords').BulmaTagsInput().add(data.proposal.keywords);
 				$('#edit .modal-card-title').text('Edit Proposal');
