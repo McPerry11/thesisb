@@ -29,5 +29,5 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('js/login.js') }}"></script>
+<script id="loginjs" data-link="{{ route('dashboard') }}" src="{{ asset('js/login.js') }}"></script>
 @endsection

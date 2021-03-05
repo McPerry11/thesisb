@@ -32,8 +32,7 @@ $(function() {
 						}).then(function() {
 							$('.pageloader .title').text('Loading Dashboard');
 							$('.pageloader').addClass('is-active');
-							// window.location.href = '/thesisb/public';
-							window.location.href = '/thesisarchiving';
+							window.location.href = $('#loginjs').data('link');
 						});
 					} else {
 						Swal.fire({

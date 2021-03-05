@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Imports\UsersImport;
+use App\Exports\UsersExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use App\User;
@@ -164,5 +165,9 @@ class UsersController extends Controller
         Log::create(['user_id' => Auth::id(), 'description' => Auth::user()->name . ' imported an excel file.']);
 
         return response()->json(['status' => 'success', 'msg' => 'Data Uploaded Successfully']);
+    }
+
+    public function export() {
+        return Excel::download(new UsersExport, 'ThesisArchiving - Users.xlsx');
     }
 }

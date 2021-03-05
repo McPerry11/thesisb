@@ -8,6 +8,8 @@ use App\Title;
 use App\Log;
 use Carbon\Carbon;
 use Auth;
+use App\Exports\TitlesExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 
 class TitlesController extends Controller
@@ -308,4 +310,8 @@ class TitlesController extends Controller
     	$proposal = Title::find($id);
     	return Storage::disk('public')->download('uploads/' . $proposal->filename);
     }
-  }
+
+    public function export() {
+        return Excel::download(new TitlesExport, 'ThesisArchiving - Titles.xlsx');
+    }
+}

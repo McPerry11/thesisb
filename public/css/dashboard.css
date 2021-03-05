@@ -37,8 +37,8 @@
 }
 
 #stud_table th:nth-child(3) {
-	min-width: 120px;
-	width: 120px;
+	min-width: 125px;
+	width: 125px;
 }
 
 #rnd_details figure {
