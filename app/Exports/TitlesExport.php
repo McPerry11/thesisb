@@ -5,8 +5,9 @@ namespace App\Exports;
 use App\Title;
 use App\User;
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class TitlesExport implements FromArray
+class TitlesExport implements FromArray, ShouldAutoSize
 {
   /**
   * @return \Illuminate\Support\Collection
